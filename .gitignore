@@ -882,3 +882,4 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,eclipse,maven,windows,macos,linux,python,java,c++,c,gradle,visualstudio,visualstudiocode,react
+/INF273_MetaHeuristicProject.iml
