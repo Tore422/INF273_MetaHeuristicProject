@@ -9,7 +9,9 @@ public class NodeTimesAndCosts {
     private int destinationNodeTime;
     private int destinationNodeCosts;
 
-    public NodeTimesAndCosts(int vehicleIndex, Call call, int originNodeTime, int originNodeCosts, int destinationNodeTime, int destinationNodeCosts) {
+    public NodeTimesAndCosts(int vehicleIndex, Call call, int originNodeTime,
+                             int originNodeCosts, int destinationNodeTime,
+                             int destinationNodeCosts) {
         this.vehicleIndex = vehicleIndex;
         this.call = call;
         this.originNodeTime = originNodeTime;
