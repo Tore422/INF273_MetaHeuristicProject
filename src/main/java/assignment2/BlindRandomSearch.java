@@ -14,7 +14,7 @@ public class BlindRandomSearch {
         IVectorSolutionRepresentation<Integer> bestSolution = solution;
         int numberOfIterations = 10000;
         for (int i = 0; i < numberOfIterations; i++) {
-            System.out.println("iteration number:" + i);
+        //    System.out.println("iteration number:" + i);
             IVectorSolutionRepresentation<Integer> currentSolution = createRandomSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && PickupAndDelivery.calculateCost(currentSolution)
@@ -26,34 +26,47 @@ public class BlindRandomSearch {
     }
 
     private IVectorSolutionRepresentation<Integer> createRandomSolution(IVectorSolutionRepresentation<Integer> exampleSolution) {
-      /*  List<Integer> randomSolutionCandidate = new ArrayList<>(exampleSolution.solutionSize());
+        List<Integer> randomSolutionCandidate = new ArrayList<>(exampleSolution.solutionSize());
         List<Integer> elements = new ArrayList<>(exampleSolution.getSolutionRepresentation());
         Collections.shuffle(elements);
-        List<Integer> copyOfElements = new ArrayList<>();*/
-        IVectorSolutionRepresentation<Integer> randomSolutionCandidate =
-                new VectorSolutionRepresentation<>(exampleSolution.getSolutionRepresentation());
-        Collections.shuffle(exampleSolution.getSolutionRepresentation());
+        createRandomSolutionCandidate(randomSolutionCandidate, elements);
+        makeSolutionCandidateValid(randomSolutionCandidate, elements);
+        return new VectorSolutionRepresentation<>(randomSolutionCandidate);
+    }
 
-        int solutionSize = exampleSolution.solutionSize();
-        do {
-            int randomIndexA = (int) (solutionSize * Math.random());
-            int randomIndexB = (int) (solutionSize * Math.random());
-            exampleSolution.swapElements(randomIndexA, randomIndexB);
-        } while (!isValidSolution(exampleSolution.getSolutionRepresentation()));
-        return exampleSolution;
+    private void makeSolutionCandidateValid(List<Integer> randomSolutionCandidate, List<Integer> elements) {
+        List<Integer> unfinishedCalls = getUnfinishedCallsFromSolutionCandidate(randomSolutionCandidate, elements);
+        elements.addAll(unfinishedCalls);
+        randomSolutionCandidate.removeAll(elements); // First remove illegal calls from the solution,
+        randomSolutionCandidate.addAll(elements); // then add them as outsourced calls.
+    }
 
-            /*
-            randomSolutionCandidate.clear();
-            copyOfElements.addAll(elements);
-            while (!copyOfElements.isEmpty()) {
-                int randomIndexNumber = (int) (copyOfElements.size() * Math.random());
-                Integer element = copyOfElements.get(randomIndexNumber);
-                randomSolutionCandidate.add(element);
-                copyOfElements.remove(randomIndexNumber);
+    private void createRandomSolutionCandidate(List<Integer> randomSolutionCandidate, List<Integer> elements) {
+        while (!elements.isEmpty()) {
+            int randomIndexNumber = (int) (elements.size() * Math.random());
+            Integer element = elements.get(randomIndexNumber);
+            randomSolutionCandidate.add(element);
+            elements.remove(randomIndexNumber);
+        }
+    }
+
+    private List<Integer> getUnfinishedCallsFromSolutionCandidate(List<Integer> randomSolutionCandidate, List<Integer> elements) {
+        List<Integer> unfinishedCalls = new ArrayList<>(randomSolutionCandidate.size());
+        for (Integer element : randomSolutionCandidate) {
+            if (element == 0) {
+                if (!unfinishedCalls.isEmpty()) {
+                    elements.addAll(unfinishedCalls);
+                    unfinishedCalls.clear();
+                }
+            } else {
+                if (unfinishedCalls.contains(element)) {
+                    unfinishedCalls.remove(element);
+                } else {
+                    unfinishedCalls.add(element);
+                }
             }
         }
-        return new VectorSolutionRepresentation<>(randomSolutionCandidate);*/
-       // return randomSolutionCandidate;
+        return unfinishedCalls;
     }
 
     private boolean isValidSolution(List<Integer> randomSolutionCandidate) {

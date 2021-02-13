@@ -14,11 +14,39 @@ public class PickupAndDelivery {
 
 
     public static void main(String[] args) {
+        /*int totalCost = 0;
+        long totalTime = 0L;
+        List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
+        final int NUMBER_OF_ITERATIONS = 10;
+        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {*/
             Long timerStart = System.currentTimeMillis();
             start();
             Long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("(timerStop - timerStart) = " + result);
+           /* solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
+            totalCost += calculateCost(solutionRepresentation);
+            totalTime += result;
+        }
+       System.out.println("totalCost = " + totalCost);
+        System.out.println("totalTime = " + totalTime);
+        totalCost = totalCost / NUMBER_OF_ITERATIONS;
+        totalTime = totalTime / NUMBER_OF_ITERATIONS;
+        System.out.println("totalCost avg = " + totalCost);
+        System.out.println("totalTime avg = " + totalTime);
+        System.out.println("solutions = " + solutions);
+        int worstCost = calculateCost(createWorstSolution());
+        System.out.println("worstCost = " + worstCost);
+        int bestCost = worstCost;
+        for (IVectorSolutionRepresentation<Integer> solution : solutions) {
+            int cost = calculateCost(solution);
+            if (cost < bestCost) {
+                bestCost = cost;
+            }
+        }
+        System.out.println("bestCost = " + bestCost);
+        double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
+        System.out.println("improvementInPercent = " + improvementInPercent);*/
     }
 
     private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
@@ -161,7 +189,7 @@ public class PickupAndDelivery {
     private static void calculateSolution() {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
-    //    System.out.println(calculateCost(solutionRepresentation));
+        System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
         BlindRandomSearch blindRandomSearch = new BlindRandomSearch();
         solutionRepresentation = blindRandomSearch.blindRandomSearch(solutionRepresentation);
