@@ -20,4 +20,6 @@ public interface IVectorSolutionRepresentation<T> extends ISolutionRepresentatio
      */
     int solutionSize();
 
+    void swapElements(int indexForElementA, int indexForElementB);
+
 }
