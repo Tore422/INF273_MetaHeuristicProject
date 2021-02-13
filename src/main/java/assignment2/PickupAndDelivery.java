@@ -14,7 +14,11 @@ public class PickupAndDelivery {
 
 
     public static void main(String[] args) {
-        start();
+            Long timerStart = System.currentTimeMillis();
+            start();
+            Long timerStop = System.currentTimeMillis();
+            long result = (timerStop - timerStart);
+            System.out.println("(timerStop - timerStart) = " + result);
     }
 
     private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
@@ -25,10 +29,9 @@ public class PickupAndDelivery {
         String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
         String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
         String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-        processLines(getFileContents(pathToFile1));
+        processLines(getFileContents(pathToFile5));
         int solutionSize = (2 * numberOfNodes) + numberOfVehicles;
         solutionRepresentation = new VectorSolutionRepresentation<>(solutionSize);
-        System.out.println("calculating solution");
         calculateSolution();
     }
 
@@ -158,16 +161,18 @@ public class PickupAndDelivery {
     private static void calculateSolution() {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
-        System.out.println(calculateCost(solutionRepresentation));
+    //    System.out.println(calculateCost(solutionRepresentation));
 
         BlindRandomSearch blindRandomSearch = new BlindRandomSearch();
         solutionRepresentation = blindRandomSearch.blindRandomSearch(solutionRepresentation);
         System.out.println("solutionRepresentation = " + solutionRepresentation);
+        System.out.println(feasible(solutionRepresentation));
         System.out.println(calculateCost(solutionRepresentation));
 
 
+
         // [7, 7, 5, 5, 0, 0, 0, 6, 6] = 901763
-    //    List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
+  //      List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
     //    IVectorSolutionRepresentation<Integer> sol2 = new VectorSolutionRepresentation<>(values);
    //     System.out.println(calculateCost(sol2));
 
@@ -190,16 +195,16 @@ public class PickupAndDelivery {
         // [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 0, 0, 0] = 953849 v false
         // [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 0, 0, 0] = 1164367 v false
         // [7, 7, 5, 5, 0, 2, 2, 0, 3, 4, 4, 3, 1, 1, 0, 6, 6] = 1439159 v false
-    //    values = Arrays.asList(1, 1, 0, 2, 2, 0, 3, 3, 0, 4, 4);
-    //    IVectorSolutionRepresentation<Integer> sol3 = new VectorSolutionRepresentation<>(values);
-    //    System.out.println(feasible(sol3));
-
-        //System.out.println(solutionRepresentation.toString());
+    /*    values = Arrays.asList(1, 7, 0, 1, 0, 6, 6, 0, 7, 3, 2, 5, 2, 4, 3, 4, 5);
+        IVectorSolutionRepresentation<Integer> sol3 = new VectorSolutionRepresentation<>(values);
+        System.out.println(feasible(sol3));
+        System.out.println(calculateCost(sol3));
+*/
     }
 
     /* Assumes that the given solution is valid */
     public static boolean feasible(IVectorSolutionRepresentation<Integer> solution) {
-        System.out.println("Calculating feasibility for solution " + solution.toString());
+      //  System.out.println("Calculating feasibility for solution " + solution.toString());
         int currentLoad = 0;
         int currentMaxLoad = vehicles.get(0).getCapacity();
         int currentTime = vehicles.get(0).getStartingTimeInHours();
@@ -229,7 +234,7 @@ public class PickupAndDelivery {
                     int lowerBoundTimeWindowForDelivery = calls.get(element - 1).getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = calls.get(element - 1).getUpperBoundTimeWindowForDelivery();
                     if (currentTime > upperBoundTimeWindowForDelivery) {
-                        System.out.println("Time window exceeded");
+                //        System.out.println("Time window exceeded");
                         return false;
                     }
                     if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
@@ -239,7 +244,7 @@ public class PickupAndDelivery {
                     unfinishedCalls.remove((Integer) calls.get(element - 1).getCallIndex()); // Call has been finished
                 } else {
                     if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
-                        System.out.println("Incompatible vessel and cargo");
+                //        System.out.println("Incompatible vessel and cargo");
                         return false;
                     }
                     destinationNode = calls.get(element - 1).getOriginNode();
@@ -247,7 +252,7 @@ public class PickupAndDelivery {
                     int lowerBoundTimeWindowForPickup = calls.get(element - 1).getLowerBoundTimeWindowForPickup();
                     int upperBoundTimeWindowForPickup = calls.get(element - 1).getUpperBoundTimeWindowForPickup();
                     if (currentTime > upperBoundTimeWindowForPickup) {
-                        System.out.println("Time window exceeded");
+                //        System.out.println("Time window exceeded");
                         return false;
                     }
                     if (currentTime < lowerBoundTimeWindowForPickup) { // If too early, wait for pickup
@@ -255,7 +260,7 @@ public class PickupAndDelivery {
                     }
                     currentLoad += calls.get(element - 1).getPackageSize();
                     if (currentLoad > currentMaxLoad) {
-                        System.out.println("Capacity exceeded");
+               //         System.out.println("Capacity exceeded");
                         return false;
                     }
                     unfinishedCalls.add(element);
@@ -263,7 +268,7 @@ public class PickupAndDelivery {
                 previousNode = destinationNode;
             }
         }
-        System.out.println("Feasible");
+       // System.out.println("Feasible");
         return true;
     }
 
@@ -292,7 +297,7 @@ public class PickupAndDelivery {
 
     /* Assumes that the given solution is valid */
     public static Integer calculateCost(IVectorSolutionRepresentation<Integer> solution) {
-        System.out.println("Calculating cost for solution " + solution.toString());
+      //  System.out.println("Calculating cost for solution " + solution.toString());
         int totalCost = 0;
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
