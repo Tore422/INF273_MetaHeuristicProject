@@ -12,9 +12,9 @@ public class BlindRandomSearch {
 
     public IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> solution) {
         IVectorSolutionRepresentation<Integer> bestSolution = solution;
-        int solutionSize = solution.solutionSize();
         int numberOfIterations = 10000;
         for (int i = 0; i < numberOfIterations; i++) {
+            System.out.println("iteration number:" + i);
             IVectorSolutionRepresentation<Integer> currentSolution = createRandomSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && PickupAndDelivery.calculateCost(currentSolution)
@@ -26,42 +26,54 @@ public class BlindRandomSearch {
     }
 
     private IVectorSolutionRepresentation<Integer> createRandomSolution(IVectorSolutionRepresentation<Integer> exampleSolution) {
-        IVectorSolutionRepresentation<Integer> randomSolution =
-                new VectorSolutionRepresentation<>(exampleSolution.solutionSize());
+      /*  List<Integer> randomSolutionCandidate = new ArrayList<>(exampleSolution.solutionSize());
         List<Integer> elements = new ArrayList<>(exampleSolution.getSolutionRepresentation());
         Collections.shuffle(elements);
-        int startOfCurrentVehicleIndex = 0;
-        int currentIndex = 0;
-        List<Integer> vehicleCalls = new ArrayList<>();
-        while (!elements.isEmpty()) {
-            int randomIndexNumber = (int) (elements.size() * Math.random());
-            Integer element = elements.get(randomIndexNumber);
-            if (element == 0) {
-                for (int i = startOfCurrentVehicleIndex; i < currentIndex; i++) {
-                    Integer call = randomSolution.getSolutionRepresentation().get(i);
-                    if (call == 0) {
-                        continue;
-                    } else if (!vehicleCalls.contains(call)) {
-                        vehicleCalls.add(call);
-                    } else {
-                        vehicleCalls.remove((Integer) call);
-                    }
-                }
-                if (vehicleCalls.isEmpty()) {
-                    randomSolution.getSolutionRepresentation().add(element);
-                    elements.remove(randomIndexNumber);
-                    startOfCurrentVehicleIndex = currentIndex++;
-                } else {
-                    vehicleCalls.clear();
-                }
-            } else {
-                randomSolution.getSolutionRepresentation().add(element);
-                elements.remove(randomIndexNumber);
-                currentIndex++;
+        List<Integer> copyOfElements = new ArrayList<>();*/
+        IVectorSolutionRepresentation<Integer> randomSolutionCandidate =
+                new VectorSolutionRepresentation<>(exampleSolution.getSolutionRepresentation());
+        Collections.shuffle(exampleSolution.getSolutionRepresentation());
+
+        int solutionSize = exampleSolution.solutionSize();
+        do {
+            int randomIndexA = (int) (solutionSize * Math.random());
+            int randomIndexB = (int) (solutionSize * Math.random());
+            exampleSolution.swapElements(randomIndexA, randomIndexB);
+        } while (!isValidSolution(exampleSolution.getSolutionRepresentation()));
+        return exampleSolution;
+
+            /*
+            randomSolutionCandidate.clear();
+            copyOfElements.addAll(elements);
+            while (!copyOfElements.isEmpty()) {
+                int randomIndexNumber = (int) (copyOfElements.size() * Math.random());
+                Integer element = copyOfElements.get(randomIndexNumber);
+                randomSolutionCandidate.add(element);
+                copyOfElements.remove(randomIndexNumber);
             }
         }
-        return randomSolution;
+        return new VectorSolutionRepresentation<>(randomSolutionCandidate);*/
+       // return randomSolutionCandidate;
     }
 
-
+    private boolean isValidSolution(List<Integer> randomSolutionCandidate) {
+        if (randomSolutionCandidate.isEmpty()) {
+            return false; // Empty is not a valid solution...
+        }
+        List<Integer> vehicleCalls = new ArrayList<>();
+        for (Integer element : randomSolutionCandidate) {
+            if (element == 0) {
+                if (!vehicleCalls.isEmpty()) {
+                    return false; // No vehicle should start a call without finishing it.
+                }
+            } else {
+                if (vehicleCalls.contains(element)) {
+                    vehicleCalls.remove(element);
+                } else {
+                    vehicleCalls.add(element);
+                }
+            }
+        }
+        return true;
+    }
 }
