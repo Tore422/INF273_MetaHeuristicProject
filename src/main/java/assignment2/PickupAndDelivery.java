@@ -191,8 +191,7 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-        BlindRandomSearch blindRandomSearch = new BlindRandomSearch();
-        solutionRepresentation = blindRandomSearch.blindRandomSearch(solutionRepresentation);
+        solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
         System.out.println(calculateCost(solutionRepresentation));
@@ -418,7 +417,7 @@ public class PickupAndDelivery {
         return worstSolution;
     }
 
-    public boolean isValidSolution(IVectorSolutionRepresentation<Integer> solution) {
+    public static boolean isValidSolution(IVectorSolutionRepresentation<Integer> solution) {
         List<Integer> solutionRepresentation = solution.getSolutionRepresentation();
         if (solutionRepresentation.isEmpty()) {
             return false; // Empty is not a valid solution...
