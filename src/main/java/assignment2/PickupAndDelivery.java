@@ -417,4 +417,26 @@ public class PickupAndDelivery {
         }
         return worstSolution;
     }
+
+    public boolean isValidSolution(IVectorSolutionRepresentation<Integer> solution) {
+        List<Integer> solutionRepresentation = solution.getSolutionRepresentation();
+        if (solutionRepresentation.isEmpty()) {
+            return false; // Empty is not a valid solution...
+        }
+        List<Integer> vehicleCalls = new ArrayList<>();
+        for (Integer element : solutionRepresentation) {
+            if (element == 0) {
+                if (!vehicleCalls.isEmpty()) {
+                    return false; // No vehicle should start a call without finishing it.
+                }
+            } else {
+                if (vehicleCalls.contains(element)) {
+                    vehicleCalls.remove(element);
+                } else {
+                    vehicleCalls.add(element);
+                }
+            }
+        }
+        return true;
+    }
 }

@@ -12,8 +12,8 @@ public class BlindRandomSearch {
 
     public IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> solution) {
         IVectorSolutionRepresentation<Integer> bestSolution = solution;
-        int numberOfIterations = 10000;
-        for (int i = 0; i < numberOfIterations; i++) {
+        final int NUMBER_OF_ITERATIONS = 10000;
+        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
         //    System.out.println("iteration number:" + i);
             IVectorSolutionRepresentation<Integer> currentSolution = createRandomSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
@@ -67,26 +67,5 @@ public class BlindRandomSearch {
             }
         }
         return unfinishedCalls;
-    }
-
-    private boolean isValidSolution(List<Integer> randomSolutionCandidate) {
-        if (randomSolutionCandidate.isEmpty()) {
-            return false; // Empty is not a valid solution...
-        }
-        List<Integer> vehicleCalls = new ArrayList<>();
-        for (Integer element : randomSolutionCandidate) {
-            if (element == 0) {
-                if (!vehicleCalls.isEmpty()) {
-                    return false; // No vehicle should start a call without finishing it.
-                }
-            } else {
-                if (vehicleCalls.contains(element)) {
-                    vehicleCalls.remove(element);
-                } else {
-                    vehicleCalls.add(element);
-                }
-            }
-        }
-        return true;
     }
 }
