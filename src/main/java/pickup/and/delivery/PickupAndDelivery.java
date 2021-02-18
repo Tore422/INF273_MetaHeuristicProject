@@ -1,6 +1,6 @@
 package pickup.and.delivery;
 
-import pickup.and.delivery.algorithms.BlindRandomSearch;
+import pickup.and.delivery.algorithms.LocalSearch;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
@@ -15,8 +15,8 @@ public class PickupAndDelivery {
 
 
     public static void main(String[] args) {
-        //start();
-        runForNumberOfIterations(10);
+        start();
+        // runForNumberOfIterations(10);
     }
 
     private static void runForNumberOfIterations(int numberOfIterations) {
@@ -204,7 +204,13 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-        solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+       // System.out.println("BlindRandomSearch");
+      //  solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+        System.out.println("\nLocal search");
+        solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+      //  System.out.println("\nSimulated annealing search");
+      //  solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
         System.out.println(calculateCost(solutionRepresentation));

@@ -11,8 +11,8 @@ import java.util.List;
 public class BlindRandomSearch {
 
 
-    public static IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> solution) {
-        IVectorSolutionRepresentation<Integer> bestSolution = solution;
+    public static IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
+        IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         final int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
          //   System.out.println("iteration number:" + i);
