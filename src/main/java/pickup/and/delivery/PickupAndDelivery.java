@@ -1,9 +1,9 @@
-package assignment2;
+package pickup.and.delivery;
 
-import assignment2.entities.Call;
-import assignment2.entities.Journey;
-import assignment2.entities.NodeTimesAndCosts;
-import assignment2.entities.Vehicle;
+import pickup.and.delivery.entities.Call;
+import pickup.and.delivery.entities.Journey;
+import pickup.and.delivery.entities.NodeTimesAndCosts;
+import pickup.and.delivery.entities.Vehicle;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -14,24 +14,28 @@ public class PickupAndDelivery {
 
 
     public static void main(String[] args) {
-        /*int totalCost = 0;
+        //start();
+        runForNumberOfIterations(10);
+    }
+
+    private static void runForNumberOfIterations(int numberOfIterations) {
+        int totalCost = 0;
         long totalTime = 0L;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
-        final int NUMBER_OF_ITERATIONS = 10;
-        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {*/
+        for (int i = 0; i < numberOfIterations; i++) {
             Long timerStart = System.currentTimeMillis();
             start();
             Long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("(timerStop - timerStart) = " + result);
-           /* solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
+            solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
             totalCost += calculateCost(solutionRepresentation);
             totalTime += result;
         }
-       System.out.println("totalCost = " + totalCost);
+        System.out.println("totalCost = " + totalCost);
         System.out.println("totalTime = " + totalTime);
-        totalCost = totalCost / NUMBER_OF_ITERATIONS;
-        totalTime = totalTime / NUMBER_OF_ITERATIONS;
+        totalCost = totalCost / numberOfIterations;
+        totalTime = totalTime / numberOfIterations;
         System.out.println("totalCost avg = " + totalCost);
         System.out.println("totalTime avg = " + totalTime);
         System.out.println("solutions = " + solutions);
@@ -46,7 +50,7 @@ public class PickupAndDelivery {
         }
         System.out.println("bestCost = " + bestCost);
         double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
-        System.out.println("improvementInPercent = " + improvementInPercent);*/
+        System.out.println("improvementInPercent = " + improvementInPercent);
     }
 
     private static IVectorSolutionRepresentation<Integer> solutionRepresentation;

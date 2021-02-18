@@ -1,4 +1,4 @@
-package assignment2.entities;
+package pickup.and.delivery.entities;
 
 public class Call {
     /**

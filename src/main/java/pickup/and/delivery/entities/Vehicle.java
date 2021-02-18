@@ -1,4 +1,4 @@
-package assignment2.entities;
+package pickup.and.delivery.entities;
 
 import java.util.ArrayList;
 import java.util.List;

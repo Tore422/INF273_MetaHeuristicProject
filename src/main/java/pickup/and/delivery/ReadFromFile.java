@@ -1,4 +1,4 @@
-package assignment2;
+package pickup.and.delivery;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
