@@ -3,11 +3,13 @@ package solution.representations;
 public interface ISolutionRepresentation {
 
     /**
-     * Checks if the contained solution is valid?
+     * Checks if the contained solution is valid.
      *
-     * @return true if valid, false otherwise
+     * @param validationMethod The name of the validation method to use.
+     * @return true if valid according to selected validation method,
+     * false otherwise
      */
-    boolean validate();
+    boolean validate(String validationMethod);
 
     /**
      * Shuffles the contents of the representation

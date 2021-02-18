@@ -18,8 +18,22 @@ public interface IVectorSolutionRepresentation<T> extends ISolutionRepresentatio
      *
      * @return The size of the solution representation.
      */
-    int solutionSize();
+    int getSolutionSize();
 
+    /**
+     * Swap the position of two elements in the solution representation.
+     *
+     * @param indexForElementA
+     * @param indexForElementB
+     */
     void swapElements(int indexForElementA, int indexForElementB);
 
+    /**
+     * Swap the position of three elements in the solution representation.<br>
+     * Swaps elements so that the solution goes from [A, B, C] to [C, A, B].
+     * @param indexForElementA
+     * @param indexForElementB
+     * @param indexForElementC
+     */
+    void swapThreeElements(int indexForElementA, int indexForElementB, int indexForElementC);
 }
