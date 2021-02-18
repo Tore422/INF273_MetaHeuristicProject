@@ -1,5 +1,6 @@
 package pickup.and.delivery;
 
+import pickup.and.delivery.algorithms.BlindRandomSearch;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;

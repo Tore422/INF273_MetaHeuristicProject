@@ -1,5 +1,6 @@
-package pickup.and.delivery;
+package pickup.and.delivery.algorithms;
 
+import pickup.and.delivery.PickupAndDelivery;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
