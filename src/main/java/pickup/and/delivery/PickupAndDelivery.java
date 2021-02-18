@@ -21,6 +21,7 @@ public class PickupAndDelivery {
     private static void runForNumberOfIterations(int numberOfIterations) {
         int totalCost = 0;
         long totalTime = 0L;
+        IVectorSolutionRepresentation<Integer> bestSolution = null;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             Long timerStart = System.currentTimeMillis();
@@ -31,7 +32,13 @@ public class PickupAndDelivery {
             solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
             totalCost += calculateCost(solutionRepresentation);
             totalTime += result;
+            if (bestSolution == null || calculateCost(solutionRepresentation) < calculateCost(bestSolution)) {
+                bestSolution = new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation());
+            }
         }
+        System.out.println();
+        System.out.println("SUMMARY");
+        System.out.println("------------------------");
         System.out.println("totalCost = " + totalCost);
         System.out.println("totalTime = " + totalTime);
         totalCost = totalCost / numberOfIterations;
@@ -49,6 +56,7 @@ public class PickupAndDelivery {
             }
         }
         System.out.println("bestCost = " + bestCost);
+        System.out.println("bestSolution = " + bestSolution);
         double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
         System.out.println("improvementInPercent = " + improvementInPercent);
     }
@@ -61,7 +69,7 @@ public class PickupAndDelivery {
         String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
         String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
         String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-        processLines(getFileContents(pathToFile5));
+        processLines(getFileContents(pathToFile1));
         int solutionSize = (2 * numberOfNodes) + numberOfVehicles;
         solutionRepresentation = new VectorSolutionRepresentation<>(solutionSize);
         calculateSolution();
