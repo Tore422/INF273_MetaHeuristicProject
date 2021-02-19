@@ -30,7 +30,7 @@ public class BlindRandomSearch {
      * Create a valid, random solution representation based on
      * a given example solution.
      *
-     * @param exampleSolution
+     * @param exampleSolution The solution to create a permutation from.
      * @return A valid permutation of the given solution.
      */
     public static IVectorSolutionRepresentation<Integer> createRandomSolution(IVectorSolutionRepresentation<Integer> exampleSolution) {

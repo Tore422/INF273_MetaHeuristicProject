@@ -17,7 +17,7 @@ public class SimulatedAnnealing {
         double temperature = initialTemperature;
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution = initialSolution;
-        IVectorSolutionRepresentation<Integer> newSolution = null;
+        IVectorSolutionRepresentation<Integer> newSolution;
         final int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             double operatorChoice = (Math.random());
