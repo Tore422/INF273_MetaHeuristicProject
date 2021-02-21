@@ -7,6 +7,7 @@ import solution.representations.vector.VectorSolutionRepresentation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class BlindRandomSearch {
 
@@ -68,10 +69,11 @@ public class BlindRandomSearch {
 
     private static void randomlyAddAllUnfinishedCalls(List<Integer> randomSolution, List<Integer> elements) {
         Collections.shuffle(elements);
+        Random random = new Random();
         while (!elements.isEmpty()) {
             Integer element = elements.get(elements.size() - 1);
             elements.remove(elements.size() - 1);
-            int randomIndexNumber = (int) (randomSolution.size() * Math.random());
+            int randomIndexNumber = random.nextInt(randomSolution.size());
             randomSolution.add(randomIndexNumber, element);
         }
     }
