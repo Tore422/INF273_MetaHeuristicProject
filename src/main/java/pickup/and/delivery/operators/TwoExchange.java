@@ -4,10 +4,149 @@ import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class TwoExchange {
+
+    public static void main(String[] args) {
+        List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
+        IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
+        List<Integer> solution = sol.getSolutionRepresentation();
+        System.out.println("initial solution = " + solution);
+        List<Integer> zeroes = getIndicesOfAllZeroes(sol.getSolutionRepresentation());
+        System.out.println("zeroes = " + zeroes);
+
+        int[] startAndStopIndexOfVehicleA = new int[2];
+        int[] startAndStopIndexOfVehicleB = new int[2];
+        findStartAndStopIndexOfVehicle(zeroes, 3, startAndStopIndexOfVehicleA);
+        findStartAndStopIndexOfVehicle(zeroes, 7, startAndStopIndexOfVehicleB);
+        if (startAndStopIndexOfVehicleA[1] == -1) {
+            startAndStopIndexOfVehicleA[1] = sol.getSolutionSize();
+        }
+        if (startAndStopIndexOfVehicleB[1] == -1) {
+            startAndStopIndexOfVehicleB[1] = sol.getSolutionSize();
+        }
+        System.out.println("startAndStopIndexOfVehicleA = " + Arrays.toString(startAndStopIndexOfVehicleA));
+        System.out.println("startAndStopIndexOfVehicleB = " + Arrays.toString(startAndStopIndexOfVehicleB));
+
+        int firstIndexOfCallA, secondIndexOfCallA;
+        int firstIndexOfCallB, secondIndexOfCallB;
+
+        firstIndexOfCallA = 3;
+        secondIndexOfCallA = findIndexOfSecondCallInVehicle(sol.getSolutionRepresentation(),
+                startAndStopIndexOfVehicleA[0], firstIndexOfCallA);
+        System.out.println("firstIndexOfCallA = " + firstIndexOfCallA);
+        System.out.println("secondIndexOfCallA = " + secondIndexOfCallA);
+
+        firstIndexOfCallB = 7;
+        secondIndexOfCallB = findIndexOfSecondCallInVehicle(sol.getSolutionRepresentation(),
+                startAndStopIndexOfVehicleB[0], firstIndexOfCallB);
+        System.out.println("firstIndexOfCallB = " + firstIndexOfCallB);
+        System.out.println("secondIndexOfCallB = " + secondIndexOfCallB);
+
+        List<Integer> otherRandomIndex = new ArrayList<>();
+        int firstRandomIndexInVehicleA = findRandomIndexWithinVehicle(startAndStopIndexOfVehicleA[0], startAndStopIndexOfVehicleA[1], otherRandomIndex);
+        otherRandomIndex.add(firstRandomIndexInVehicleA);
+        int secondRandomIndexInVehicleA = findRandomIndexWithinVehicle(startAndStopIndexOfVehicleA[0], startAndStopIndexOfVehicleA[1], otherRandomIndex);
+
+        otherRandomIndex.clear();
+        int firstRandomIndexInVehicleB = findRandomIndexWithinVehicle(startAndStopIndexOfVehicleB[0], startAndStopIndexOfVehicleB[1], otherRandomIndex);
+        otherRandomIndex.add(firstRandomIndexInVehicleB);
+        int secondRandomIndexInVehicleB = findRandomIndexWithinVehicle(startAndStopIndexOfVehicleB[0], startAndStopIndexOfVehicleB[1], otherRandomIndex);
+        System.out.println();
+        System.out.println("firstRandomIndexInVehicleA = " + firstRandomIndexInVehicleA);
+        System.out.println("secondRandomIndexInVehicleA = " + secondRandomIndexInVehicleA);
+        System.out.println("firstRandomIndexInVehicleB = " + firstRandomIndexInVehicleB);
+        System.out.println("secondRandomIndexInVehicleB = " + secondRandomIndexInVehicleB);
+
+
+        Integer firstCallFromVehicleA = solution.get(firstIndexOfCallA);
+        Integer secondCallFromVehicleA = solution.get(secondIndexOfCallA);
+        Integer firstCallFromVehicleB = solution.get(firstIndexOfCallB);
+        Integer secondCallFromVehicleB = solution.get(secondIndexOfCallB);
+
+        System.out.println();
+        System.out.println("firstCallFromVehicleA = " + firstCallFromVehicleA);
+        System.out.println("secondCallFromVehicleA = " + secondCallFromVehicleA);
+        System.out.println("firstCallFromVehicleB = " + firstCallFromVehicleB);
+        System.out.println("secondCallFromVehicleB = " + secondCallFromVehicleB);
+
+
+        System.out.println("solution = " + solution);
+        System.out.println("Adding " + firstCallFromVehicleB + " to index " + firstRandomIndexInVehicleA);
+        if (firstRandomIndexInVehicleA == solution.size() - 1) {
+            solution.add(firstCallFromVehicleB); // Append to avoid moving last element one back
+        } else {
+            solution.add(firstRandomIndexInVehicleA, firstCallFromVehicleB);
+        }
+        if ((firstRandomIndexInVehicleA < firstIndexOfCallB)) {
+            System.out.println("Removing " + solution.remove(firstIndexOfCallB + 1) + " from index " + (firstIndexOfCallB + 1));
+        } else {
+            System.out.println("Removing " + solution.remove(firstIndexOfCallB) + " from index " + firstIndexOfCallB);
+        }
+
+        if (firstRandomIndexInVehicleA < secondRandomIndexInVehicleA) {
+            secondRandomIndexInVehicleA++;
+        }
+        if (firstRandomIndexInVehicleA < firstRandomIndexInVehicleB) {
+            firstRandomIndexInVehicleB++;
+        }
+        if (firstRandomIndexInVehicleA < secondRandomIndexInVehicleB) {
+            secondRandomIndexInVehicleB++;
+        }
+
+
+
+
+        System.out.println();
+        System.out.println("solution = " + solution);
+
+        System.out.println("Adding " + secondCallFromVehicleB + " to index " + secondRandomIndexInVehicleA);
+        solution.add(secondRandomIndexInVehicleA, secondCallFromVehicleB);
+        if ((secondRandomIndexInVehicleA < secondIndexOfCallB)) {
+            System.out.println("Removing " + solution.remove(secondIndexOfCallB + 1) + " from index " + (secondIndexOfCallB + 1));
+        } else {
+            System.out.println("Removing " + solution.remove(secondIndexOfCallB) + " from index " + secondIndexOfCallB);
+        }
+
+        System.out.println();
+        System.out.println("solution = " + solution);
+
+        System.out.println("Adding " + firstCallFromVehicleA + " to index " + firstRandomIndexInVehicleB);
+        solution.add(firstRandomIndexInVehicleB, firstCallFromVehicleA);
+        if ((firstRandomIndexInVehicleB < firstIndexOfCallA)) {
+            System.out.println("Removing " + solution.remove(firstIndexOfCallA + 1) + " from index " + (firstIndexOfCallA + 1));
+        } else {
+            System.out.println("Removing " + solution.remove(firstIndexOfCallA) + " from index " + firstIndexOfCallA);
+        }
+
+        System.out.println();
+        System.out.println("solution = " + solution);
+        System.out.println("Adding " + secondCallFromVehicleA + " to index " + secondRandomIndexInVehicleB);
+        solution.add(secondRandomIndexInVehicleB, secondCallFromVehicleA);
+        if ((secondRandomIndexInVehicleB < secondIndexOfCallA)) {
+            System.out.println("Removing " + solution.remove(secondIndexOfCallA + 1) + " from index " + (secondIndexOfCallA + 1));
+        } else {
+            System.out.println("Removing " + solution.remove(secondIndexOfCallA) + " from index " + secondIndexOfCallA);
+        }
+
+
+        System.out.println("final solution = " + sol.getSolutionRepresentation());
+        //        IVectorSolutionRepresentation<Integer> newSol = useTwoExchangeOnSolution(sol);
+        //System.out.println("newSol = " + newSol);
+    }
+
+    private static int findRandomIndexWithinVehicle(int lowerBound, int upperBound, List<Integer> exceptions) {
+        Random random = new Random();
+        while (true) {
+            int randomIndex = random.nextInt(upperBound);
+            if (randomIndex > lowerBound && !exceptions.contains(randomIndex)) {
+                return randomIndex;
+            }
+        }
+    }
 
     public static IVectorSolutionRepresentation<Integer> useTwoExchangeOnSolution(IVectorSolutionRepresentation<Integer> solution) {
         List<Integer> sol = new ArrayList<>(solution.getSolutionRepresentation());
@@ -15,7 +154,8 @@ public class TwoExchange {
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
         int firstIndexOfCallA, secondIndexOfCallA;
         int firstIndexOfCallB, secondIndexOfCallB;
-        int startIndexOfVehicleA, startIndexOfVehicleB;
+        int[] startAndStopIndexOfVehicleA = new int[2];
+        int[] startAndStopIndexOfVehicleB = new int[2];
         boolean foundFirstCallToSwap = false;
         Random random = new Random();
         while (true) {
@@ -26,15 +166,18 @@ public class TwoExchange {
             }
             if (!foundFirstCallToSwap) {
                 firstIndexOfCallA = randomIndex;
-                startIndexOfVehicleA = findStartIndexOfVehicle(zeroIndices,
-                        startIndexOfOutsourcedCalls, firstIndexOfCallA);
-                secondIndexOfCallA = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleA, firstIndexOfCallA);
+
+
+
+          //      startIndexOfVehicleA = findStartIndexOfVehicle(zeroIndices,
+          //              startIndexOfOutsourcedCalls, firstIndexOfCallA, stopIndexOfVehicleA);
+          //      secondIndexOfCallA = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleA, firstIndexOfCallA);
                 foundFirstCallToSwap = true;
             } else {
                 firstIndexOfCallB = randomIndex;
-                startIndexOfVehicleB = findStartIndexOfVehicle(zeroIndices,
-                        startIndexOfOutsourcedCalls, firstIndexOfCallB);
-                secondIndexOfCallB = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleB, firstIndexOfCallB);
+          //      startIndexOfVehicleB = findStartIndexOfVehicle(zeroIndices,
+          //              startIndexOfOutsourcedCalls, firstIndexOfCallB, stopIndexOfVehicleB);
+          //      secondIndexOfCallB = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleB, firstIndexOfCallB);
                 break;
             }
         }
@@ -95,22 +238,26 @@ public class TwoExchange {
                 "\nGiven solution is not valid.");
     }
 
-    private static int findStartIndexOfVehicle(List<Integer> zeroIndices, int startIndexOfOutsourcedCalls, int indexOfCallToSwap) {
-        int startIndexOfVehicle = -1;
-        if (indexOfCallToSwap > startIndexOfOutsourcedCalls) {
-            startIndexOfVehicle = startIndexOfOutsourcedCalls;
-        } else if (indexOfCallToSwap < zeroIndices.get(0)) {
-            startIndexOfVehicle = 0;
+    private static void findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
+                                                       int indexOfCallInVehicleToFind,
+                                                       int[] startAndStopIndexOfVehicle) {
+        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
+        if (indexOfCallInVehicleToFind > startIndexOfOutsourcedCalls) {
+            startAndStopIndexOfVehicle[0] = startIndexOfOutsourcedCalls;
+            startAndStopIndexOfVehicle[1] = -1;
+        } else if (indexOfCallInVehicleToFind < zeroIndices.get(0)) {
+            startAndStopIndexOfVehicle[0] = -1;
+            startAndStopIndexOfVehicle[1] = zeroIndices.get(0);
         } else {
             for (int i = 0; i < zeroIndices.size(); i++) {
                 int zeroIndex = zeroIndices.get(i);
-                if (zeroIndex > indexOfCallToSwap) {
-                    startIndexOfVehicle = zeroIndices.get(i - 1);
+                if (zeroIndex > indexOfCallInVehicleToFind) {
+                    startAndStopIndexOfVehicle[0] = zeroIndices.get(i - 1);
+                    startAndStopIndexOfVehicle[1] = zeroIndex;
                     break;
                 }
             }
         }
-        return startIndexOfVehicle;
         /*
         element is in index 16
         zeroes are in indices [2, 10, 14, 15, 20]
