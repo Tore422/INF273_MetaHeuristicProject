@@ -22,7 +22,7 @@ public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresent
      *                  the constructed solution representation.
      */
     public VectorSolutionRepresentation(List<T> values) {
-        this.solution = values;
+        this.solution = new ArrayList<>(values);
     }
 
     @Override
