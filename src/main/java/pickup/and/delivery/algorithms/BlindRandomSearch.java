@@ -11,6 +11,7 @@ import java.util.Random;
 
 public class BlindRandomSearch {
 
+    private static final Random RANDOM = new Random();
 
     public static IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
@@ -69,11 +70,10 @@ public class BlindRandomSearch {
 
     private static void randomlyAddAllUnfinishedCalls(List<Integer> randomSolution, List<Integer> elements) {
         Collections.shuffle(elements);
-        Random random = new Random();
         while (!elements.isEmpty()) {
             Integer element = elements.get(elements.size() - 1);
             elements.remove(elements.size() - 1);
-            int randomIndexNumber = random.nextInt(randomSolution.size());
+            int randomIndexNumber = RANDOM.nextInt(randomSolution.size());
             randomSolution.add(randomIndexNumber, element);
         }
     }

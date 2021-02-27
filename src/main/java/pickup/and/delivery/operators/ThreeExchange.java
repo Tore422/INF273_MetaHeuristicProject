@@ -10,6 +10,8 @@ import java.util.Random;
 
 public class ThreeExchange {
 
+    private static final Random RANDOM = new Random();
+
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
@@ -28,12 +30,11 @@ public class ThreeExchange {
         int firstIndexOfCallA = -1, secondIndexOfCallA = -1;
         int firstIndexOfCallB = -1, secondIndexOfCallB = -1;
         int firstIndexOfCallC, secondIndexOfCallC;
-        Random random = new Random();
         boolean foundFirstCallToSwap = false;
         boolean foundSecondCallToSwap = false;
-        System.out.println("newSolution = " + newSolution);
+    //    System.out.println("newSolution = " + newSolution);
         while (true) {
-            int randomIndex = random.nextInt(newSolutionRepresentation.size());
+            int randomIndex = RANDOM.nextInt(newSolutionRepresentation.size());
             Integer element = newSolutionRepresentation.get(randomIndex);
             if (element.equals(0)) {
                 continue;
@@ -60,16 +61,16 @@ public class ThreeExchange {
                 break;
             }
         }
-        System.out.println("firstIndexOfCallA = " + firstIndexOfCallA);
+    /*    System.out.println("firstIndexOfCallA = " + firstIndexOfCallA);
         System.out.println("secondIndexOfCallA = " + secondIndexOfCallA);
         System.out.println("firstIndexOfCallB = " + firstIndexOfCallB);
         System.out.println("secondIndexOfCallB = " + secondIndexOfCallB);
         System.out.println("firstIndexOfCallC = " + firstIndexOfCallC);
-        System.out.println("secondIndexOfCallC = " + secondIndexOfCallC);
+        System.out.println("secondIndexOfCallC = " + secondIndexOfCallC);*/
 
         newSolution.swapThreeElements(firstIndexOfCallA, firstIndexOfCallB, firstIndexOfCallC);
         newSolution.swapThreeElements(secondIndexOfCallA, secondIndexOfCallB, secondIndexOfCallC);
-        System.out.println("newSolution = " + newSolution);
+    //    System.out.println("newSolution = " + newSolution);
         return newSolution;
     }
 

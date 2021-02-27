@@ -10,6 +10,9 @@ import java.util.Random;
 
 public class TwoExchange {
 
+    private static final Random RANDOM = new Random();
+
+
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
@@ -294,9 +297,8 @@ decrement all other indexes >= secondCallAIndex
     }
 
     private static int findRandomIndexWithinVehicle(int lowerBound, int upperBound, List<Integer> exceptions) {
-        Random random = new Random();
         while (true) {
-            int randomIndex = random.nextInt(upperBound);
+            int randomIndex = RANDOM.nextInt(upperBound);
             if (randomIndex > lowerBound && !exceptions.contains(randomIndex)) {
                 return randomIndex;
             }
@@ -313,11 +315,10 @@ decrement all other indexes >= secondCallAIndex
         int[] startAndStopIndexOfVehicleB = new int[2];
         int firstIndexOfCallA = -1, secondIndexOfCallA = -1;
         int firstIndexOfCallB, secondIndexOfCallB;
-        Random random = new Random();
         boolean foundFirstCallToSwap = false;
-        System.out.println("newSolution = " + newSolution);
+     //   System.out.println("newSolution = " + newSolution);
         while (true) {
-            int randomIndex = random.nextInt(newSolutionRepresentation.size());
+            int randomIndex = RANDOM.nextInt(newSolutionRepresentation.size());
             Integer element = newSolutionRepresentation.get(randomIndex);
             if (element.equals(0)) {
                 continue;
@@ -343,14 +344,14 @@ decrement all other indexes >= secondCallAIndex
                 break;
             }
         }
-        System.out.println("firstIndexOfCallA = " + firstIndexOfCallA);
+     /*   System.out.println("firstIndexOfCallA = " + firstIndexOfCallA);
         System.out.println("secondIndexOfCallA = " + secondIndexOfCallA);
         System.out.println("firstIndexOfCallB = " + firstIndexOfCallB);
-        System.out.println("secondIndexOfCallB = " + secondIndexOfCallB);
+        System.out.println("secondIndexOfCallB = " + secondIndexOfCallB);*/
 
         newSolution.swapElements(firstIndexOfCallA, firstIndexOfCallB);
         newSolution.swapElements(secondIndexOfCallA, secondIndexOfCallB);
-        System.out.println("newSolution = " + newSolution);
+      //  System.out.println("newSolution = " + newSolution);
         return newSolution;
 /*
         List<Integer> sol = new ArrayList<>(solution.getSolutionRepresentation());

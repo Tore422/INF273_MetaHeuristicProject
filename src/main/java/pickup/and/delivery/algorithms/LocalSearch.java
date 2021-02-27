@@ -16,18 +16,22 @@ public class LocalSearch {
         IVectorSolutionRepresentation<Integer> currentSolution;
         int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            int operatorChoice = (int) (Math.random());
-            System.out.println("operatorChoice = " + operatorChoice);
+            double operatorChoice = Math.random();
+        //    System.out.println("operatorChoice = " + operatorChoice);
             if (operatorChoice < probabilityOfUsingTwoExchange) {
+        //        System.out.println("picked two exchange");
                 currentSolution = TwoExchange.useTwoExchangeOnSolution(bestSolution);
             } else if (operatorChoice < (probabilityOfUsingTwoExchange + probabilityOfUsingThreeExchange)) {
+        //        System.out.println("picked three exchange");
                 currentSolution = ThreeExchange.useThreeExchangeOnSolution(bestSolution);
             } else {
+        //        System.out.println("picked 1-reinsert");
                 currentSolution = OneReinsert.useOneReinsertOnSolution(bestSolution);
             }
             if (PickupAndDelivery.feasible(currentSolution)
                     && (PickupAndDelivery.calculateCost(currentSolution)
                     < PickupAndDelivery.calculateCost(bestSolution))) {
+        //        System.out.println("solution was improved");
                 bestSolution = currentSolution;
             }
         }
