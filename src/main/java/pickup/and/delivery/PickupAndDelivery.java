@@ -1,6 +1,6 @@
 package pickup.and.delivery;
 
-import pickup.and.delivery.algorithms.BlindRandomSearch;
+import pickup.and.delivery.algorithms.SimulatedAnnealing;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
@@ -20,11 +20,7 @@ public class PickupAndDelivery {
         String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
         String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
         String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-        initialize(pathToFile1);
-       // calculateSolution();
-
-
-       // start();
+        initialize(pathToFile3);
         runForNumberOfIterations(10);
     }
 
@@ -35,7 +31,6 @@ public class PickupAndDelivery {
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             Long timerStart = System.currentTimeMillis();
-         //   start();
             calculateSolution();
             Long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
@@ -76,8 +71,8 @@ public class PickupAndDelivery {
         processLines(getFileContents(pathToFile));
     }
 
-    private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
 
+/*
     private static void start() {
         String pathToFile1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
         String pathToFile2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
@@ -88,24 +83,21 @@ public class PickupAndDelivery {
         int solutionSize = (2 * numberOfNodes) + numberOfVehicles;
         solutionRepresentation = new VectorSolutionRepresentation<>(solutionSize);
         calculateSolution();
-    }
+    }*/
 
     private static List<String> getFileContents(String pathToFile1) {
         ReadFromFile fileReader = new ReadFromFile();
-        List<String> lines = fileReader.readFile(pathToFile1);
-     /*   for (String line : lines) {
-            System.out.println(line);
-        }*/
-        return lines;
+        return fileReader.readFile(pathToFile1);
     }
 
     private static int numberOfNodes;
     private static int numberOfVehicles;
     private static int numberOfCalls;
-    private static ArrayList<Vehicle> vehicles = new ArrayList<>();
-    private static ArrayList<Call> calls = new ArrayList<>();
-    private static ArrayList<Journey> possibleJourneys = new ArrayList<>();
-    private static ArrayList<NodeTimesAndCosts> nodeTimesAndCosts = new ArrayList<>();
+    private static final ArrayList<Vehicle> vehicles = new ArrayList<>();
+    private static final ArrayList<Call> calls = new ArrayList<>();
+    private static final ArrayList<Journey> possibleJourneys = new ArrayList<>();
+    private static final ArrayList<NodeTimesAndCosts> nodeTimesAndCosts = new ArrayList<>();
+    private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
 
     private static void processLines(List<String> lines) {
         if (lines.isEmpty()) {
@@ -218,12 +210,12 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-         System.out.println("BlindRandomSearch");
-         solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+       //  System.out.println("BlindRandomSearch");
+       //  solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
        // System.out.println("\nLocal search");
-       // solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
-      //  System.out.println("\nSimulated annealing search");
-      //  solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+        // solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+        System.out.println("\nSimulated annealing search");
+        solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
 
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));

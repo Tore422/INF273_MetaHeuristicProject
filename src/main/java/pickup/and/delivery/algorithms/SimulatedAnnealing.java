@@ -22,6 +22,7 @@ public class SimulatedAnnealing {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> newSolution;
+     //   Double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
         final int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             double operatorChoice = RANDOM.nextDouble();
@@ -31,6 +32,12 @@ public class SimulatedAnnealing {
             double deltaE = PickupAndDelivery.calculateCost(newSolution)
                     - PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
             boolean newSolutionIsFeasible = PickupAndDelivery.feasible(newSolution);
+          /*  if (deltaE > 0 && deltaE < min) {
+                min = deltaE;
+            }
+            if (deltaE > 0 && deltaE > max) {
+                max = deltaE;
+            }*/
             if (newSolutionIsFeasible && deltaE < 0) {
                 currentlyAcceptedSolution = newSolution;
                 if (PickupAndDelivery.calculateCost(currentlyAcceptedSolution)
@@ -43,11 +50,16 @@ public class SimulatedAnnealing {
                 currentlyAcceptedSolution = newSolution;
             }
             temperature = coolingFactor * temperature;
+       //     System.out.println("temperature = " + temperature);
         }
+     /*   System.out.println("min = " + min);
+        System.out.println("max = " + max);*/
         return bestSolution;
     }
 
-    private static IVectorSolutionRepresentation<Integer> applySelectedOperatorOnSolution(double probabilityOfUsingTwoExchange, double probabilityOfUsingThreeExchange, IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution, double operatorChoice) {
+    private static IVectorSolutionRepresentation<Integer> applySelectedOperatorOnSolution(
+            double probabilityOfUsingTwoExchange, double probabilityOfUsingThreeExchange,
+            IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution, double operatorChoice) {
         IVectorSolutionRepresentation<Integer> newSolution;
         if (operatorChoice < probabilityOfUsingTwoExchange) {
             newSolution = TwoExchange.useTwoExchangeOnSolution(currentlyAcceptedSolution);
