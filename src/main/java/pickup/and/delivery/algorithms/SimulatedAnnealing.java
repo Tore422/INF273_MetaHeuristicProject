@@ -13,11 +13,12 @@ public class SimulatedAnnealing {
     private static final Random RANDOM = new Random();
 
     public static IVectorSolutionRepresentation<Integer> simulatedAnnealingSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
-        double probabilityOfUsingTwoExchange = 0.33;
-        double probabilityOfUsingThreeExchange = 0.33;
-        double probabilityOfUsingOneReinsert = 1 - probabilityOfUsingTwoExchange - probabilityOfUsingThreeExchange;
-        double initialTemperature = 100;
-        double coolingFactor = 0.1;
+        double probabilityOfUsingTwoExchange = 0.15;
+        double probabilityOfUsingThreeExchange = 0.35;
+     //   double probabilityOfUsingOneReinsert = 1 - probabilityOfUsingTwoExchange - probabilityOfUsingThreeExchange;
+        double initialTemperature = 115000000.0;
+     //   double finalTemperature = 0.2;
+        double coolingFactor = 0.9979850447;
         double temperature = initialTemperature;
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution = initialSolution;

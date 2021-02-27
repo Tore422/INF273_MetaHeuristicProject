@@ -6,17 +6,21 @@ import pickup.and.delivery.operators.ThreeExchange;
 import pickup.and.delivery.operators.TwoExchange;
 import solution.representations.vector.IVectorSolutionRepresentation;
 
+import java.util.Random;
+
 public class LocalSearch {
 
+    private static final Random RANDOM = new Random();
+
     public static IVectorSolutionRepresentation<Integer> localSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
-        double probabilityOfUsingTwoExchange = 0.33;
-        double probabilityOfUsingThreeExchange = 0.33;
+        double probabilityOfUsingTwoExchange = 0.15;
+        double probabilityOfUsingThreeExchange = 0.35;
         double probabilityOfUsingOneReinsert = 1 - probabilityOfUsingTwoExchange - probabilityOfUsingThreeExchange;
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution;
         int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            double operatorChoice = Math.random();
+            double operatorChoice = RANDOM.nextDouble();
         //    System.out.println("operatorChoice = " + operatorChoice);
             if (operatorChoice < probabilityOfUsingTwoExchange) {
         //        System.out.println("picked two exchange");
@@ -31,7 +35,7 @@ public class LocalSearch {
             if (PickupAndDelivery.feasible(currentSolution)
                     && (PickupAndDelivery.calculateCost(currentSolution)
                     < PickupAndDelivery.calculateCost(bestSolution))) {
-        //        System.out.println("solution was improved");
+        //        System.out.println("solution was improved with operator " + operatorChoice);
                 bestSolution = currentSolution;
             }
         }
