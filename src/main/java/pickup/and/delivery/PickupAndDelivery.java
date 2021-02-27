@@ -15,8 +15,17 @@ public class PickupAndDelivery {
 
 
     public static void main(String[] args) {
-        start();
-        //runForNumberOfIterations(10);
+        String pathToFile1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
+        String pathToFile2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
+        String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
+        String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
+        String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
+        initialize(pathToFile1);
+       // calculateSolution();
+
+
+       // start();
+        runForNumberOfIterations(10);
     }
 
     private static void runForNumberOfIterations(int numberOfIterations) {
@@ -26,7 +35,8 @@ public class PickupAndDelivery {
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             Long timerStart = System.currentTimeMillis();
-            start();
+         //   start();
+            calculateSolution();
             Long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("(timerStop - timerStart) = " + result);
@@ -60,6 +70,10 @@ public class PickupAndDelivery {
         System.out.println("bestSolution = " + bestSolution);
         double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
         System.out.println("improvementInPercent = " + improvementInPercent);
+    }
+
+    private static void initialize(String pathToFile) {
+        processLines(getFileContents(pathToFile));
     }
 
     private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
@@ -204,10 +218,10 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-        System.out.println("BlindRandomSearch");
-        solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
-      //  System.out.println("\nLocal search");
-        // solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+         System.out.println("BlindRandomSearch");
+         solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+       // System.out.println("\nLocal search");
+       // solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
       //  System.out.println("\nSimulated annealing search");
       //  solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
 
