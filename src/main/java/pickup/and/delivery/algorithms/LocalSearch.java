@@ -11,34 +11,37 @@ import java.util.Random;
 public class LocalSearch {
 
     private static final Random RANDOM = new Random();
+    private static final int NUMBER_OF_ITERATIONS = 10000;
+    private static final double PROBABILITY_OF_USING_TWO_EXCHANGE = 0.15;
+    private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
+   // private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
+   //         PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
 
     public static IVectorSolutionRepresentation<Integer> localSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
-        double probabilityOfUsingTwoExchange = 0.15;
-        double probabilityOfUsingThreeExchange = 0.35;
-        double probabilityOfUsingOneReinsert = 1 - probabilityOfUsingTwoExchange - probabilityOfUsingThreeExchange;
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution;
-        int NUMBER_OF_ITERATIONS = 10000;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            double operatorChoice = RANDOM.nextDouble();
-        //    System.out.println("operatorChoice = " + operatorChoice);
-            if (operatorChoice < probabilityOfUsingTwoExchange) {
-        //        System.out.println("picked two exchange");
-                currentSolution = TwoExchange.useTwoExchangeOnSolution(bestSolution);
-            } else if (operatorChoice < (probabilityOfUsingTwoExchange + probabilityOfUsingThreeExchange)) {
-        //        System.out.println("picked three exchange");
-                currentSolution = ThreeExchange.useThreeExchangeOnSolution(bestSolution);
-            } else {
-        //        System.out.println("picked 1-reinsert");
-                currentSolution = OneReinsert.useOneReinsertOnSolution(bestSolution);
-            }
+            currentSolution = chooseAndUtilizeOperatorOnSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && (PickupAndDelivery.calculateCost(currentSolution)
                     < PickupAndDelivery.calculateCost(bestSolution))) {
-        //        System.out.println("solution was improved with operator " + operatorChoice);
                 bestSolution = currentSolution;
             }
         }
         return bestSolution;
+    }
+
+    private static IVectorSolutionRepresentation<Integer> chooseAndUtilizeOperatorOnSolution(
+            IVectorSolutionRepresentation<Integer> solution) {
+        IVectorSolutionRepresentation<Integer> currentSolution;
+        double operatorChoice = RANDOM.nextDouble();
+        if (operatorChoice < PROBABILITY_OF_USING_TWO_EXCHANGE) {
+            currentSolution = TwoExchange.useTwoExchangeOnSolution(solution);
+        } else if (operatorChoice < (PROBABILITY_OF_USING_TWO_EXCHANGE + PROBABILITY_OF_USING_THREE_EXCHANGE)) {
+            currentSolution = ThreeExchange.useThreeExchangeOnSolution(solution);
+        } else {
+            currentSolution = OneReinsert.useOneReinsertOnSolution(solution);
+        }
+        return currentSolution;
     }
 }
