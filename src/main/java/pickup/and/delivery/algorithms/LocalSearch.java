@@ -21,7 +21,7 @@ public class LocalSearch {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            currentSolution = chooseAndUtilizeOperatorOnSolution(bestSolution);
+            currentSolution = selectAndApplyOperatorOnSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && (PickupAndDelivery.calculateCost(currentSolution)
                     < PickupAndDelivery.calculateCost(bestSolution))) {
@@ -31,7 +31,7 @@ public class LocalSearch {
         return bestSolution;
     }
 
-    private static IVectorSolutionRepresentation<Integer> chooseAndUtilizeOperatorOnSolution(
+    private static IVectorSolutionRepresentation<Integer> selectAndApplyOperatorOnSolution(
             IVectorSolutionRepresentation<Integer> solution) {
         IVectorSolutionRepresentation<Integer> currentSolution;
         double operatorChoice = RANDOM.nextDouble();
