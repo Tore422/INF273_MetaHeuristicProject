@@ -11,60 +11,65 @@ import java.util.Random;
 public class SimulatedAnnealing {
 
     private static final Random RANDOM = new Random();
+    private static final int NUMBER_OF_ITERATIONS = 10000;
+    private static final double INITIAL_TEMPERATURE = 115000000.0;
+    private static final double COOLING_FACTOR = 0.9979850447;
+    private static final double PROBABILITY_OF_USING_TWO_EXCHANGE = 0.15;
+    private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
+  /*
+    private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
+            PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
+    private static final double FINAL_TEMPERATURE = 0.2;
+  */
 
-    public static IVectorSolutionRepresentation<Integer> simulatedAnnealingSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
-        double probabilityOfUsingTwoExchange = 0.15;
-        double probabilityOfUsingThreeExchange = 0.35;
-     //   double probabilityOfUsingOneReinsert = 1 - probabilityOfUsingTwoExchange - probabilityOfUsingThreeExchange;
-        double initialTemperature = 115000000.0;
-     //   double finalTemperature = 0.2;
-        double coolingFactor = 0.9979850447;
-        double temperature = initialTemperature;
+    public static IVectorSolutionRepresentation<Integer> simulatedAnnealingSearch(
+            IVectorSolutionRepresentation<Integer> initialSolution) {
+        double temperature = INITIAL_TEMPERATURE;
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> newSolution;
      //   Double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
-        final int NUMBER_OF_ITERATIONS = 10000;
+        int numberOfTimesWorseSolutionWasAccepted = 0;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            double operatorChoice = RANDOM.nextDouble();
-            newSolution = applySelectedOperatorOnSolution(
-                    probabilityOfUsingTwoExchange, probabilityOfUsingThreeExchange,
-                    currentlyAcceptedSolution, operatorChoice);
-            double deltaE = PickupAndDelivery.calculateCost(newSolution)
-                    - PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
-            boolean newSolutionIsFeasible = PickupAndDelivery.feasible(newSolution);
+            newSolution = selectAndApplyOperatorOnSolution(currentlyAcceptedSolution);
           /*  if (deltaE > 0 && deltaE < min) {
                 min = deltaE;
             }
             if (deltaE > 0 && deltaE > max) {
                 max = deltaE;
             }*/
-            if (newSolutionIsFeasible && deltaE < 0) {
-                currentlyAcceptedSolution = newSolution;
-                if (PickupAndDelivery.calculateCost(currentlyAcceptedSolution)
-                        < PickupAndDelivery.calculateCost(bestSolution)) {
-        //            System.out.println("operatorChoice = " + operatorChoice);
-                    bestSolution = currentlyAcceptedSolution;
+            if (PickupAndDelivery.feasible(newSolution)) {
+                double deltaE = PickupAndDelivery.calculateCost(newSolution)
+                        - PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
+                if (deltaE < 0) {
+                    currentlyAcceptedSolution = newSolution;
+                    if (PickupAndDelivery.calculateCost(currentlyAcceptedSolution)
+                            < PickupAndDelivery.calculateCost(bestSolution)) {
+                        bestSolution = currentlyAcceptedSolution;
+                    }
+                } else if (RANDOM.nextDouble() < Math.exp(-deltaE / temperature)) {
+                  /*  System.out.println("Accepted worse solution with " + Math.exp(-deltaE / temperature));
+                    System.out.println("temperature = " + temperature);
+                    System.out.println("deltaE = " + deltaE);*/
+                    numberOfTimesWorseSolutionWasAccepted++;
+                    currentlyAcceptedSolution = newSolution;
                 }
-            } else if (newSolutionIsFeasible
-                    && (RANDOM.nextDouble() < Math.exp(-deltaE / temperature))) {
-                currentlyAcceptedSolution = newSolution;
             }
-            temperature = coolingFactor * temperature;
-       //     System.out.println("temperature = " + temperature);
+            temperature = COOLING_FACTOR * temperature;
         }
      /*   System.out.println("min = " + min);
         System.out.println("max = " + max);*/
+        System.out.println("numberOfTimesWorseSolutionWasAccepted = " + numberOfTimesWorseSolutionWasAccepted);
         return bestSolution;
     }
 
-    private static IVectorSolutionRepresentation<Integer> applySelectedOperatorOnSolution(
-            double probabilityOfUsingTwoExchange, double probabilityOfUsingThreeExchange,
-            IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution, double operatorChoice) {
+    private static IVectorSolutionRepresentation<Integer> selectAndApplyOperatorOnSolution(
+            IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution) {
         IVectorSolutionRepresentation<Integer> newSolution;
-        if (operatorChoice < probabilityOfUsingTwoExchange) {
+        double operatorChoice = RANDOM.nextDouble();
+        if (operatorChoice < PROBABILITY_OF_USING_TWO_EXCHANGE) {
             newSolution = TwoExchange.useTwoExchangeOnSolution(currentlyAcceptedSolution);
-        } else if (operatorChoice < (probabilityOfUsingTwoExchange + probabilityOfUsingThreeExchange)) {
+        } else if (operatorChoice < (PROBABILITY_OF_USING_TWO_EXCHANGE + PROBABILITY_OF_USING_THREE_EXCHANGE)) {
             newSolution = ThreeExchange.useThreeExchangeOnSolution(currentlyAcceptedSolution);
         } else {
             newSolution = OneReinsert.useOneReinsertOnSolution(currentlyAcceptedSolution);
