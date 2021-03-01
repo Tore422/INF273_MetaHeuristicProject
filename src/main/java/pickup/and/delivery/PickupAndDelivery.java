@@ -21,7 +21,8 @@ public class PickupAndDelivery {
         String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
         String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
         initialize(pathToFile3);
-        runForNumberOfIterations(10);
+        final int NUMBER_OF_ITERATIONS = 10;
+        runForNumberOfIterations(NUMBER_OF_ITERATIONS);
     }
 
     private static void runForNumberOfIterations(int numberOfIterations) {
@@ -212,8 +213,8 @@ public class PickupAndDelivery {
 
        //  System.out.println("BlindRandomSearch");
        //  solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
-       // System.out.println("\nLocal search");
-        // solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+      //   System.out.println("\nLocal search");
+      //   solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
         System.out.println("\nSimulated annealing search");
         solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
 
