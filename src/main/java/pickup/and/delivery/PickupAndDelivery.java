@@ -273,6 +273,7 @@ public class PickupAndDelivery {
                 if (vehicleNumber <= numberOfVehicles) {
                     currentTime = vehicles.get(vehicleNumber - 1).getStartingTimeInHours();
                     previousNode = vehicles.get(vehicleNumber - 1).getHomeNode();
+                    currentMaxLoad = vehicles.get(vehicleNumber - 1).getCapacity();
                 }
             } else if (vehicleNumber == numberOfVehicles + 1) {
                 break; // Outsourced jobs are always feasible. Becomes somebody else's problem anyway...
