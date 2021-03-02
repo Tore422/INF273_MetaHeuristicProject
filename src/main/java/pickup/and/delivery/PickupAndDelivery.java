@@ -1,6 +1,6 @@
 package pickup.and.delivery;
 
-import pickup.and.delivery.algorithms.LocalSearch;
+import pickup.and.delivery.algorithms.SimulatedAnnealing;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
@@ -30,9 +30,9 @@ public class PickupAndDelivery {
 
     public static void main(String[] args) {
         initialize(PATH_TO_FILE_5);
-
         final int NUMBER_OF_ITERATIONS = 10;
         runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+
         /*
         List<Integer> values1 = Arrays.asList(1, 1, 0, 10, 10, 3, 3, 0, 0, 12, 12, 0, 6, 6, 0, 2, 18, 8, 9, 4, 5, 5, 2, 15, 4, 7, 16, 16, 9, 15, 13, 14, 17, 8, 14, 11, 18, 11, 7, 17, 13);
         List<Integer> values2 = Arrays.asList(4, 14, 14, 4, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 8, 7, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 11, 11, 17, 17, 15, 15, 13, 13);
@@ -231,11 +231,11 @@ public class PickupAndDelivery {
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
       //   System.out.println("BlindRandomSearch");
-       //  solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
-         System.out.println("\nLocal search");
-         solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
-      //  System.out.println("\nSimulated annealing search");
-      //  solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+      //   solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+        //  System.out.println("\nLocal search");
+        //   solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+        System.out.println("\nSimulated annealing search");
+        solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
 
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
@@ -287,7 +287,9 @@ public class PickupAndDelivery {
             if (element == 0) {
                 vehicleNumber++;
                 currentLoad = 0;
-                unfinishedCalls.clear();
+                if (!unfinishedCalls.isEmpty()) {
+                    unfinishedCalls.clear();
+                }
                 if (vehicleNumber <= numberOfVehicles) {
                     currentTime = vehicles.get(vehicleNumber - 1).getStartingTimeInHours();
                     previousNode = vehicles.get(vehicleNumber - 1).getHomeNode();
@@ -348,25 +350,46 @@ public class PickupAndDelivery {
         return true;
     }
 
+
+   // private static long timeSpentLookingWithLoop1 = 0;
+  //  private static long timeSpentLookingWithIndex1 = 0;
+
     private static int getTravelTime(int currentTime, int previousNode, int destinationNode, int vehicleNumber) {
+  //      Long timerStart = System.currentTimeMillis();
+        int indexOfJourney = (numberOfVehicles * numberOfNodes * (previousNode - 1))
+                + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleNumber) - 1;
+        currentTime += possibleJourneys.get(indexOfJourney).getTravelTime();
+        return currentTime;
+        //    System.out.println(possibleJourneys.get(indexOfJourney));
+  //      Long timerStop = System.currentTimeMillis();
+  //      timeSpentLookingWithIndex1 += (timerStop - timerStart);
+/*
+        timerStart = System.currentTimeMillis();
         for (Journey journey : possibleJourneys) {
             if (journey.getOriginNode() == previousNode
                     && journey.getDestinationNode() == destinationNode
                     && journey.getVehicleIndex() == vehicleNumber) {
+                //     System.out.println("journey = " + journey);
+                timerStop = System.currentTimeMillis();
+                timeSpentLookingWithLoop1 += (timerStop - timerStart);
                 currentTime += journey.getTravelTime();
             }
         }
         return currentTime;
+        */
     }
 
     private static NodeTimesAndCosts getNodeTimesAndCostsForVehicle(int vehicleNumber, Integer callID) {
-        for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
+        int nodeTimesAndCostsIndex = ((vehicleNumber - 1) * numberOfCalls) + callID - 1;
+        return nodeTimesAndCosts.get(nodeTimesAndCostsIndex);
+
+ /*       for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
             if (nodeTimesAndCosts.getVehicleIndex() == vehicleNumber
                     && nodeTimesAndCosts.getCall().getCallIndex() == callID) {
                 return nodeTimesAndCosts;
             }
         }
-        throw new IllegalStateException("No node times and costs entry for given vehicle");
+        throw new IllegalStateException("No node times and costs entry for given vehicle");*/
     }
 
     /* Assumes that the given solution is valid */
@@ -376,29 +399,28 @@ public class PickupAndDelivery {
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
         List<Integer> unfinishedCalls = new ArrayList<>();
-        List<Integer> visitedCalls = new ArrayList<>();
         for (Integer element : solution.getSolutionRepresentation()) {
             if (element == 0) {
                 vehicleNumber++;
-                unfinishedCalls.clear();
+                if (!unfinishedCalls.isEmpty()) {
+                    unfinishedCalls.clear();
+                }
                 if (vehicleNumber <= numberOfVehicles) {
                     previousNode = vehicles.get(vehicleNumber - 1).getHomeNode();
                 }
             } else if (vehicleNumber == numberOfVehicles + 1) {
                 totalCost = processOutsourcedCall(totalCost, unfinishedCalls, element);
             } else {
-                if (!visitedCalls.contains(element)) {
-                    totalCost = getFirstVisitCosts(totalCost, vehicleNumber, element);
-                    visitedCalls.add(element);
-                }
-                int destinationNode = calls.get(element - 1).getDestinationNode();
-                if (unfinishedCalls.contains(calls.get(element - 1).getCallIndex())) {
-                    totalCost = getTravelCost(totalCost, previousNode, destinationNode, vehicleNumber);
-                    unfinishedCalls.remove((Integer) calls.get(element - 1).getCallIndex()); // Call has been finished
+                Call call = calls.get(element - 1);
+                int destinationNode;
+                if (unfinishedCalls.contains(call.getCallIndex())) {
+                    destinationNode = call.getDestinationNode();
+                    totalCost = processDeliveryCosts(totalCost, previousNode, vehicleNumber,
+                            unfinishedCalls, element, destinationNode);
                 } else {
-                    destinationNode = calls.get(element - 1).getOriginNode();
-                    totalCost = getTravelCost(totalCost, previousNode, destinationNode, vehicleNumber);
-                    unfinishedCalls.add(element);
+                    destinationNode = call.getOriginNode();
+                    totalCost = processPickupCosts(totalCost, previousNode, vehicleNumber,
+                            unfinishedCalls, element, destinationNode);
                 }
                 previousNode = destinationNode;
             }
@@ -406,25 +428,21 @@ public class PickupAndDelivery {
         return totalCost;
     }
 
-    private static int getFirstVisitCosts(int totalCost, int vehicleNumber, Integer element) {
-        for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
-            if (nodeTimesAndCosts.getVehicleIndex() == vehicleNumber
-                    && nodeTimesAndCosts.getCall().getCallIndex() == element) {
-                totalCost += nodeTimesAndCosts.getOriginNodeCosts();
-                totalCost += nodeTimesAndCosts.getDestinationNodeCosts();
-                break;
-            }
-        }
+    private static int processDeliveryCosts(int totalCost, int previousNode, int vehicleNumber,
+                                            List<Integer> unfinishedCalls, Integer callId, int destinationNode) {
+        totalCost += getTravelCostForJourney(previousNode, destinationNode, vehicleNumber);
+        totalCost += getNodeTimesAndCostsForVehicle(vehicleNumber, callId)
+                .getDestinationNodeCosts(); // Cost of delivering package
+        unfinishedCalls.remove(callId); // Call has been finished
         return totalCost;
     }
 
-    private static int getTravelCost(int totalCost, int previousNode, int destinationNode, int vehicleNumber) {
-        int travelCost = getTravelCostForJourney(previousNode, destinationNode, vehicleNumber);
-        if (travelCost == -1) {
-            System.out.println("Something is not right here...");
-        } else {
-            totalCost += travelCost;
-        }
+    private static int processPickupCosts(int totalCost, int previousNode, int vehicleNumber,
+                                          List<Integer> unfinishedCalls, Integer callId, int destinationNode) {
+        totalCost += getTravelCostForJourney(previousNode, destinationNode, vehicleNumber);
+        totalCost += getNodeTimesAndCostsForVehicle(vehicleNumber, callId)
+                .getOriginNodeCosts(); // Cost of picking up package
+        unfinishedCalls.add(callId);
         return totalCost;
     }
 
@@ -437,17 +455,32 @@ public class PickupAndDelivery {
         return totalCost;
     }
 
+  //  private static long timeLookingWithLoop2 = 0;
+  //  private static long timeLookingWithIndex2 = 0;
+
     private static int getTravelCostForJourney(int originNode, int destinationNode, int vehicleIndex) {
+   //     Long timerStart = System.currentTimeMillis();
+        int indexOfJourney = (numberOfVehicles * numberOfNodes * (originNode - 1))
+                + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleIndex) - 1;
+        return possibleJourneys.get(indexOfJourney).getTravelCost();
+        /*
+    //    System.out.println(possibleJourneys.get(indexOfJourney));
+        Long timerStop = System.currentTimeMillis();
+        timeLookingWithIndex2 += (timerStop - timerStart);
+
+        timerStart = System.currentTimeMillis();
         for (Journey journey : possibleJourneys) {
             if (journey.getOriginNode() == originNode
                     && journey.getDestinationNode() == destinationNode
                     && journey.getVehicleIndex() == vehicleIndex) {
+           //     System.out.println("journey = " + journey);
+                timerStop = System.currentTimeMillis();
+                timeLookingWithLoop2 += (timerStop - timerStart);
                 return journey.getTravelCost();
             }
         }
-        System.out.println("No journey between " + originNode + " and "
-                + destinationNode + " for vehicle " + vehicleIndex + " exists.");
-        return -1;
+        throw new IllegalStateException("No journey between " + originNode + " and "
+                + destinationNode + " for vehicle " + vehicleIndex + " exists.");*/
     }
 
     private static IVectorSolutionRepresentation<Integer> createWorstSolution() {
