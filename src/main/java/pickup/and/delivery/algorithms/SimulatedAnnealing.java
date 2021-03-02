@@ -29,7 +29,8 @@ public class SimulatedAnnealing {
         IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> newSolution;
      //   Double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
-        int numberOfTimesWorseSolutionWasAccepted = 0;
+    //    int numberOfTimesWorseSolutionWasAccepted = 0;
+    //    int numberOfTimesSolutionWasFeasible = 0;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             newSolution = selectAndApplyOperatorOnSolution(currentlyAcceptedSolution);
           /*  if (deltaE > 0 && deltaE < min) {
@@ -39,6 +40,7 @@ public class SimulatedAnnealing {
                 max = deltaE;
             }*/
             if (PickupAndDelivery.feasible(newSolution)) {
+     //           numberOfTimesSolutionWasFeasible++;
                 double deltaE = PickupAndDelivery.calculateCost(newSolution)
                         - PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
                 if (deltaE < 0) {
@@ -51,7 +53,7 @@ public class SimulatedAnnealing {
                   /*  System.out.println("Accepted worse solution with " + Math.exp(-deltaE / temperature));
                     System.out.println("temperature = " + temperature);
                     System.out.println("deltaE = " + deltaE);*/
-                    numberOfTimesWorseSolutionWasAccepted++;
+       //             numberOfTimesWorseSolutionWasAccepted++;
                     currentlyAcceptedSolution = newSolution;
                 }
             }
@@ -59,7 +61,8 @@ public class SimulatedAnnealing {
         }
      /*   System.out.println("min = " + min);
         System.out.println("max = " + max);*/
-        System.out.println("numberOfTimesWorseSolutionWasAccepted = " + numberOfTimesWorseSolutionWasAccepted);
+ //       System.out.println("numberOfTimesWorseSolutionWasAccepted = " + numberOfTimesWorseSolutionWasAccepted);
+ //       System.out.println("numberOfTimesSolutionWasFeasible = " + numberOfTimesSolutionWasFeasible);
         return bestSolution;
     }
 
