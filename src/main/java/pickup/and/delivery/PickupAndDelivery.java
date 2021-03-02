@@ -1,6 +1,6 @@
 package pickup.and.delivery;
 
-import pickup.and.delivery.algorithms.SimulatedAnnealing;
+import pickup.and.delivery.algorithms.LocalSearch;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
@@ -9,20 +9,40 @@ import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PickupAndDelivery {
 
+    // Files for test data
+    private static final String PATH_TO_FILE_1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
+    private static final String PATH_TO_FILE_2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
+    private static final String PATH_TO_FILE_3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
+    private static final String PATH_TO_FILE_4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
+    private static final String PATH_TO_FILE_5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
+
+    // Files for the exam
+/*    private static final String pathToFile1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";
+    private static final String pathToFile2 = "src/main/resources/exam.test.data/Call_18_Vehicle_5.txt";
+    private static final String pathToFile3 = "src/main/resources/exam.test.data/Call_035_Vehicle_07.txt";
+    private static final String pathToFile4 = "src/main/resources/exam.test.data/Call_080_Vehicle_20.txt";
+    private static final String pathToFile5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
-        String pathToFile1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
-        String pathToFile2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
-        String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
-        String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
-        String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-        initialize(pathToFile3);
+        initialize(PATH_TO_FILE_5);
+
         final int NUMBER_OF_ITERATIONS = 10;
         runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+        /*
+        List<Integer> values1 = Arrays.asList(1, 1, 0, 10, 10, 3, 3, 0, 0, 12, 12, 0, 6, 6, 0, 2, 18, 8, 9, 4, 5, 5, 2, 15, 4, 7, 16, 16, 9, 15, 13, 14, 17, 8, 14, 11, 18, 11, 7, 17, 13);
+        List<Integer> values2 = Arrays.asList(4, 14, 14, 4, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 8, 7, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 11, 11, 17, 17, 15, 15, 13, 13);
+        List<Integer> values3 = Arrays.asList(4, 14, 4, 14, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 7, 8, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 15, 13, 11, 17, 13, 17, 11, 15);
+    */
+        List<Integer> values = Arrays.asList(0, 0, 17, 17, 0, 0, 25, 25, 35, 35, 0, 22, 2, 2, 22, 0, 0, 13, 30, 28, 31, 12, 1, 34, 11, 32, 16, 14, 23, 32, 24, 5, 7, 20, 18, 6, 3, 16, 12, 21, 34, 19, 26, 27, 29, 14, 11, 9, 27, 20, 21, 13, 6, 18, 33, 19, 8, 1, 7, 10, 29, 31, 10, 9, 33, 28, 23, 8, 15, 3, 15, 30, 4, 24, 4, 26, 5);
+        VectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
+      //  System.out.println("cost: " + calculateCost(sol));
+      //  System.out.println("feasible: " + feasible(sol));
+
     }
 
     private static void runForNumberOfIterations(int numberOfIterations) {
@@ -71,7 +91,6 @@ public class PickupAndDelivery {
     private static void initialize(String pathToFile) {
         processLines(getFileContents(pathToFile));
     }
-
 
 /*
     private static void start() {
@@ -211,12 +230,12 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-       //  System.out.println("BlindRandomSearch");
+      //   System.out.println("BlindRandomSearch");
        //  solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
-      //   System.out.println("\nLocal search");
-      //   solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
-        System.out.println("\nSimulated annealing search");
-        solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+         System.out.println("\nLocal search");
+         solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+      //  System.out.println("\nSimulated annealing search");
+      //  solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
 
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
@@ -287,14 +306,15 @@ public class PickupAndDelivery {
                     if (currentTime > upperBoundTimeWindowForDelivery) {
                         // System.out.println("Time window exceeded");
                         return false;
-                    } else if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
+                    }
+                    if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
                         currentTime += (lowerBoundTimeWindowForDelivery - currentTime);
                     }
                     currentLoad -= call.getPackageSize(); // Unload package
                     unfinishedCalls.remove((Integer) call.getCallIndex()); // Call has been finished
                     NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                             vehicleNumber, call.getCallIndex());
-                    currentTime += nodeTimesAndCosts.getDestinationNodeTime();
+                    currentTime += nodeTimesAndCosts.getDestinationNodeTime(); // Add time cost for delivering package
                 } else { // Pickup package
                     if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
                         // System.out.println("Incompatible vessel and cargo");
@@ -319,7 +339,7 @@ public class PickupAndDelivery {
                     unfinishedCalls.add(element);
                     NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                             vehicleNumber, call.getCallIndex());
-                    currentTime += nodeTimesAndCosts.getOriginNodeTime();
+                    currentTime += nodeTimesAndCosts.getOriginNodeTime(); // Add time cost for picking up package
                 }
                 previousNode = destinationNode;
             }
@@ -327,52 +347,6 @@ public class PickupAndDelivery {
         // System.out.println("Feasible");
         return true;
     }
-/*
-                if (!visitedCalls.contains(element)) {
-                    currentTime = getFirstVisitTimes(currentTime, vehicleNumber, element);
-                    visitedCalls.add(element);
-                }
-                int destinationNode = calls.get(element - 1).getDestinationNode();
-                if (unfinishedCalls.contains(calls.get(element - 1).getCallIndex())) {
-                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
-                    int lowerBoundTimeWindowForDelivery = calls.get(element - 1).getLowerBoundTimeWindowForDelivery();
-                    int upperBoundTimeWindowForDelivery = calls.get(element - 1).getUpperBoundTimeWindowForDelivery();
-                    if (currentTime > upperBoundTimeWindowForDelivery) {
-                //        System.out.println("Time window exceeded");
-                        return false;
-                    }
-                    if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
-                        currentTime += (lowerBoundTimeWindowForDelivery - currentTime);
-                    }
-                    currentLoad -= calls.get(element - 1).getPackageSize(); // Unload package
-                    unfinishedCalls.remove((Integer) calls.get(element - 1).getCallIndex()); // Call has been finished
-                } else {
-                    if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
-                //        System.out.println("Incompatible vessel and cargo");
-                        return false;
-                    }
-                    destinationNode = calls.get(element - 1).getOriginNode();
-                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
-                    int lowerBoundTimeWindowForPickup = calls.get(element - 1).getLowerBoundTimeWindowForPickup();
-                    int upperBoundTimeWindowForPickup = calls.get(element - 1).getUpperBoundTimeWindowForPickup();
-                    if (currentTime > upperBoundTimeWindowForPickup) {
-                //        System.out.println("Time window exceeded");
-                        return false;
-                    }
-                    if (currentTime < lowerBoundTimeWindowForPickup) { // If too early, wait for pickup
-                        currentTime += (lowerBoundTimeWindowForPickup - currentTime);
-                    }
-                    currentLoad += calls.get(element - 1).getPackageSize();
-                    if (currentLoad > currentMaxLoad) {
-               //         System.out.println("Capacity exceeded");
-                        return false;
-                    }
-                    unfinishedCalls.add(element);
-                }
-                previousNode = destinationNode;
-            }
-        }
-    }*/
 
     private static int getTravelTime(int currentTime, int previousNode, int destinationNode, int vehicleNumber) {
         for (Journey journey : possibleJourneys) {
@@ -510,5 +484,10 @@ public class PickupAndDelivery {
             }
         }
         return true;
+    }
+
+
+    public static ArrayList<Vehicle> getVehicles() {
+        return vehicles;
     }
 }
