@@ -50,6 +50,31 @@ public class OneReinsert {
             secondPartOfCallToReinsert = newSolutionRepresentation.remove(secondIndexOfCall);
             break;
         }
+       /* System.out.println("solution = " + solution);
+        System.out.println("zeroIndices old = " + zeroIndices);
+        zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
+        System.out.println("zeroIndices new = " + zeroIndices);
+        System.out.println("firstPartOfCallToReinsert = " + firstPartOfCallToReinsert);
+        List<Integer> vehiclesThatCanTakeTheCall = new ArrayList<>();
+        for (Vehicle vehicle : PickupAndDelivery.getVehicles()) {
+            for (Integer possibleCall : vehicle.getPossibleCalls()) {
+                if (possibleCall.equals(firstPartOfCallToReinsert)) {
+                    vehiclesThatCanTakeTheCall.add(vehicle.getIndex());
+                }
+            }
+        }
+        System.out.println("vehiclesThatCanTakeTheCall = " + vehiclesThatCanTakeTheCall);
+        List<Integer> startIndexOfVehiclesThatCanTakeTheCall = new ArrayList<>();
+        for (Integer vehicle : vehiclesThatCanTakeTheCall) {
+            startIndexOfVehiclesThatCanTakeTheCall.add(zeroIndices.get(vehicle - 1));
+        }
+        System.out.println("startIndexOfVehiclesThatCanTakeTheCall = " + startIndexOfVehiclesThatCanTakeTheCall);
+*/
+
+
+
+
+
       //  System.out.println("zeroIndices old = " + zeroIndices);
         zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         int randomVehicle = RANDOM.nextInt(zeroIndices.size());
@@ -127,10 +152,8 @@ public class OneReinsert {
                                             int[] startAndStopIndexOfVehicle,
                                             int firstIndexOfCall) {
         int secondIndexOfCall;
-        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall, startAndStopIndexOfVehicle);
-        if (startAndStopIndexOfVehicle[1] == -1) {
-            startAndStopIndexOfVehicle[1] = newSolutionRepresentation.size();
-        }
+        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall,
+                newSolutionRepresentation.size(), startAndStopIndexOfVehicle);
         secondIndexOfCall = findIndexOfSecondCallInVehicle(
                 newSolutionRepresentation, startAndStopIndexOfVehicle[0], firstIndexOfCall);
         return secondIndexOfCall;
@@ -158,11 +181,15 @@ public class OneReinsert {
 
     private static void findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
                                                        int indexOfCallInVehicleToFind,
+                                                       int stopIndexOfOutsourcedCalls,
                                                        int[] startAndStopIndexOfVehicle) {
+        if (indexOfCallInVehicleToFind > stopIndexOfOutsourcedCalls || indexOfCallInVehicleToFind < 0) {
+            throw new IllegalArgumentException("Index does not exist");
+        }
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
         if (indexOfCallInVehicleToFind > startIndexOfOutsourcedCalls) {
             startAndStopIndexOfVehicle[0] = startIndexOfOutsourcedCalls;
-            startAndStopIndexOfVehicle[1] = -1;
+            startAndStopIndexOfVehicle[1] = stopIndexOfOutsourcedCalls;
         } else if (indexOfCallInVehicleToFind < zeroIndices.get(0)) {
             startAndStopIndexOfVehicle[0] = -1;
             startAndStopIndexOfVehicle[1] = zeroIndices.get(0);
