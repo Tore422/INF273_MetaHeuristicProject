@@ -257,14 +257,13 @@ public class PickupAndDelivery {
 
     /* Assumes that the given solution is valid */
     public static boolean feasible(IVectorSolutionRepresentation<Integer> solution) {
-      //  System.out.println("Calculating feasibility for solution " + solution.toString());
+        //  System.out.println("Calculating feasibility for solution " + solution.toString());
         int currentLoad = 0;
         int currentMaxLoad = vehicles.get(0).getCapacity();
         int currentTime = vehicles.get(0).getStartingTimeInHours();
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
         List<Integer> unfinishedCalls = new ArrayList<>();
-        List<Integer> visitedCalls = new ArrayList<>();
         for (Integer element : solution.getSolutionRepresentation()) {
             if (element == 0) {
                 vehicleNumber++;
@@ -278,13 +277,64 @@ public class PickupAndDelivery {
             } else if (vehicleNumber == numberOfVehicles + 1) {
                 break; // Outsourced jobs are always feasible. Becomes somebody else's problem anyway...
             } else {
+                Call call = calls.get(element - 1);
+                int destinationNode;
+                if (unfinishedCalls.contains(call.getCallIndex())) { // Deliver package
+                    destinationNode = call.getDestinationNode();
+                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
+                    int lowerBoundTimeWindowForDelivery = call.getLowerBoundTimeWindowForDelivery();
+                    int upperBoundTimeWindowForDelivery = call.getUpperBoundTimeWindowForDelivery();
+                    if (currentTime > upperBoundTimeWindowForDelivery) {
+                        // System.out.println("Time window exceeded");
+                        return false;
+                    } else if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
+                        currentTime += (lowerBoundTimeWindowForDelivery - currentTime);
+                    }
+                    currentLoad -= call.getPackageSize(); // Unload package
+                    unfinishedCalls.remove((Integer) call.getCallIndex()); // Call has been finished
+                    NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
+                            vehicleNumber, call.getCallIndex());
+                    currentTime += nodeTimesAndCosts.getDestinationNodeTime();
+                } else { // Pickup package
+                    if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
+                        // System.out.println("Incompatible vessel and cargo");
+                        return false;
+                    }
+                    destinationNode = call.getOriginNode();
+                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
+                    int lowerBoundTimeWindowForPickup = call.getLowerBoundTimeWindowForPickup();
+                    int upperBoundTimeWindowForPickup = call.getUpperBoundTimeWindowForPickup();
+                    if (currentTime > upperBoundTimeWindowForPickup) {
+                        // System.out.println("Time window exceeded");
+                        return false;
+                    }
+                    if (currentTime < lowerBoundTimeWindowForPickup) { // If too early, wait for pickup
+                        currentTime += (lowerBoundTimeWindowForPickup - currentTime);
+                    }
+                    currentLoad += call.getPackageSize();
+                    if (currentLoad > currentMaxLoad) {
+                        // System.out.println("Capacity exceeded");
+                        return false;
+                    }
+                    unfinishedCalls.add(element);
+                    NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
+                            vehicleNumber, call.getCallIndex());
+                    currentTime += nodeTimesAndCosts.getOriginNodeTime();
+                }
+                previousNode = destinationNode;
+            }
+        }
+        // System.out.println("Feasible");
+        return true;
+    }
+/*
                 if (!visitedCalls.contains(element)) {
                     currentTime = getFirstVisitTimes(currentTime, vehicleNumber, element);
                     visitedCalls.add(element);
                 }
                 int destinationNode = calls.get(element - 1).getDestinationNode();
                 if (unfinishedCalls.contains(calls.get(element - 1).getCallIndex())) {
-                    currentTime = getTravelTime(currentTime, previousNode, vehicleNumber, destinationNode);
+                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForDelivery = calls.get(element - 1).getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = calls.get(element - 1).getUpperBoundTimeWindowForDelivery();
                     if (currentTime > upperBoundTimeWindowForDelivery) {
@@ -302,7 +352,7 @@ public class PickupAndDelivery {
                         return false;
                     }
                     destinationNode = calls.get(element - 1).getOriginNode();
-                    currentTime = getTravelTime(currentTime, previousNode, vehicleNumber, destinationNode);
+                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForPickup = calls.get(element - 1).getLowerBoundTimeWindowForPickup();
                     int upperBoundTimeWindowForPickup = calls.get(element - 1).getUpperBoundTimeWindowForPickup();
                     if (currentTime > upperBoundTimeWindowForPickup) {
@@ -322,11 +372,9 @@ public class PickupAndDelivery {
                 previousNode = destinationNode;
             }
         }
-       // System.out.println("Feasible");
-        return true;
-    }
+    }*/
 
-    private static int getTravelTime(int currentTime, int previousNode, int vehicleNumber, int destinationNode) {
+    private static int getTravelTime(int currentTime, int previousNode, int destinationNode, int vehicleNumber) {
         for (Journey journey : possibleJourneys) {
             if (journey.getOriginNode() == previousNode
                     && journey.getDestinationNode() == destinationNode
@@ -337,16 +385,14 @@ public class PickupAndDelivery {
         return currentTime;
     }
 
-    private static int getFirstVisitTimes(int currentTime, int vehicleNumber, Integer element) {
+    private static NodeTimesAndCosts getNodeTimesAndCostsForVehicle(int vehicleNumber, Integer callID) {
         for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
             if (nodeTimesAndCosts.getVehicleIndex() == vehicleNumber
-                    && nodeTimesAndCosts.getCall().getCallIndex() == element) {
-                currentTime += nodeTimesAndCosts.getOriginNodeTime();
-                currentTime += nodeTimesAndCosts.getDestinationNodeTime();
-                break;
+                    && nodeTimesAndCosts.getCall().getCallIndex() == callID) {
+                return nodeTimesAndCosts;
             }
         }
-        return currentTime;
+        throw new IllegalStateException("No node times and costs entry for given vehicle");
     }
 
     /* Assumes that the given solution is valid */
