@@ -205,13 +205,29 @@ public class OneReinsert {
         }
     }
 
+    /**
+     * Find a random index within the provided lower and upper bounds,
+     * which is not in the given list of exceptions.
+     * @param lowerBound lower bound (exclusive)
+     * @param upperBound upper bound (exclusive)
+     * @param exceptions list of indexes to be ignored.
+     * @return A random number between the given lower and upper bounds.<br>
+     *    Example call:
+     * findRandomIndexWithinVehicle(0, 10, [2,4]) => (1,3,5,6,7,8 or 9)
+     */
     private static int findRandomIndexWithinVehicle(int lowerBound, int upperBound, List<Integer> exceptions) {
-        while (true) {
+        if (upperBound <= lowerBound + 1) {
+            throw new IllegalArgumentException("Given bound does allow values in between");
+        }
+        int attempts = 0;
+        final int MAX_ATTEMPTS = 100000;
+        while (attempts++ < MAX_ATTEMPTS) { // Should be able to find a value before MAX_ATTEMPTS, if it is possible
             int randomIndex = RANDOM.nextInt(upperBound);
             if (randomIndex > lowerBound && !exceptions.contains(randomIndex)) {
                 return randomIndex;
             }
         }
+        throw new IllegalArgumentException("List of exceptions did not permit a value to be found");
     }
 
     private static List<Integer> getIndicesOfAllZeroes(List<Integer> sol) {
