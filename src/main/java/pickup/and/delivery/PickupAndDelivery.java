@@ -1,5 +1,7 @@
 package pickup.and.delivery;
 
+import pickup.and.delivery.algorithms.BlindRandomSearch;
+import pickup.and.delivery.algorithms.LocalSearch;
 import pickup.and.delivery.algorithms.SimulatedAnnealing;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
@@ -230,12 +232,9 @@ public class PickupAndDelivery {
         solutionRepresentation = createWorstSolution();
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-      //   System.out.println("BlindRandomSearch");
-      //   solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
-        //  System.out.println("\nLocal search");
-        //   solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
-        System.out.println("\nSimulated annealing search");
-        solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+        //useBlindRandomSearchOnSolution();
+          useLocalSearchOnSolution();
+        //   useSimulatedAnnealingOnSolution();
 
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
@@ -272,6 +271,21 @@ public class PickupAndDelivery {
         System.out.println(feasible(sol3));
         System.out.println(calculateCost(sol3));
 */
+    }
+
+    private static void useBlindRandomSearchOnSolution() {
+        System.out.println("Blind Random search");
+        solutionRepresentation = BlindRandomSearch.blindRandomSearch(solutionRepresentation);
+    }
+
+    private static void useLocalSearchOnSolution() {
+        System.out.println("\nLocal search");
+        solutionRepresentation = LocalSearch.localSearch(solutionRepresentation);
+    }
+
+    private static void useSimulatedAnnealingOnSolution() {
+        System.out.println("\nSimulated annealing search");
+        solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
     }
 
     /* Assumes that the given solution is valid */
