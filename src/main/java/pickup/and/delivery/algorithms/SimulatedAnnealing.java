@@ -13,7 +13,7 @@ public class SimulatedAnnealing {
     private static final Random RANDOM = new Random();
     private static final int NUMBER_OF_ITERATIONS = 10000;
     private static final double INITIAL_TEMPERATURE = 115000000.0;
-    private static final double COOLING_FACTOR = 0.9979850447;
+    private static final double COOLING_FACTOR = 0.9679850447;
     private static final double PROBABILITY_OF_USING_TWO_EXCHANGE = 0.15;
     private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
   /*
@@ -32,6 +32,7 @@ public class SimulatedAnnealing {
     //    int numberOfTimesWorseSolutionWasAccepted = 0;
     //    int numberOfTimesSolutionWasFeasible = 0;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+           // System.out.println("Iteration number = " + i);
             newSolution = selectAndApplyOperatorOnSolution(currentlyAcceptedSolution);
           /*  if (deltaE > 0 && deltaE < min) {
                 min = deltaE;
