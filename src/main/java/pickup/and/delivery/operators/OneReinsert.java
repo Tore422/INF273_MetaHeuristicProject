@@ -70,8 +70,8 @@ public class OneReinsert {
             // insertion is irrelevant, we can simply append the call to the end of the solution.
             newSolutionRepresentation.add(firstPartOfCallToReinsert);
             newSolutionRepresentation.add(secondPartOfCallToReinsert);
-            System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
-            System.out.println("newSolutionRepresentation add to end = " + newSolutionRepresentation);
+        //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
+        //    System.out.println("newSolutionRepresentation add to end = " + newSolutionRepresentation);
             return newSolution;
         }
 
