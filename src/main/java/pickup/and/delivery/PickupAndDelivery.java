@@ -34,7 +34,6 @@ public class PickupAndDelivery {
         initialize(PATH_TO_FILE_5);
         final int NUMBER_OF_ITERATIONS = 10;
         runForNumberOfIterations(NUMBER_OF_ITERATIONS);
-
         /*
         List<Integer> values1 = Arrays.asList(1, 1, 0, 10, 10, 3, 3, 0, 0, 12, 12, 0, 6, 6, 0, 2, 18, 8, 9, 4, 5, 5, 2, 15, 4, 7, 16, 16, 9, 15, 13, 14, 17, 8, 14, 11, 18, 11, 7, 17, 13);
         List<Integer> values2 = Arrays.asList(4, 14, 14, 4, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 8, 7, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 11, 11, 17, 17, 15, 15, 13, 13);
@@ -53,9 +52,9 @@ public class PickupAndDelivery {
         IVectorSolutionRepresentation<Integer> bestSolution = null;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
-            Long timerStart = System.currentTimeMillis();
+            long timerStart = System.currentTimeMillis();
             calculateSolution();
-            Long timerStop = System.currentTimeMillis();
+            long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("(timerStop - timerStart) = " + result);
             solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
@@ -233,8 +232,8 @@ public class PickupAndDelivery {
         System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
         //useBlindRandomSearchOnSolution();
-          useLocalSearchOnSolution();
-        //   useSimulatedAnnealingOnSolution();
+        //useLocalSearchOnSolution();
+        useSimulatedAnnealingOnSolution();
 
         System.out.println("solutionRepresentation = " + solutionRepresentation);
         System.out.println(feasible(solutionRepresentation));
