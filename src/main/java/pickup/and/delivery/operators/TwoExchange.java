@@ -325,22 +325,14 @@ decrement all other indexes >= secondCallAIndex
             }
             if (!foundFirstCallToSwap) {
                 firstIndexOfCallA = randomIndex;
-                findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCallA, startAndStopIndexOfVehicleA);
-                if (startAndStopIndexOfVehicleA[1] == -1) {
-                    startAndStopIndexOfVehicleA[1] = newSolutionRepresentation.size();
-                }
-                secondIndexOfCallA = findIndexOfSecondCallInVehicle(
-                        newSolutionRepresentation, startAndStopIndexOfVehicleA[0], firstIndexOfCallA);
+                secondIndexOfCallA = getSecondIndexOfCall(newSolutionRepresentation,
+                        zeroIndices, startAndStopIndexOfVehicleA,firstIndexOfCallA);
                 foundFirstCallToSwap = true;
             } else if (randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallB = randomIndex;
-                findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCallB, startAndStopIndexOfVehicleB);
-                if (startAndStopIndexOfVehicleB[1] == -1) {
-                    startAndStopIndexOfVehicleB[1] = newSolutionRepresentation.size();
-                }
-                secondIndexOfCallB = findIndexOfSecondCallInVehicle(
-                        newSolutionRepresentation, startAndStopIndexOfVehicleB[0], firstIndexOfCallB);
+                secondIndexOfCallB = getSecondIndexOfCall(newSolutionRepresentation,
+                        zeroIndices, startAndStopIndexOfVehicleB, firstIndexOfCallB);
                 break;
             }
         }
@@ -353,42 +345,6 @@ decrement all other indexes >= secondCallAIndex
         newSolution.swapElements(secondIndexOfCallA, secondIndexOfCallB);
       //  System.out.println("newSolution = " + newSolution);
         return newSolution;
-/*
-        List<Integer> sol = new ArrayList<>(solution.getSolutionRepresentation());
-        List<Integer> zeroIndices = getIndicesOfAllZeroes(sol);
-        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
-        int firstIndexOfCallA, secondIndexOfCallA;
-        int firstIndexOfCallB, secondIndexOfCallB;
-        int[] startAndStopIndexOfVehicleA = new int[2];
-        int[] startAndStopIndexOfVehicleB = new int[2];
-        boolean foundFirstCallToSwap = false;
-        Random random = new Random();
-        while (true) {
-            int randomIndex = random.nextInt(sol.size());
-            Integer element = sol.get(randomIndex);
-            if (element.equals(0)) {
-                continue;
-            }
-            if (!foundFirstCallToSwap) {
-                firstIndexOfCallA = randomIndex;
-
-
-
-          //      startIndexOfVehicleA = findStartIndexOfVehicle(zeroIndices,
-          //              startIndexOfOutsourcedCalls, firstIndexOfCallA, stopIndexOfVehicleA);
-          //      secondIndexOfCallA = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleA, firstIndexOfCallA);
-                foundFirstCallToSwap = true;
-            } else {
-                firstIndexOfCallB = randomIndex;
-          //      startIndexOfVehicleB = findStartIndexOfVehicle(zeroIndices,
-          //              startIndexOfOutsourcedCalls, firstIndexOfCallB, stopIndexOfVehicleB);
-          //      secondIndexOfCallB = findIndexOfSecondCallInVehicle(sol, startIndexOfVehicleB, firstIndexOfCallB);
-                break;
-            }
-        }
-        VectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(sol);
-
- */
         /*
         [3, 3, 0, 7, 1, 7, 1, 0, 0, 4, 5, 6, 4, 6, 2, 5, 2]
         firstIndexA = 5
@@ -417,17 +373,24 @@ decrement all other indexes >= secondCallAIndex
         then swap B internally in the vehicle
         [3, 3, 0, 4, 4, 1, 1, 0, 0, 2, 5, 6, 6, 7, 7, 5, 2] random swap within vehicle
          */
-       // newSolution.swapElements(firstIndexOfCallA, firstIndexOfCallB);
-       // newSolution.swapElements(secondIndexOfCallA, secondIndexOfCallB);
+    }
+
+    private static int getSecondIndexOfCall(List<Integer> newSolutionRepresentation,
+                                            List<Integer> zeroIndices,
+                                            int[] startAndStopIndexOfVehicle,
+                                            int firstIndexOfCall) {
+        int secondIndexOfCall;
+        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall,
+                newSolutionRepresentation.size(), startAndStopIndexOfVehicle);
+        secondIndexOfCall = findIndexOfSecondCallInVehicle(
+                newSolutionRepresentation, startAndStopIndexOfVehicle[0], firstIndexOfCall);
+        return secondIndexOfCall;
     }
 
     private static int findIndexOfSecondCallInVehicle(List<Integer> solution,
                                                       int startIndexOfVehicle,
                                                       int indexOfCallToFindDuplicateOf) {
         Integer callToFindDuplicateOf = solution.get(indexOfCallToFindDuplicateOf);
-        if (startIndexOfVehicle == 0) { // If the call is handled by the first vehicle,
-            startIndexOfVehicle--; // we adjust the value to fit with the following for loop.
-        }
         for (int i = startIndexOfVehicle + 1; i < solution.size(); i++) {
             Integer call = solution.get(i);
             if (call.equals(0)) {
@@ -443,11 +406,15 @@ decrement all other indexes >= secondCallAIndex
 
     private static void findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
                                                        int indexOfCallInVehicleToFind,
+                                                       int stopIndexOfOutsourcedCalls,
                                                        int[] startAndStopIndexOfVehicle) {
+        if (indexOfCallInVehicleToFind > stopIndexOfOutsourcedCalls || indexOfCallInVehicleToFind < 0) {
+            throw new IllegalArgumentException("Index does not exist");
+        }
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
         if (indexOfCallInVehicleToFind > startIndexOfOutsourcedCalls) {
             startAndStopIndexOfVehicle[0] = startIndexOfOutsourcedCalls;
-            startAndStopIndexOfVehicle[1] = -1;
+            startAndStopIndexOfVehicle[1] = stopIndexOfOutsourcedCalls;
         } else if (indexOfCallInVehicleToFind < zeroIndices.get(0)) {
             startAndStopIndexOfVehicle[0] = -1;
             startAndStopIndexOfVehicle[1] = zeroIndices.get(0);

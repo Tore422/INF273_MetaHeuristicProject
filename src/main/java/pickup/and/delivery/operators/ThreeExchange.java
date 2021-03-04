@@ -41,23 +41,23 @@ public class ThreeExchange {
             }
             if (!foundFirstCallToSwap) {
                 firstIndexOfCallA = randomIndex;
-                secondIndexOfCallA = getSecondIndexOfCall(
-                        newSolutionRepresentation, zeroIndices, startAndStopIndexOfVehicleA, firstIndexOfCallA);
+                secondIndexOfCallA = getSecondIndexOfCall(newSolutionRepresentation,
+                        zeroIndices, startAndStopIndexOfVehicleA, firstIndexOfCallA);
                 foundFirstCallToSwap = true;
             } else if (!foundSecondCallToSwap
                     && randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallB = randomIndex;
-                secondIndexOfCallB = getSecondIndexOfCall(
-                        newSolutionRepresentation, zeroIndices, startAndStopIndexOfVehicleB, firstIndexOfCallB);
+                secondIndexOfCallB = getSecondIndexOfCall(newSolutionRepresentation,
+                        zeroIndices, startAndStopIndexOfVehicleB, firstIndexOfCallB);
                 foundSecondCallToSwap = true;
             } else if (randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA
                     && randomIndex != firstIndexOfCallB
                     && randomIndex != secondIndexOfCallB) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallC = randomIndex;
-                secondIndexOfCallC = getSecondIndexOfCall(
-                        newSolutionRepresentation, zeroIndices, startAndStopIndexOfVehicleC, firstIndexOfCallC);
+                secondIndexOfCallC = getSecondIndexOfCall(newSolutionRepresentation,
+                        zeroIndices, startAndStopIndexOfVehicleC, firstIndexOfCallC);
                 break;
             }
         }
@@ -79,10 +79,8 @@ public class ThreeExchange {
                                              int[] startAndStopIndexOfVehicle,
                                              int firstIndexOfCall) {
         int secondIndexOfCall;
-        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall, startAndStopIndexOfVehicle);
-        if (startAndStopIndexOfVehicle[1] == -1) {
-            startAndStopIndexOfVehicle[1] = newSolutionRepresentation.size();
-        }
+        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall,
+                newSolutionRepresentation.size(), startAndStopIndexOfVehicle);
         secondIndexOfCall = findIndexOfSecondCallInVehicle(
                 newSolutionRepresentation, startAndStopIndexOfVehicle[0], firstIndexOfCall);
         return secondIndexOfCall;
@@ -92,9 +90,6 @@ public class ThreeExchange {
                                                       int startIndexOfVehicle,
                                                       int indexOfCallToFindDuplicateOf) {
         Integer callToFindDuplicateOf = solution.get(indexOfCallToFindDuplicateOf);
-        if (startIndexOfVehicle == 0) { // If the call is handled by the first vehicle,
-            startIndexOfVehicle--; // we adjust the value to fit with the following for loop.
-        }
         for (int i = startIndexOfVehicle + 1; i < solution.size(); i++) {
             Integer call = solution.get(i);
             if (call.equals(0)) {
@@ -110,11 +105,15 @@ public class ThreeExchange {
 
     private static void findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
                                                        int indexOfCallInVehicleToFind,
+                                                       int stopIndexOfOutsourcedCalls,
                                                        int[] startAndStopIndexOfVehicle) {
+        if (indexOfCallInVehicleToFind > stopIndexOfOutsourcedCalls || indexOfCallInVehicleToFind < 0) {
+            throw new IllegalArgumentException("Index does not exist");
+        }
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
         if (indexOfCallInVehicleToFind > startIndexOfOutsourcedCalls) {
             startAndStopIndexOfVehicle[0] = startIndexOfOutsourcedCalls;
-            startAndStopIndexOfVehicle[1] = -1;
+            startAndStopIndexOfVehicle[1] = stopIndexOfOutsourcedCalls;
         } else if (indexOfCallInVehicleToFind < zeroIndices.get(0)) {
             startAndStopIndexOfVehicle[0] = -1;
             startAndStopIndexOfVehicle[1] = zeroIndices.get(0);
