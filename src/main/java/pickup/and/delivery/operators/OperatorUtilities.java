@@ -4,6 +4,7 @@ import pickup.and.delivery.PickupAndDelivery;
 import pickup.and.delivery.entities.Vehicle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -133,10 +134,29 @@ public class OperatorUtilities {
     }
 
 
-
-
-
-
-
-
+    public static List<int[]> findStartIndexOfVehiclesWithMoreThanOneCall(List<Integer> zeroIndices) {
+        List<int[]> startIndexOfVehiclesWithMoreThanOneCall = new ArrayList<>(zeroIndices.size());
+        System.out.println("zeroIndices = " + zeroIndices);
+        if (zeroIndices.isEmpty()) {
+            return startIndexOfVehiclesWithMoreThanOneCall;
+        }
+        int startIndex = 0;
+        int stopIndex = zeroIndices.get(0);
+            for (int i = 0; i < zeroIndices.size(); i++) {
+                if (stopIndex - startIndex > 3) {
+                    int[] startAndStopIndexOfVehicle = new int[2];
+                    startAndStopIndexOfVehicle[0] = startIndex;
+                    startAndStopIndexOfVehicle[1] = stopIndex;
+                    startIndexOfVehiclesWithMoreThanOneCall.add(startAndStopIndexOfVehicle);
+                }
+                if (i + 1 < zeroIndices.size()) {
+                    startIndex = zeroIndices.get(i);
+                    stopIndex = zeroIndices.get(i + 1);
+                }
+            }
+        for (int[] element : startIndexOfVehiclesWithMoreThanOneCall) {
+            System.out.println("element = " + Arrays.toString(element));
+        }
+        return startIndexOfVehiclesWithMoreThanOneCall;
+    }
 }
