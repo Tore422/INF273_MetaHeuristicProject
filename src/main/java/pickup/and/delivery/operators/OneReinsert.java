@@ -23,7 +23,7 @@ public class OneReinsert {
             throw new IllegalArgumentException("Solution was empty/nonexistent.");
         }
         IVectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(
-                new ArrayList<>(solution.getSolutionRepresentation()));
+                solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         int[] startAndStopIndexOfVehicle = new int[2];

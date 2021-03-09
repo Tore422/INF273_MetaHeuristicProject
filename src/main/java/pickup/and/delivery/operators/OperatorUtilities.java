@@ -12,7 +12,9 @@ public class OperatorUtilities {
     public static final Random RANDOM = new Random();
 
 
-    public static void findStartIndicesOfVehiclesThatCanTakeTheCall(List<Integer> zeroIndices, Integer firstPartOfCallToReinsert, List<Integer> startIndexOfVehiclesThatCanTakeTheCall) {
+    public static void findStartIndicesOfVehiclesThatCanTakeTheCall(
+            List<Integer> zeroIndices, Integer firstPartOfCallToReinsert,
+            List<Integer> startIndexOfVehiclesThatCanTakeTheCall) {
         for (Vehicle vehicle : PickupAndDelivery.getVehicles()) {
             for (Integer possibleCall : vehicle.getPossibleCalls()) {
                 if (possibleCall.equals(firstPartOfCallToReinsert)) {
