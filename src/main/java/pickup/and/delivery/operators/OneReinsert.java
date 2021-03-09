@@ -11,14 +11,12 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class OneReinsert {
 
-
     public static void main(String[] args) {
        // List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
         List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 2, 2, 0, 3, 4, 4, 3, 1, 1, 0, 6, 6);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
         useOneReinsertOnSolution(sol);
     }
-
 
     public static IVectorSolutionRepresentation<Integer> useOneReinsertOnSolution(IVectorSolutionRepresentation<Integer> solution) {
         if (solution == null || solution.getSolutionRepresentation().isEmpty()) {
@@ -63,38 +61,14 @@ public class OneReinsert {
         int randomStartIndex = OperatorUtilities.RANDOM.nextInt(startIndexOfVehiclesThatCanTakeTheCall.size());
         int startIndexOfVehicle, stopIndexOfVehicle = -1;
         startIndexOfVehicle = startIndexOfVehiclesThatCanTakeTheCall.get(randomStartIndex);
+        SolutionWithElementsToInsert solutionWithElementsToInsert = new SolutionWithElementsToInsert(
+                newSolution, firstPartOfCallToReinsert, secondPartOfCallToReinsert);
         if (startIndexOfVehicle == newSolutionRepresentation.size() - 1) {
-            // Since there are no other outsourced calls, and the order of the
-            // insertion is irrelevant, we can simply append the call to the end of the solution.
-            newSolutionRepresentation.add(firstPartOfCallToReinsert);
-            newSolutionRepresentation.add(secondPartOfCallToReinsert);
-        //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
-        //    System.out.println("newSolutionRepresentation add to end = " + newSolutionRepresentation);
-            return newSolution;
+            return getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(solutionWithElementsToInsert);
         }
 
         if (randomStartIndex == startIndexOfVehiclesThatCanTakeTheCall.size() - 1) {
-            stopIndexOfVehicle = newSolutionRepresentation.size();
-        //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
-        //    System.out.println("stopIndexOfVehicle = " + stopIndexOfVehicle);
-            List<Integer> excludedIndexes = new ArrayList<>();
-            int randomIndexOne = findRandomIndexWithinVehicle(
-                    startIndexOfVehicle, stopIndexOfVehicle + 1, excludedIndexes);
-            if (randomIndexOne >= newSolutionRepresentation.size()) {
-                newSolutionRepresentation.add(firstPartOfCallToReinsert);
-            } else {
-                newSolutionRepresentation.add(randomIndexOne, firstPartOfCallToReinsert);
-            }
-      //      System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-            int randomIndexTwo = findRandomIndexWithinVehicle(
-                    startIndexOfVehicle, stopIndexOfVehicle + 2, excludedIndexes);
-            if (randomIndexTwo >= newSolutionRepresentation.size()) {
-                newSolutionRepresentation.add(secondPartOfCallToReinsert);
-            } else {
-                newSolutionRepresentation.add(randomIndexTwo, secondPartOfCallToReinsert);
-            }
-     //       System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-            return newSolution;
+            return solutionWhenMovingOutsourcedCalls(solutionWithElementsToInsert, startIndexOfVehicle);
         } else {
             for (int i = 0; i < zeroIndices.size(); i++) {
                 if (zeroIndices.get(i) > startIndexOfVehicle) {
@@ -106,27 +80,12 @@ public class OneReinsert {
    //     System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
    //     System.out.println("stopIndexOfVehicle = " + stopIndexOfVehicle);
         if (stopIndexOfVehicle == startIndexOfVehicle + 1) {
-            // Since the vehicle is empty, and the order of insertion is irrelevant,
-            // we can simply add the call to the vehicle.
-   //         System.out.println("vehicle was empty");
-            newSolutionRepresentation.add(stopIndexOfVehicle, firstPartOfCallToReinsert);
-            newSolutionRepresentation.add(stopIndexOfVehicle, secondPartOfCallToReinsert);
-    //        System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-            return newSolution;
+            return getSolutionWhenInsertingIntoEmptyVehicle(
+                    solutionWithElementsToInsert, stopIndexOfVehicle);
         }
 
-        List<Integer> indexesToIgnore = new ArrayList<>();
-        int firstRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
-                startIndexOfVehicle, stopIndexOfVehicle + 1, indexesToIgnore);
-   //     System.out.println("randomIndexOne = " + firstRandomIndexWithinVehicle);
-        newSolutionRepresentation.add(firstRandomIndexWithinVehicle, firstPartOfCallToReinsert);
-   //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-        int secondRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
-                startIndexOfVehicle, stopIndexOfVehicle + 2, indexesToIgnore);
-   //     System.out.println("randomIndexTwo = " + secondRandomIndexWithinVehicle);
-        newSolutionRepresentation.add(secondRandomIndexWithinVehicle, secondPartOfCallToReinsert);
-   //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-        return newSolution;
+        return getGeneralSolutionWhenInsertingIntoAVehicle(
+                solutionWithElementsToInsert, startIndexOfVehicle, stopIndexOfVehicle);
 /*
     [7, 7, 5, 5, 0, 2, 2, 0, 3, 4, 4, 3, 1, 1, 0, 6, 6]
     pick randomly call 1
@@ -153,6 +112,92 @@ public class OneReinsert {
 
 
  */
+    }
+
+    private static VectorSolutionRepresentation<Integer> getGeneralSolutionWhenInsertingIntoAVehicle(
+            SolutionWithElementsToInsert solutionWithElementsToInsert,
+            int startIndexOfVehicle, int stopIndexOfVehicle) {
+        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
+        Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
+        Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
+
+
+        List<Integer> indexesToIgnore = new ArrayList<>();
+        int firstRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
+                startIndexOfVehicle, stopIndexOfVehicle + 1, indexesToIgnore);
+        //     System.out.println("randomIndexOne = " + firstRandomIndexWithinVehicle);
+        newSolutionRepresentation.add(firstRandomIndexWithinVehicle, firstPartOfCallToReinsert);
+        //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+        int secondRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
+                startIndexOfVehicle, stopIndexOfVehicle + 2, indexesToIgnore);
+        //     System.out.println("randomIndexTwo = " + secondRandomIndexWithinVehicle);
+        newSolutionRepresentation.add(secondRandomIndexWithinVehicle, secondPartOfCallToReinsert);
+        //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+        return newSolution;
+    }
+
+    private static VectorSolutionRepresentation<Integer> getSolutionWhenInsertingIntoEmptyVehicle(
+            SolutionWithElementsToInsert solutionWithElementsToInsert, int stopIndexOfVehicle) {
+        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
+        Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
+        Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
+
+
+        // Since the vehicle is empty, and the order of insertion is irrelevant,
+        // we can simply add the call to the vehicle.
+        //         System.out.println("vehicle was empty");
+        newSolutionRepresentation.add(stopIndexOfVehicle, firstPartOfCallToReinsert);
+        newSolutionRepresentation.add(stopIndexOfVehicle, secondPartOfCallToReinsert);
+        //        System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+        return newSolution;
+    }
+
+    private static VectorSolutionRepresentation<Integer> getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(
+            SolutionWithElementsToInsert solutionWithElementsToInsert) {
+        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
+        Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
+        Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
+
+        // Since there are no other outsourced calls, and the order of the
+        // insertion is irrelevant, we can simply append the call to the end of the solution.
+        newSolutionRepresentation.add(firstPartOfCallToReinsert);
+        newSolutionRepresentation.add(secondPartOfCallToReinsert);
+        //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
+        //    System.out.println("newSolutionRepresentation add to end = " + newSolutionRepresentation);
+        return newSolution;
+    }
+
+    private static VectorSolutionRepresentation<Integer> solutionWhenMovingOutsourcedCalls(
+            SolutionWithElementsToInsert solutionWithElementsToInsert, int startIndexOfVehicle) {
+        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
+        Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
+        Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
+        int stopIndexOfVehicle;
+        stopIndexOfVehicle = newSolutionRepresentation.size();
+        //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
+        //    System.out.println("stopIndexOfVehicle = " + stopIndexOfVehicle);
+        List<Integer> excludedIndexes = new ArrayList<>();
+        int randomIndexOne = findRandomIndexWithinVehicle(
+                startIndexOfVehicle, stopIndexOfVehicle + 1, excludedIndexes);
+        if (randomIndexOne >= newSolutionRepresentation.size()) {
+            newSolutionRepresentation.add(firstPartOfCallToReinsert);
+        } else {
+            newSolutionRepresentation.add(randomIndexOne, firstPartOfCallToReinsert);
+        }
+        //      System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+        int randomIndexTwo = findRandomIndexWithinVehicle(
+                startIndexOfVehicle, stopIndexOfVehicle + 2, excludedIndexes);
+        if (randomIndexTwo >= newSolutionRepresentation.size()) {
+            newSolutionRepresentation.add(secondPartOfCallToReinsert);
+        } else {
+            newSolutionRepresentation.add(randomIndexTwo, secondPartOfCallToReinsert);
+        }
+        //       System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+        return newSolution;
     }
 
 /*
@@ -228,4 +273,17 @@ public class OneReinsert {
         return newSolution;//
     }//*/
 
+    private static class SolutionWithElementsToInsert {
+        private final VectorSolutionRepresentation<Integer> solution;
+        private final Integer firstPartOfCallToReinsert;
+        private final Integer secondPartOfCallToReinsert;
+
+        public SolutionWithElementsToInsert(VectorSolutionRepresentation<Integer> sol,
+                                            Integer firstPartOfCallToReinsert,
+                                            Integer secondPartOfCallToReinsert) {
+            this.solution = sol;
+            this.firstPartOfCallToReinsert = firstPartOfCallToReinsert;
+            this.secondPartOfCallToReinsert = secondPartOfCallToReinsert;
+        }
+    }
 }
