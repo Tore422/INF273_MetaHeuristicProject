@@ -22,7 +22,7 @@ public class OneReinsert {
         if (solution == null || solution.getSolutionRepresentation().isEmpty()) {
             throw new IllegalArgumentException("Solution was empty/nonexistent.");
         }
-        VectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(
+        IVectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(
                 new ArrayList<>(solution.getSolutionRepresentation()));
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
@@ -114,10 +114,10 @@ public class OneReinsert {
  */
     }
 
-    private static VectorSolutionRepresentation<Integer> getGeneralSolutionWhenInsertingIntoAVehicle(
+    private static IVectorSolutionRepresentation<Integer> getGeneralSolutionWhenInsertingIntoAVehicle(
             SolutionWithElementsToInsert solutionWithElementsToInsert,
             int startIndexOfVehicle, int stopIndexOfVehicle) {
-        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        IVectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
@@ -137,9 +137,9 @@ public class OneReinsert {
         return newSolution;
     }
 
-    private static VectorSolutionRepresentation<Integer> getSolutionWhenInsertingIntoEmptyVehicle(
+    private static IVectorSolutionRepresentation<Integer> getSolutionWhenInsertingIntoEmptyVehicle(
             SolutionWithElementsToInsert solutionWithElementsToInsert, int stopIndexOfVehicle) {
-        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        IVectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
@@ -154,9 +154,9 @@ public class OneReinsert {
         return newSolution;
     }
 
-    private static VectorSolutionRepresentation<Integer> getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(
+    private static IVectorSolutionRepresentation<Integer> getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(
             SolutionWithElementsToInsert solutionWithElementsToInsert) {
-        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        IVectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
@@ -170,9 +170,9 @@ public class OneReinsert {
         return newSolution;
     }
 
-    private static VectorSolutionRepresentation<Integer> solutionWhenMovingOutsourcedCalls(
+    private static IVectorSolutionRepresentation<Integer> solutionWhenMovingOutsourcedCalls(
             SolutionWithElementsToInsert solutionWithElementsToInsert, int startIndexOfVehicle) {
-        VectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
+        IVectorSolutionRepresentation<Integer> newSolution = solutionWithElementsToInsert.solution;
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         Integer firstPartOfCallToReinsert = solutionWithElementsToInsert.firstPartOfCallToReinsert;
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
@@ -274,11 +274,11 @@ public class OneReinsert {
     }//*/
 
     private static class SolutionWithElementsToInsert {
-        private final VectorSolutionRepresentation<Integer> solution;
+        private final IVectorSolutionRepresentation<Integer> solution;
         private final Integer firstPartOfCallToReinsert;
         private final Integer secondPartOfCallToReinsert;
 
-        public SolutionWithElementsToInsert(VectorSolutionRepresentation<Integer> sol,
+        public SolutionWithElementsToInsert(IVectorSolutionRepresentation<Integer> sol,
                                             Integer firstPartOfCallToReinsert,
                                             Integer secondPartOfCallToReinsert) {
             this.solution = sol;
