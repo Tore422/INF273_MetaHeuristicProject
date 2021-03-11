@@ -178,8 +178,7 @@ public class OperatorUtilities {
         int currentNode = getVehicles().get(vehicleNumber - 1).getHomeNode();
         List<Call> unfinishedCalls = new ArrayList<>();
         for (int i = startIndex + 1; i < stopIndex; i++) {
-            System.out.println("element = " + solutionRepresentation.get(i));
-            Call currentCall = getCalls().get(solutionRepresentation.get(i));
+            Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
             NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                     vehicleNumber, currentCall.getCallIndex());
             int destinationNode = - 1;
@@ -198,16 +197,67 @@ public class OperatorUtilities {
         return totalCost;
     }
 
-/*  public static boolean computeIfTimeWindowHasBeenViolated() {
-
-        return false;
+  public static boolean timeWindowConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
+                                                     List<Integer> solutionRepresentation) {
+      Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
+      int currentTime = vehicle.getStartingTimeInHours();
+      int currentNode = vehicle.getHomeNode();
+      List<Call> unfinishedCalls = new ArrayList<>();
+      for (int i = startIndex + 1; i < stopIndex; i++) {
+          Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
+          NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
+                  vehicleNumber, currentCall.getCallIndex());
+          int destinationNode = -1;
+          if (unfinishedCalls.contains(currentCall)) {
+              destinationNode = currentCall.getDestinationNode();
+              currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
+                      currentCall.getLowerBoundTimeWindowForDelivery());
+              if (currentTime > currentCall.getUpperBoundTimeWindowForDelivery()) {
+                  System.out.println("Time window exceeded for delivery");
+                  return false;
+              }
+              currentTime += nodeTimesAndCosts.getDestinationNodeTime();
+              unfinishedCalls.remove(currentCall);
+          } else {
+              destinationNode = currentCall.getOriginNode();
+              currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
+                      currentCall.getLowerBoundTimeWindowForPickup());
+              if (currentTime > currentCall.getUpperBoundTimeWindowForPickup()) {
+                  System.out.println("Time window exceeded for pickup");
+                  return false;
+              }
+              currentTime += nodeTimesAndCosts.getOriginNodeTime();
+              unfinishedCalls.add(currentCall);
+          }
+          currentNode = destinationNode;
+      }
+      return true;
     }
-*/
 
-/*  public static boolean computeIfCapacityHasBeenExceeded() {
 
+  public static boolean vehicleCapacityConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
+                                                          List<Integer> solutionRepresentation) {
+      Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
+      int maxCapacity = vehicle.getCapacity();
+      int currentLoad = 0;
+      List<Call> unfinishedCalls = new ArrayList<>();
+      for (int i = startIndex + 1; i < stopIndex; i++) {
+          Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
+          if (unfinishedCalls.contains(currentCall)) {
+              currentLoad -= currentCall.getPackageSize();
+              unfinishedCalls.remove(currentCall);
+          } else {
+              currentLoad += currentCall.getPackageSize();
+              if (currentLoad > maxCapacity) {
+                  System.out.println("Capacity exceeded");
+                  return false;
+              }
+              unfinishedCalls.add(currentCall);
+          }
+      }
+      return true;
     }
-*/
+
 
     public static int findVehicleNumberForVehicleStartingAtIndex(int startIndex, List<Integer> zeroIndices) {
         int vehicleNumber = 1;
@@ -228,5 +278,14 @@ public class OperatorUtilities {
         }
     }
 
+    public static int findNumberOfDifferentCallsInVehicle(int startIndex, int stopIndex) {
+        int numberOfDifferentCallsInVehicle = 0;
+        if (startIndex == -1) {
+            numberOfDifferentCallsInVehicle = stopIndex / 2;
+        } else {
+            numberOfDifferentCallsInVehicle = ((stopIndex - startIndex) - 1) / 2;
+        }
+        return numberOfDifferentCallsInVehicle;
+    }
 
 }
