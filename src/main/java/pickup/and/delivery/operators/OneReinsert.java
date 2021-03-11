@@ -123,14 +123,13 @@ public class OneReinsert {
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
 
 
-        List<Integer> indexesToIgnore = new ArrayList<>();
         int firstRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
-                startIndexOfVehicle, stopIndexOfVehicle + 1, indexesToIgnore);
+                startIndexOfVehicle, stopIndexOfVehicle + 1, null);
         //     System.out.println("randomIndexOne = " + firstRandomIndexWithinVehicle);
         newSolutionRepresentation.add(firstRandomIndexWithinVehicle, firstPartOfCallToReinsert);
         //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
         int secondRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
-                startIndexOfVehicle, stopIndexOfVehicle + 2, indexesToIgnore);
+                startIndexOfVehicle, stopIndexOfVehicle + 2, null);
         //     System.out.println("randomIndexTwo = " + secondRandomIndexWithinVehicle);
         newSolutionRepresentation.add(secondRandomIndexWithinVehicle, secondPartOfCallToReinsert);
         //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
