@@ -101,7 +101,7 @@ public class OperatorUtilities {
      * which is not in the given list of exceptions.
      * @param lowerBound lower bound (exclusive)
      * @param upperBound upper bound (exclusive)
-     * @param exceptions list of indexes to be ignored.
+     * @param exceptions list of indexes to be ignored (can be null).
      * @return A random number between the given lower and upper bounds.<br>
      *    Example call:
      * findRandomIndexWithinVehicle(0, 10, [2,4]) => (1,3,5,6,7,8 or 9)
@@ -114,7 +114,8 @@ public class OperatorUtilities {
         final int MAX_ATTEMPTS = 100000;
         while (attempts++ < MAX_ATTEMPTS) { // Should be able to find a value before MAX_ATTEMPTS, if it is possible
             int randomIndex = RANDOM.nextInt(upperBound);
-            if (randomIndex > lowerBound && !exceptions.contains(randomIndex)) {
+            if (randomIndex > lowerBound
+                    && (exceptions == null || !exceptions.contains(randomIndex))) {
                 return randomIndex;
             }
         }
@@ -134,11 +135,11 @@ public class OperatorUtilities {
     }
 
 
-    public static List<int[]> findStartIndexOfVehiclesWithMoreThanOneCall(List<Integer> zeroIndices) {
-        List<int[]> startIndexOfVehiclesWithMoreThanOneCall = new ArrayList<>(zeroIndices.size());
+    public static List<int[]> findVehiclesWithMoreThanOneCall(List<Integer> zeroIndices) {
+        List<int[]> startAndStopIndicesOfVehiclesWithMoreThanOneCall = new ArrayList<>(zeroIndices.size());
         System.out.println("zeroIndices = " + zeroIndices);
         if (zeroIndices.isEmpty()) {
-            return startIndexOfVehiclesWithMoreThanOneCall;
+            return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
         }
         int startIndex = 0;
         int stopIndex = zeroIndices.get(0);
@@ -147,16 +148,16 @@ public class OperatorUtilities {
                     int[] startAndStopIndexOfVehicle = new int[2];
                     startAndStopIndexOfVehicle[0] = startIndex;
                     startAndStopIndexOfVehicle[1] = stopIndex;
-                    startIndexOfVehiclesWithMoreThanOneCall.add(startAndStopIndexOfVehicle);
+                    startAndStopIndicesOfVehiclesWithMoreThanOneCall.add(startAndStopIndexOfVehicle);
                 }
                 if (i + 1 < zeroIndices.size()) {
                     startIndex = zeroIndices.get(i);
                     stopIndex = zeroIndices.get(i + 1);
                 }
             }
-        for (int[] element : startIndexOfVehiclesWithMoreThanOneCall) {
+        for (int[] element : startAndStopIndicesOfVehiclesWithMoreThanOneCall) {
             System.out.println("element = " + Arrays.toString(element));
         }
-        return startIndexOfVehiclesWithMoreThanOneCall;
+        return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
     }
 }
