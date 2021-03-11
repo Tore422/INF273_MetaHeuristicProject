@@ -141,7 +141,7 @@ public class OperatorUtilities {
         if (zeroIndices.isEmpty()) {
             return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
         }
-        int startIndex = 0;
+        int startIndex = -1;
         int stopIndex = zeroIndices.get(0);
             for (int i = 0; i < zeroIndices.size(); i++) {
                 if (stopIndex - startIndex > 3) {
