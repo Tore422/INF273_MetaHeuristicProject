@@ -7,6 +7,7 @@ import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
+import pickup.and.delivery.operators.custom.PartialReinsert;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -32,13 +33,14 @@ public class PickupAndDelivery {
 
     public static void main(String[] args) {
         initialize(PATH_TO_FILE_5);
-        final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(NUMBER_OF_ITERATIONS);
-        /*
-        List<Integer> values1 = Arrays.asList(1, 1, 0, 10, 10, 3, 3, 0, 0, 12, 12, 0, 6, 6, 0, 2, 18, 8, 9, 4, 5, 5, 2, 15, 4, 7, 16, 16, 9, 15, 13, 14, 17, 8, 14, 11, 18, 11, 7, 17, 13);
-        List<Integer> values2 = Arrays.asList(4, 14, 14, 4, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 8, 7, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 11, 11, 17, 17, 15, 15, 13, 13);
-        List<Integer> values3 = Arrays.asList(4, 14, 4, 14, 3, 3, 0, 0, 16, 16, 10, 10, 9, 9, 0, 12, 12, 8, 7, 7, 8, 2, 2, 0, 18, 5, 6, 1, 5, 6, 1, 18, 0, 15, 13, 11, 17, 13, 17, 11, 15);
-    */
+        PartialReinsert.main(null);
+
+
+
+       // final int NUMBER_OF_ITERATIONS = 10;
+       // runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+
+
         List<Integer> values = Arrays.asList(0, 0, 17, 17, 0, 0, 25, 25, 35, 35, 0, 22, 2, 2, 22, 0, 0, 13, 30, 28, 31, 12, 1, 34, 11, 32, 16, 14, 23, 32, 24, 5, 7, 20, 18, 6, 3, 16, 12, 21, 34, 19, 26, 27, 29, 14, 11, 9, 27, 20, 21, 13, 6, 18, 33, 19, 8, 1, 7, 10, 29, 31, 10, 9, 33, 28, 23, 8, 15, 3, 15, 30, 4, 24, 4, 26, 5);
         VectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
       //  System.out.println("cost: " + calculateCost(sol));
@@ -91,6 +93,16 @@ public class PickupAndDelivery {
 
     private static void initialize(String pathToFile) {
         processLines(getFileContents(pathToFile));
+      /*  sortInputVehicles();
+        sortInputCalls();
+        sortInputNodeTimesAndCosts();
+        sortInputPossibleJourneys();*/
+
+        // Trim array sizes to save memory space
+        vehicles.trimToSize();
+        calls.trimToSize();
+        possibleJourneys.trimToSize();
+        nodeTimesAndCosts.trimToSize();
     }
 
 /*
@@ -114,10 +126,10 @@ public class PickupAndDelivery {
     private static int numberOfNodes;
     private static int numberOfVehicles;
     private static int numberOfCalls;
-    private static final ArrayList<Vehicle> vehicles = new ArrayList<>();
-    private static final ArrayList<Call> calls = new ArrayList<>();
-    private static final ArrayList<Journey> possibleJourneys = new ArrayList<>();
-    private static final ArrayList<NodeTimesAndCosts> nodeTimesAndCosts = new ArrayList<>();
+    private static ArrayList<Vehicle> vehicles = new ArrayList<>();
+    private static ArrayList<Call> calls = new ArrayList<>();
+    private static ArrayList<Journey> possibleJourneys = new ArrayList<>();
+    private static ArrayList<NodeTimesAndCosts> nodeTimesAndCosts = new ArrayList<>();
     private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
 
     private static void processLines(List<String> lines) {
@@ -226,6 +238,56 @@ public class PickupAndDelivery {
         vehicles.add(new Vehicle(index, homeNode, startTime, capacity));
     }
 
+    // Sorting methods in case of unsorted input data
+/*
+    private static void sortInputVehicles() {
+        ArrayList<Vehicle> sortedVehicles = new ArrayList<>(vehicles);
+        for (Vehicle vehicle : vehicles) {
+            int index = vehicle.getIndex() - 1;
+            sortedVehicles.remove(index);
+            sortedVehicles.add(index, vehicle);
+        }
+        vehicles = sortedVehicles;
+    }
+
+    private static void sortInputCalls() {
+        ArrayList<Call> sortedCalls = new ArrayList<>(calls);
+        for (Call call : calls) {
+            int index = call.getCallIndex() - 1;
+            sortedCalls.remove(index);
+            sortedCalls.add(index, call);
+        }
+        calls = sortedCalls;
+    }
+
+    private static void sortInputPossibleJourneys() {
+        ArrayList<Journey> sortedPossibleJourneys = new ArrayList<>(possibleJourneys);
+        for (Journey journey : possibleJourneys) {
+            int originNode = journey.getOriginNode();
+            int destinationNode = journey.getDestinationNode();
+            int vehicleNumber = journey.getVehicleIndex();
+            int index = (numberOfVehicles * numberOfNodes * (originNode - 1))
+                    + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleNumber) - 1;
+            sortedPossibleJourneys.remove(index);
+            sortedPossibleJourneys.add(index, journey);
+        }
+        possibleJourneys = sortedPossibleJourneys;
+    }
+
+    private static void sortInputNodeTimesAndCosts() {
+        ArrayList<NodeTimesAndCosts> sortedNodeTimesAndCosts = new ArrayList<>(nodeTimesAndCosts);
+        for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
+            int vehicleNumber = nodeTimesAndCosts.getVehicleIndex();
+            int callID = nodeTimesAndCosts.getCall().getCallIndex();
+            int index = ((vehicleNumber - 1) * numberOfCalls) + callID - 1;
+            sortedNodeTimesAndCosts.remove(index);
+            sortedNodeTimesAndCosts.add(index, nodeTimesAndCosts);
+        }
+        nodeTimesAndCosts = sortedNodeTimesAndCosts;
+    }
+//*/
+
+
     private static void calculateSolution() {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
@@ -315,7 +377,7 @@ public class PickupAndDelivery {
                 int destinationNode;
                 if (unfinishedCalls.contains(call.getCallIndex())) { // Deliver package
                     destinationNode = call.getDestinationNode();
-                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
+                    currentTime += getTravelTime(previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForDelivery = call.getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = call.getUpperBoundTimeWindowForDelivery();
                     if (currentTime > upperBoundTimeWindowForDelivery) {
@@ -336,7 +398,7 @@ public class PickupAndDelivery {
                         return false;
                     }
                     destinationNode = call.getOriginNode();
-                    currentTime = getTravelTime(currentTime, previousNode, destinationNode, vehicleNumber);
+                    currentTime += getTravelTime(previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForPickup = call.getLowerBoundTimeWindowForPickup();
                     int upperBoundTimeWindowForPickup = call.getUpperBoundTimeWindowForPickup();
                     if (currentTime > upperBoundTimeWindowForPickup) {
@@ -367,12 +429,11 @@ public class PickupAndDelivery {
    // private static long timeSpentLookingWithLoop1 = 0;
   //  private static long timeSpentLookingWithIndex1 = 0;
 
-    private static int getTravelTime(int currentTime, int previousNode, int destinationNode, int vehicleNumber) {
+    public static int getTravelTime(int previousNode, int destinationNode, int vehicleNumber) {
   //      Long timerStart = System.currentTimeMillis();
         int indexOfJourney = (numberOfVehicles * numberOfNodes * (previousNode - 1))
                 + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleNumber) - 1;
-        currentTime += possibleJourneys.get(indexOfJourney).getTravelTime();
-        return currentTime;
+        return possibleJourneys.get(indexOfJourney).getTravelTime();
         //    System.out.println(possibleJourneys.get(indexOfJourney));
   //      Long timerStop = System.currentTimeMillis();
   //      timeSpentLookingWithIndex1 += (timerStop - timerStart);
@@ -392,7 +453,7 @@ public class PickupAndDelivery {
         */
     }
 
-    private static NodeTimesAndCosts getNodeTimesAndCostsForVehicle(int vehicleNumber, Integer callID) {
+    public static NodeTimesAndCosts getNodeTimesAndCostsForVehicle(int vehicleNumber, Integer callID) {
         int nodeTimesAndCostsIndex = ((vehicleNumber - 1) * numberOfCalls) + callID - 1;
         return nodeTimesAndCosts.get(nodeTimesAndCostsIndex);
 
@@ -471,7 +532,7 @@ public class PickupAndDelivery {
   //  private static long timeLookingWithLoop2 = 0;
   //  private static long timeLookingWithIndex2 = 0;
 
-    private static int getTravelCostForJourney(int originNode, int destinationNode, int vehicleIndex) {
+    public static int getTravelCostForJourney(int originNode, int destinationNode, int vehicleIndex) {
    //     Long timerStart = System.currentTimeMillis();
         int indexOfJourney = (numberOfVehicles * numberOfNodes * (originNode - 1))
                 + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleIndex) - 1;
@@ -532,8 +593,11 @@ public class PickupAndDelivery {
         return true;
     }
 
-
     public static ArrayList<Vehicle> getVehicles() {
         return vehicles;
+    }
+
+    public static ArrayList<Call> getCalls() {
+        return calls;
     }
 }
