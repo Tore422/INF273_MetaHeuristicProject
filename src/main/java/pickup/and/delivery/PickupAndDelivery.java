@@ -7,12 +7,10 @@ import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
-import pickup.and.delivery.operators.custom.PartialReinsert;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PickupAndDelivery {
@@ -32,20 +30,44 @@ public class PickupAndDelivery {
     private static final String pathToFile5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
+//        initialize(PATH_TO_FILE_5);
+       // PartialReinsert.main(null);
+
+
+      //  runOnceForEachInputFile();
+    }
+
+    private static void runOnceForEachInputFile() {
+        final int ONE = 1;
+        long timerStart = System.currentTimeMillis();
+        System.out.println("Computing solution for input file 1");
+        System.out.println("***********************************");
+        initialize(PATH_TO_FILE_1);
+        runForNumberOfIterations(ONE);
+        System.out.println();
+        System.out.println("Computing solution for input file 2");
+        System.out.println("***********************************");
+        initialize(PATH_TO_FILE_2);
+        runForNumberOfIterations(ONE);
+        System.out.println();
+        System.out.println("Computing solution for input file 3");
+        System.out.println("***********************************");
+        initialize(PATH_TO_FILE_3);
+        runForNumberOfIterations(ONE);
+        System.out.println();
+        System.out.println("Computing solution for input file 4");
+        System.out.println("***********************************");
+        initialize(PATH_TO_FILE_4);
+        runForNumberOfIterations(ONE);
+        System.out.println();
+        System.out.println("Computing solution for input file 5");
+        System.out.println("***********************************");
         initialize(PATH_TO_FILE_5);
-        PartialReinsert.main(null);
-
-
-
-       // final int NUMBER_OF_ITERATIONS = 10;
-       // runForNumberOfIterations(NUMBER_OF_ITERATIONS);
-
-
-        List<Integer> values = Arrays.asList(0, 0, 17, 17, 0, 0, 25, 25, 35, 35, 0, 22, 2, 2, 22, 0, 0, 13, 30, 28, 31, 12, 1, 34, 11, 32, 16, 14, 23, 32, 24, 5, 7, 20, 18, 6, 3, 16, 12, 21, 34, 19, 26, 27, 29, 14, 11, 9, 27, 20, 21, 13, 6, 18, 33, 19, 8, 1, 7, 10, 29, 31, 10, 9, 33, 28, 23, 8, 15, 3, 15, 30, 4, 24, 4, 26, 5);
-        VectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
-      //  System.out.println("cost: " + calculateCost(sol));
-      //  System.out.println("feasible: " + feasible(sol));
-
+        runForNumberOfIterations(ONE);
+        long timerStop = System.currentTimeMillis();
+        long result = (timerStop - timerStart);
+        System.out.println();
+        System.out.println("Total runtime = " + result);
     }
 
     private static void runForNumberOfIterations(int numberOfIterations) {
@@ -58,7 +80,7 @@ public class PickupAndDelivery {
             calculateSolution();
             long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
-            System.out.println("(timerStop - timerStart) = " + result);
+            System.out.println("Time: " + result + " micro-seconds");
             solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
             totalCost += calculateCost(solutionRepresentation);
             totalTime += result;
@@ -91,18 +113,25 @@ public class PickupAndDelivery {
         System.out.println("improvementInPercent = " + improvementInPercent);
     }
 
+    private static int numberOfNodes;
+    private static int numberOfVehicles;
+    private static int numberOfCalls;
+    private static List<Vehicle> vehicles;
+    private static List<Call> calls;
+    private static List<Journey> possibleJourneys;
+    private static List<NodeTimesAndCosts> nodeTimesAndCosts;
+    private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
+
     private static void initialize(String pathToFile) {
+        vehicles = new ArrayList<>();
+        calls = new ArrayList<>();
+        possibleJourneys = new ArrayList<>();
+        nodeTimesAndCosts = new ArrayList<>();
         processLines(getFileContents(pathToFile));
-      /*  sortInputVehicles();
+     /*   sortInputVehicles();
         sortInputCalls();
         sortInputNodeTimesAndCosts();
         sortInputPossibleJourneys();*/
-
-        // Trim array sizes to save memory space
-        vehicles.trimToSize();
-        calls.trimToSize();
-        possibleJourneys.trimToSize();
-        nodeTimesAndCosts.trimToSize();
     }
 
 /*
@@ -118,19 +147,10 @@ public class PickupAndDelivery {
         calculateSolution();
     }*/
 
-    private static List<String> getFileContents(String pathToFile1) {
+    private static List<String> getFileContents(String pathToFile) {
         ReadFromFile fileReader = new ReadFromFile();
-        return fileReader.readFile(pathToFile1);
+        return fileReader.readFile(pathToFile);
     }
-
-    private static int numberOfNodes;
-    private static int numberOfVehicles;
-    private static int numberOfCalls;
-    private static ArrayList<Vehicle> vehicles = new ArrayList<>();
-    private static ArrayList<Call> calls = new ArrayList<>();
-    private static ArrayList<Journey> possibleJourneys = new ArrayList<>();
-    private static ArrayList<NodeTimesAndCosts> nodeTimesAndCosts = new ArrayList<>();
-    private static IVectorSolutionRepresentation<Integer> solutionRepresentation;
 
     private static void processLines(List<String> lines) {
         if (lines.isEmpty()) {
@@ -142,24 +162,30 @@ public class PickupAndDelivery {
                 counter++;
                 continue;
             }
-            if (counter == 1) {
-                numberOfNodes = Integer.parseInt(line);
-            } else if (counter == 2) {
-                numberOfVehicles = Integer.parseInt(line);
-            } else if (counter == 3) {
-                extractVehicle(line);
-            } else if (counter == 4) {
-                numberOfCalls = Integer.parseInt(line);
-            } else if (counter == 5) {
-                extractPossibleCalls(line);
-            } else if (counter == 6) {
-                extractCalls(line);
-            } else if (counter == 7) {
-                extractPossibleJourneys(line);
-            } else if (counter == 8) {
-                extractNodeTimesAndCosts(line);
+            if (counter < 7) {
+                if (counter == 1) {
+                    numberOfNodes = Integer.parseInt(line);
+                } else if (counter == 2) {
+                    numberOfVehicles = Integer.parseInt(line);
+                } else if (counter == 3) {
+                    extractVehicle(line);
+                } else if (counter == 4) {
+                    numberOfCalls = Integer.parseInt(line);
+                } else if (counter == 5) {
+                    extractPossibleCalls(line);
+                } else if (counter == 6) {
+                    extractCalls(line);
+                } else {
+                    System.out.println("What happened here?");
+                }
             } else {
-                System.out.println("What happened here?");
+                if (counter == 7) {
+                    extractPossibleJourneys(line);
+                } else if (counter == 8) {
+                    extractNodeTimesAndCosts(line);
+                } else {
+                    System.out.println("What happened here?");
+                }
             }
         }
 /*
@@ -239,13 +265,11 @@ public class PickupAndDelivery {
     }
 
     // Sorting methods in case of unsorted input data
-/*
     private static void sortInputVehicles() {
         ArrayList<Vehicle> sortedVehicles = new ArrayList<>(vehicles);
         for (Vehicle vehicle : vehicles) {
             int index = vehicle.getIndex() - 1;
-            sortedVehicles.remove(index);
-            sortedVehicles.add(index, vehicle);
+            sortedVehicles.set(index, vehicle);
         }
         vehicles = sortedVehicles;
     }
@@ -254,8 +278,7 @@ public class PickupAndDelivery {
         ArrayList<Call> sortedCalls = new ArrayList<>(calls);
         for (Call call : calls) {
             int index = call.getCallIndex() - 1;
-            sortedCalls.remove(index);
-            sortedCalls.add(index, call);
+            sortedCalls.set(index, call);
         }
         calls = sortedCalls;
     }
@@ -268,8 +291,7 @@ public class PickupAndDelivery {
             int vehicleNumber = journey.getVehicleIndex();
             int index = (numberOfVehicles * numberOfNodes * (originNode - 1))
                     + (numberOfVehicles * destinationNode) - (numberOfVehicles - vehicleNumber) - 1;
-            sortedPossibleJourneys.remove(index);
-            sortedPossibleJourneys.add(index, journey);
+            sortedPossibleJourneys.set(index, journey);
         }
         possibleJourneys = sortedPossibleJourneys;
     }
@@ -280,26 +302,24 @@ public class PickupAndDelivery {
             int vehicleNumber = nodeTimesAndCosts.getVehicleIndex();
             int callID = nodeTimesAndCosts.getCall().getCallIndex();
             int index = ((vehicleNumber - 1) * numberOfCalls) + callID - 1;
-            sortedNodeTimesAndCosts.remove(index);
-            sortedNodeTimesAndCosts.add(index, nodeTimesAndCosts);
+            sortedNodeTimesAndCosts.set(index, nodeTimesAndCosts);
         }
         nodeTimesAndCosts = sortedNodeTimesAndCosts;
     }
-//*/
 
 
     private static void calculateSolution() {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
-        System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
+      //  System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
         //useBlindRandomSearchOnSolution();
         //useLocalSearchOnSolution();
         useSimulatedAnnealingOnSolution();
 
-        System.out.println("solutionRepresentation = " + solutionRepresentation);
-        System.out.println(feasible(solutionRepresentation));
-        System.out.println(calculateCost(solutionRepresentation));
+        System.out.println("SolutionRepresentation = " + solutionRepresentation);
+        System.out.println("Feasible = " + feasible(solutionRepresentation));
+        System.out.println("Solution cost = " + calculateCost(solutionRepresentation));
 
 
 
@@ -593,11 +613,11 @@ public class PickupAndDelivery {
         return true;
     }
 
-    public static ArrayList<Vehicle> getVehicles() {
+    public static List<Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public static ArrayList<Call> getCalls() {
+    public static List<Call> getCalls() {
         return calls;
     }
 }
