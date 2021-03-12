@@ -181,7 +181,7 @@ public class OperatorUtilities {
             Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
             NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                     vehicleNumber, currentCall.getCallIndex());
-            int destinationNode = - 1;
+            int destinationNode;
             if (unfinishedCalls.contains(currentCall)) {
                 destinationNode = currentCall.getDestinationNode();
                 totalCost += nodeTimesAndCosts.getDestinationNodeCosts();
