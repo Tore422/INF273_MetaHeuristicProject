@@ -7,6 +7,7 @@ import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
+import pickup.and.delivery.operators.custom.SmartOneReinsert;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -30,8 +31,12 @@ public class PickupAndDelivery {
     private static final String pathToFile5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
-//        initialize(PATH_TO_FILE_5);
+        initialize(PATH_TO_FILE_1);
+        SmartOneReinsert.main(null);
+
        // PartialReinsert.main(null);
+      //  final int NUMBER_OF_ITERATIONS = 10;
+      //  runForNumberOfIterations(NUMBER_OF_ITERATIONS);
 
 
       //  runOnceForEachInputFile();
@@ -374,7 +379,7 @@ public class PickupAndDelivery {
         //  System.out.println("Calculating feasibility for solution " + solution.toString());
         int currentLoad = 0;
         int currentMaxLoad = vehicles.get(0).getCapacity();
-        int currentTime = vehicles.get(0).getStartingTimeInHours();
+        int currentTime = vehicles.get(0).getStartingTime();
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
         List<Integer> unfinishedCalls = new ArrayList<>();
@@ -386,7 +391,7 @@ public class PickupAndDelivery {
                     unfinishedCalls.clear();
                 }
                 if (vehicleNumber <= numberOfVehicles) {
-                    currentTime = vehicles.get(vehicleNumber - 1).getStartingTimeInHours();
+                    currentTime = vehicles.get(vehicleNumber - 1).getStartingTime();
                     previousNode = vehicles.get(vehicleNumber - 1).getHomeNode();
                     currentMaxLoad = vehicles.get(vehicleNumber - 1).getCapacity();
                 }

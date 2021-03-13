@@ -7,14 +7,14 @@ public class Vehicle {
 
     private int index;
     private int homeNode;
-    private Integer startingTimeInHours;
+    private Integer startingTime;
     private int capacity;
     private List<Integer> possibleCalls;
 
-    public Vehicle(int index, int homeNode, Integer startingTimeInHours, int capacity) {
+    public Vehicle(int index, int homeNode, Integer startingTime, int capacity) {
         this.index = index;
         this.homeNode = homeNode;
-        this.startingTimeInHours = startingTimeInHours;
+        this.startingTime = startingTime;
         this.capacity = capacity;
         this.possibleCalls = new ArrayList<>();
     }
@@ -41,12 +41,12 @@ public class Vehicle {
         this.homeNode = homeNode;
     }
 
-    public Integer getStartingTimeInHours() {
-        return startingTimeInHours;
+    public Integer getStartingTime() {
+        return startingTime;
     }
 
-    public void setStartingTimeInHours(Integer startingTimeInHours) {
-        this.startingTimeInHours = startingTimeInHours;
+    public void setStartingTime(Integer startingTime) {
+        this.startingTime = startingTime;
     }
 
     public int getCapacity() {
@@ -66,7 +66,7 @@ public class Vehicle {
         return "Vehicle{" +
                 "index=" + index +
                 ", homeNode=" + homeNode +
-                ", startingTimeInHours=" + startingTimeInHours +
+                ", startingTime=" + startingTime +
                 ", capacity=" + capacity +
                 ", possibleCalls=" + possibleCalls +
                 '}';

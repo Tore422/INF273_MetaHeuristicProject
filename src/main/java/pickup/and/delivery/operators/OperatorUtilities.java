@@ -200,7 +200,7 @@ public class OperatorUtilities {
   public static boolean timeWindowConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
                                                      List<Integer> solutionRepresentation) {
       Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
-      int currentTime = vehicle.getStartingTimeInHours();
+      int currentTime = vehicle.getStartingTime();
       int currentNode = vehicle.getHomeNode();
       List<Call> unfinishedCalls = new ArrayList<>();
       for (int i = startIndex + 1; i < stopIndex; i++) {
@@ -287,5 +287,32 @@ public class OperatorUtilities {
         }
         return numberOfDifferentCallsInVehicle;
     }
+
+
+
+
+
+    public static List<int[]> findPositionsWithingConstraints(int vehicleNumber, int callID, int[] startAndStopIndices) {
+        Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
+        int maxCapacity = vehicle.getCapacity();
+        int sizeOfPackage = getCalls().get(callID - 1).getPackageSize();
+        int currentTime = vehicle.getStartingTime();
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
 
 }
