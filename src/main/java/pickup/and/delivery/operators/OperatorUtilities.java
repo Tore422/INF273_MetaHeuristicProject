@@ -5,7 +5,6 @@ import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -147,7 +146,6 @@ public class OperatorUtilities {
      */
     public static List<int[]> findVehiclesWithMoreThanOneCall(List<Integer> zeroIndices) {
         List<int[]> startAndStopIndicesOfVehiclesWithMoreThanOneCall = new ArrayList<>(zeroIndices.size());
-        System.out.println("zeroIndices = " + zeroIndices);
         if (zeroIndices.isEmpty()) {
             return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
         }
@@ -165,9 +163,11 @@ public class OperatorUtilities {
                     stopIndex = zeroIndices.get(i + 1);
                 }
             }
-        for (int[] element : startAndStopIndicesOfVehiclesWithMoreThanOneCall) {
+        /*
+         for (int[] element : startAndStopIndicesOfVehiclesWithMoreThanOneCall) {
             System.out.println("element = " + Arrays.toString(element));
         }
+       */
         return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
     }
 
@@ -213,7 +213,7 @@ public class OperatorUtilities {
               currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
                       currentCall.getLowerBoundTimeWindowForDelivery());
               if (currentTime > currentCall.getUpperBoundTimeWindowForDelivery()) {
-                  System.out.println("Time window exceeded for delivery");
+            //      System.out.println("Time window exceeded for delivery");
                   return false;
               }
               currentTime += nodeTimesAndCosts.getDestinationNodeTime();
@@ -223,7 +223,7 @@ public class OperatorUtilities {
               currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
                       currentCall.getLowerBoundTimeWindowForPickup());
               if (currentTime > currentCall.getUpperBoundTimeWindowForPickup()) {
-                  System.out.println("Time window exceeded for pickup");
+              //    System.out.println("Time window exceeded for pickup");
                   return false;
               }
               currentTime += nodeTimesAndCosts.getOriginNodeTime();
@@ -249,7 +249,7 @@ public class OperatorUtilities {
           } else {
               currentLoad += currentCall.getPackageSize();
               if (currentLoad > maxCapacity) {
-                  System.out.println("Capacity exceeded");
+              //    System.out.println("Capacity exceeded");
                   return false;
               }
               unfinishedCalls.add(currentCall);
