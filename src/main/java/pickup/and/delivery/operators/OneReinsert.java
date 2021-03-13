@@ -54,20 +54,19 @@ public class OneReinsert {
         //System.out.println("zeroIndices new = " + zeroIndices);
         //System.out.println("firstPartOfCallToReinsert = " + firstPartOfCallToReinsert);
         //System.out.println("secondPartOfCallToReinsert = " + secondPartOfCallToReinsert);
-        List<Integer> startIndexOfVehiclesThatCanTakeTheCall = new ArrayList<>();
-        findStartIndicesOfVehiclesThatCanTakeTheCall(zeroIndices,
-                firstPartOfCallToReinsert, startIndexOfVehiclesThatCanTakeTheCall);
-        //System.out.println("startIndexOfVehiclesThatCanTakeTheCall = " + startIndexOfVehiclesThatCanTakeTheCall);
-        int randomStartIndex = OperatorUtilities.RANDOM.nextInt(startIndexOfVehiclesThatCanTakeTheCall.size());
+        List<Integer> startIndicesOfVehiclesThatCanTakeTheCall = findStartIndicesOfVehiclesThatCanTakeTheCall(
+                zeroIndices, firstPartOfCallToReinsert);
+        //System.out.println("startIndicesOfVehiclesThatCanTakeTheCall = " + startIndicesOfVehiclesThatCanTakeTheCall);
+        int randomStartIndex = OperatorUtilities.RANDOM.nextInt(startIndicesOfVehiclesThatCanTakeTheCall.size());
         int startIndexOfVehicle, stopIndexOfVehicle = -1;
-        startIndexOfVehicle = startIndexOfVehiclesThatCanTakeTheCall.get(randomStartIndex);
+        startIndexOfVehicle = startIndicesOfVehiclesThatCanTakeTheCall.get(randomStartIndex);
         SolutionWithElementsToInsert solutionWithElementsToInsert = new SolutionWithElementsToInsert(
                 newSolution, firstPartOfCallToReinsert, secondPartOfCallToReinsert);
         if (startIndexOfVehicle == newSolutionRepresentation.size() - 1) {
             return getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(solutionWithElementsToInsert);
         }
 
-        if (randomStartIndex == startIndexOfVehiclesThatCanTakeTheCall.size() - 1) {
+        if (randomStartIndex == startIndicesOfVehiclesThatCanTakeTheCall.size() - 1) {
             return solutionWhenMovingOutsourcedCalls(solutionWithElementsToInsert, startIndexOfVehicle);
         } else {
             for (int i = 0; i < zeroIndices.size(); i++) {

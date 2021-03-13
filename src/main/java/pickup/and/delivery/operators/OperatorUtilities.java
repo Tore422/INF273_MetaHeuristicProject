@@ -14,23 +14,23 @@ public class OperatorUtilities {
 
     public static final Random RANDOM = new Random();
 
-
-    public static void findStartIndicesOfVehiclesThatCanTakeTheCall(
-            List<Integer> zeroIndices, Integer firstPartOfCallToReinsert,
-            List<Integer> startIndexOfVehiclesThatCanTakeTheCall) {
+    public static List<Integer> findStartIndicesOfVehiclesThatCanTakeTheCall(
+            List<Integer> zeroIndices, Integer callID) {
+        List<Integer> startIndicesOfVehiclesThatCanTakeTheCall = new ArrayList<>();
         for (Vehicle vehicle : getVehicles()) {
             for (Integer possibleCall : vehicle.getPossibleCalls()) {
-                if (possibleCall.equals(firstPartOfCallToReinsert)) {
+                if (possibleCall.equals(callID)) {
                     if (vehicle.getIndex() == 1) {
-                        startIndexOfVehiclesThatCanTakeTheCall.add(-1);
+                        startIndicesOfVehiclesThatCanTakeTheCall.add(-1);
                     } else {
-                        startIndexOfVehiclesThatCanTakeTheCall.add(zeroIndices.get(vehicle.getIndex() - 2));
+                        startIndicesOfVehiclesThatCanTakeTheCall.add(zeroIndices.get(vehicle.getIndex() - 2));
                     }
                 }
             }
         }
         Integer startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
-        startIndexOfVehiclesThatCanTakeTheCall.add(startIndexOfOutsourcedCalls);
+        startIndicesOfVehiclesThatCanTakeTheCall.add(startIndexOfOutsourcedCalls);
+        return startIndicesOfVehiclesThatCanTakeTheCall;
     }
 
     public static int getSecondIndexOfCall(List<Integer> newSolutionRepresentation,
