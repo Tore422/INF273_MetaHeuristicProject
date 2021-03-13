@@ -308,10 +308,17 @@ public class OperatorUtilities {
     }
 
 
-
-
-
-
+    public static int findStopIndex(List<Integer> solutionRepresentation, int startIndex) {
+        int stopIndex = -1;
+        for (int i = startIndex + 1; i < solutionRepresentation.size(); i++) {
+            int element = solutionRepresentation.get(i);
+            if (element == 0) {
+                stopIndex = i;
+                break;
+            }
+        }
+        return stopIndex;
+    }
 
 
 
