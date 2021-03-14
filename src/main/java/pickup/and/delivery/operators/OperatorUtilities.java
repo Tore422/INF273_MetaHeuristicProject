@@ -336,12 +336,33 @@ public class OperatorUtilities {
             previousNode = currentNode;
             currentNode = destinationNode;
         }
+        return findStartAndStopPositionsFulfillingConstraints(
+                vehicleNumber, callID, solutionRepresentation, startIndex, stopIndex, validStartPositions);
+    }
 
+    private static List<int[]> findStartAndStopPositionsFulfillingConstraints(
+            int vehicleNumber, int callID, List<Integer> solutionRepresentation,
+            int startIndex, int stopIndex, List<Integer> validStartPositions) {
         List<int[]> validStartAndStopPositions = new ArrayList<>();
-        
-
-
-        return null; //positions;
+        for (int startPosition : validStartPositions) {
+            List<Integer> copyOfSolutionRepresentation = new ArrayList<>(solutionRepresentation);
+            copyOfSolutionRepresentation.add(startPosition, callID);
+            for (int i = startPosition + 1; i < stopIndex + 1; i++) {
+                copyOfSolutionRepresentation.add(i, callID);
+                boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
+                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                boolean vehicleCapacityConstraintHolds = vehicleCapacityConstraintHoldsFor(
+                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                if (timeWindowConstraintHolds && vehicleCapacityConstraintHolds) {
+                    int[] startAndStopIndices = new int[2];
+                    startAndStopIndices[0] = startPosition;
+                    startAndStopIndices[1] = i;
+                    validStartAndStopPositions.add(startAndStopIndices);
+                }
+                copyOfSolutionRepresentation.remove(i);
+            }
+        }
+        return validStartAndStopPositions;
     }
 
     private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
