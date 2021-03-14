@@ -292,19 +292,110 @@ public class OperatorUtilities {
 
 
 
-    public static List<int[]> findPositionsWithingConstraints(int vehicleNumber, int callID, int[] startAndStopIndices) {
+    public static List<int[]> findPositionsWithinConstraints(
+            int vehicleNumber, int callID, int[] startAndStopIndicesForVehicle, List<Integer> solutionRepresentation) {
         Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
+        NodeTimesAndCosts nodeTimesAndCostsForGivenCall = getNodeTimesAndCostsForVehicle(vehicleNumber, callID);
+        Call givenCall = getCalls().get(callID - 1);
         int maxCapacity = vehicle.getCapacity();
-        int sizeOfPackage = getCalls().get(callID - 1).getPackageSize();
         int currentTime = vehicle.getStartingTime();
+        int currentLoad = 0;
+        int currentNode = vehicle.getHomeNode();
+        int previousNode = currentNode;
+        int startIndex = startAndStopIndicesForVehicle[0];
+        int stopIndex = startAndStopIndicesForVehicle[1];
+        List<Integer> validStartPositions = new ArrayList<>();
+        List<Call> unfinishedCalls = new ArrayList<>();
+        for (int i = startIndex; i < stopIndex; i++) {
+            Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
+            NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
+                    vehicleNumber, currentCall.getCallIndex());
+            int destinationNode;
+            if (unfinishedCalls.contains(currentCall)) {
+                destinationNode = currentCall.getDestinationNode();
+                checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentDeliveryNode(
+                        givenCall, nodeTimesAndCostsForGivenCall, validStartPositions, currentCall,
+                        vehicleNumber, maxCapacity, currentTime, currentLoad,
+                        previousNode, i, destinationNode);
+                currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
+                        currentCall.getLowerBoundTimeWindowForDelivery());
+                currentLoad -= givenCall.getPackageSize();
+                currentTime += nodeTimesAndCosts.getDestinationNodeTime();
+                unfinishedCalls.remove(currentCall);
+            } else {
+                destinationNode = currentCall.getOriginNode();
+                checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
+                        givenCall, nodeTimesAndCostsForGivenCall, validStartPositions, currentCall,
+                        vehicleNumber, maxCapacity, currentTime, currentLoad, previousNode, i, destinationNode);
+                currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
+                        currentCall.getLowerBoundTimeWindowForPickup());
+                currentLoad += givenCall.getPackageSize();
+                currentTime += nodeTimesAndCosts.getOriginNodeTime();
+                unfinishedCalls.add(currentCall);
+            }
+            previousNode = currentNode;
+            currentNode = destinationNode;
+        }
+
+        List<int[]> validStartAndStopPositions = new ArrayList<>();
+        
 
 
+        return null; //positions;
+    }
 
+    private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
+            Call givenCall, NodeTimesAndCosts nodeTimesAndCostsForGivenCall,
+            List<Integer> validStartPositions, Call currentCall, int vehicleNumber, int maxCapacity,
+            int currentTime, int currentLoad, int previousNode, int currentIndex,  int destinationNode) {
+        int sizeOfPackage = givenCall.getPackageSize();
+        int originNodeForGivenCall = givenCall.getOriginNode();
+        int givenCallLowerBoundForPickup = givenCall.getLowerBoundTimeWindowForPickup();
+        int givenCallUpperBoundForPickup = givenCall.getUpperBoundTimeWindowForPickup();
+        int pickupTimeForGivenCall = nodeTimesAndCostsForGivenCall.getOriginNodeTime();
+        int travelTimeFromPreviousNodeToGivenCall = getTravelTime(
+                previousNode, originNodeForGivenCall, vehicleNumber);
+        int alternativeCurrentTime = Math
+                .max((currentTime + travelTimeFromPreviousNodeToGivenCall), givenCallLowerBoundForPickup);
+        if (alternativeCurrentTime < givenCallUpperBoundForPickup) {
+            alternativeCurrentTime += pickupTimeForGivenCall;
+            int travelTimeFromGivenCallOriginNodeToCurrentDestinationNode = getTravelTime(
+                    originNodeForGivenCall, destinationNode, vehicleNumber);
+            alternativeCurrentTime = Math
+                    .max((alternativeCurrentTime + travelTimeFromGivenCallOriginNodeToCurrentDestinationNode),
+                            currentCall.getLowerBoundTimeWindowForPickup());
+            if (alternativeCurrentTime < currentCall.getUpperBoundTimeWindowForPickup()
+                    && (currentLoad + sizeOfPackage) < maxCapacity) {
+                validStartPositions.add(currentIndex); // Can visit given call before the current call
+            }
+        }
+    }
 
-
-
-
-
+    private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentDeliveryNode(
+            Call givenCall, NodeTimesAndCosts nodeTimesAndCostsForGivenCall,
+            List<Integer> validStartPositions, Call currentCall, int vehicleNumber, int maxCapacity,
+            int currentTime, int currentLoad, int previousNode, int currentIndex,  int destinationNode) {
+        int sizeOfPackage = givenCall.getPackageSize();
+        int originNodeForGivenCall = givenCall.getOriginNode();
+        int givenCallLowerBoundForPickup = givenCall.getLowerBoundTimeWindowForPickup();
+        int givenCallUpperBoundForPickup = givenCall.getUpperBoundTimeWindowForPickup();
+        int pickupTimeForGivenCall = nodeTimesAndCostsForGivenCall.getOriginNodeTime();
+        int travelTimeFromPreviousNodeToGivenCall = getTravelTime(
+                previousNode, originNodeForGivenCall, vehicleNumber);
+        int alternativeCurrentTime = Math
+                .max((currentTime + travelTimeFromPreviousNodeToGivenCall), givenCallLowerBoundForPickup);
+        if (alternativeCurrentTime < givenCallUpperBoundForPickup) {
+            alternativeCurrentTime += pickupTimeForGivenCall;
+            int travelTimeFromGivenCallOriginNodeToCurrentDestinationNode = getTravelTime(
+                    originNodeForGivenCall, destinationNode, vehicleNumber);
+            alternativeCurrentTime = Math
+                    .max((alternativeCurrentTime + travelTimeFromGivenCallOriginNodeToCurrentDestinationNode),
+                            currentCall.getLowerBoundTimeWindowForDelivery());
+            if (alternativeCurrentTime < currentCall.getUpperBoundTimeWindowForDelivery()
+                    && (currentLoad + sizeOfPackage) < maxCapacity) {
+                validStartPositions.add(currentIndex); // Can visit given call before the current call
+            }
+        }
     }
 
 
