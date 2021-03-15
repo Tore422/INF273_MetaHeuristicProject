@@ -74,8 +74,6 @@ decrement all other indexes >= secondCallAIndex
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-        int[] startAndStopIndexOfVehicleA = new int[2];
-        int[] startAndStopIndexOfVehicleB = new int[2];
         int firstIndexOfCallA = -1, secondIndexOfCallA = -1;
         int firstIndexOfCallB, secondIndexOfCallB;
         boolean foundFirstCallToSwap = false;
@@ -88,13 +86,13 @@ decrement all other indexes >= secondCallAIndex
             if (!foundFirstCallToSwap) {
                 firstIndexOfCallA = randomIndex;
                 secondIndexOfCallA = getSecondIndexOfCall(newSolutionRepresentation,
-                        zeroIndices, startAndStopIndexOfVehicleA,firstIndexOfCallA);
+                        zeroIndices, firstIndexOfCallA);
                 foundFirstCallToSwap = true;
             } else if (randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallB = randomIndex;
                 secondIndexOfCallB = getSecondIndexOfCall(newSolutionRepresentation,
-                        zeroIndices, startAndStopIndexOfVehicleB, firstIndexOfCallB);
+                        zeroIndices, firstIndexOfCallB);
                 break;
             }
         }

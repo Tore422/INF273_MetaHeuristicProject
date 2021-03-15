@@ -22,9 +22,6 @@ public class ThreeExchange {
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-        int[] startAndStopIndexOfVehicleA = new int[2];
-        int[] startAndStopIndexOfVehicleB = new int[2];
-        int[] startAndStopIndexOfVehicleC = new int[2];
         int firstIndexOfCallA = -1, secondIndexOfCallA = -1;
         int firstIndexOfCallB = -1, secondIndexOfCallB = -1;
         int firstIndexOfCallC, secondIndexOfCallC;
@@ -39,14 +36,14 @@ public class ThreeExchange {
             if (!foundFirstCallToSwap) {
                 firstIndexOfCallA = randomIndex;
                 secondIndexOfCallA = getSecondIndexOfCall(newSolutionRepresentation,
-                        zeroIndices, startAndStopIndexOfVehicleA, firstIndexOfCallA);
+                        zeroIndices, firstIndexOfCallA);
                 foundFirstCallToSwap = true;
             } else if (!foundSecondCallToSwap
                     && randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallB = randomIndex;
                 secondIndexOfCallB = getSecondIndexOfCall(newSolutionRepresentation,
-                        zeroIndices, startAndStopIndexOfVehicleB, firstIndexOfCallB);
+                        zeroIndices, firstIndexOfCallB);
                 foundSecondCallToSwap = true;
             } else if (randomIndex != firstIndexOfCallA
                     && randomIndex != secondIndexOfCallA
@@ -54,7 +51,7 @@ public class ThreeExchange {
                     && randomIndex != secondIndexOfCallB) { // Swapping the call with itself would be rather pointless
                 firstIndexOfCallC = randomIndex;
                 secondIndexOfCallC = getSecondIndexOfCall(newSolutionRepresentation,
-                        zeroIndices, startAndStopIndexOfVehicleC, firstIndexOfCallC);
+                        zeroIndices, firstIndexOfCallC);
                 break;
             }
         }

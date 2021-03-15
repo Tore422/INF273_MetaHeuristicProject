@@ -35,11 +35,10 @@ public class OperatorUtilities {
 
     public static int getSecondIndexOfCall(List<Integer> newSolutionRepresentation,
                                             List<Integer> zeroIndices,
-                                            int[] startAndStopIndexOfVehicle,
                                             int firstIndexOfCall) {
         int secondIndexOfCall;
-        findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall,
-                newSolutionRepresentation.size(), startAndStopIndexOfVehicle);
+        int[] startAndStopIndexOfVehicle = findStartAndStopIndexOfVehicle(zeroIndices, firstIndexOfCall,
+                newSolutionRepresentation.size());
         secondIndexOfCall = findIndexOfSecondCallInVehicle(
                 newSolutionRepresentation, startAndStopIndexOfVehicle[0], firstIndexOfCall);
         return secondIndexOfCall;
@@ -62,13 +61,13 @@ public class OperatorUtilities {
                 "\nGiven solution is not valid.");
     }
 
-    public static void findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
+    public static int[] findStartAndStopIndexOfVehicle(List<Integer> zeroIndices,
                                                        int indexOfCallInVehicleToFind,
-                                                       int stopIndexOfOutsourcedCalls,
-                                                       int[] startAndStopIndexOfVehicle) {
+                                                       int stopIndexOfOutsourcedCalls) {
         if (indexOfCallInVehicleToFind > stopIndexOfOutsourcedCalls || indexOfCallInVehicleToFind < 0) {
             throw new IllegalArgumentException("Index does not exist");
         }
+        int[] startAndStopIndexOfVehicle = new int[2];
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
         if (indexOfCallInVehicleToFind > startIndexOfOutsourcedCalls) {
             startAndStopIndexOfVehicle[0] = startIndexOfOutsourcedCalls;
@@ -86,6 +85,7 @@ public class OperatorUtilities {
                 }
             }
         }
+        return startAndStopIndexOfVehicle;
         /*
         element is in index 16
         zeroes are in indices [2, 10, 14, 15, 20]
@@ -301,39 +301,43 @@ public class OperatorUtilities {
         int currentTime = vehicle.getStartingTime();
         int currentLoad = 0;
         int currentNode = vehicle.getHomeNode();
-        int previousNode = currentNode;
         int startIndex = startAndStopIndicesForVehicle[0];
         int stopIndex = startAndStopIndicesForVehicle[1];
         List<Integer> validStartPositions = new ArrayList<>();
         List<Call> unfinishedCalls = new ArrayList<>();
-        for (int i = startIndex; i < stopIndex; i++) {
+        System.out.println("givenCall origin node = " + givenCall.getOriginNode());
+        for (int i = startIndex + 1; i < stopIndex; i++) {
+            System.out.println("i = " + i);
             Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
             NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                     vehicleNumber, currentCall.getCallIndex());
             int destinationNode;
             if (unfinishedCalls.contains(currentCall)) {
+                System.out.println("Delivery");
                 destinationNode = currentCall.getDestinationNode();
                 checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentDeliveryNode(
                         givenCall, nodeTimesAndCostsForGivenCall, validStartPositions, currentCall,
                         vehicleNumber, maxCapacity, currentTime, currentLoad,
-                        previousNode, i, destinationNode);
+                        currentNode, i, destinationNode);
                 currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
                         currentCall.getLowerBoundTimeWindowForDelivery());
                 currentLoad -= givenCall.getPackageSize();
                 currentTime += nodeTimesAndCosts.getDestinationNodeTime();
                 unfinishedCalls.remove(currentCall);
             } else {
+                System.out.println("Pickup");
                 destinationNode = currentCall.getOriginNode();
                 checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
                         givenCall, nodeTimesAndCostsForGivenCall, validStartPositions, currentCall,
-                        vehicleNumber, maxCapacity, currentTime, currentLoad, previousNode, i, destinationNode);
+                        vehicleNumber, maxCapacity, currentTime, currentLoad, currentNode, i, destinationNode);
                 currentTime = Math.max(currentTime + getTravelTime(currentNode, destinationNode, vehicleNumber),
                         currentCall.getLowerBoundTimeWindowForPickup());
                 currentLoad += givenCall.getPackageSize();
                 currentTime += nodeTimesAndCosts.getOriginNodeTime();
                 unfinishedCalls.add(currentCall);
             }
-            previousNode = currentNode;
+            System.out.println("currentNode = " + currentNode);
+            System.out.println("destinationNode = " + destinationNode);
             currentNode = destinationNode;
         }
         return findStartAndStopPositionsFulfillingConstraints(
@@ -368,14 +372,14 @@ public class OperatorUtilities {
     private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
             Call givenCall, NodeTimesAndCosts nodeTimesAndCostsForGivenCall,
             List<Integer> validStartPositions, Call currentCall, int vehicleNumber, int maxCapacity,
-            int currentTime, int currentLoad, int previousNode, int currentIndex,  int destinationNode) {
+            int currentTime, int currentLoad, int currentNode, int currentIndex,  int destinationNode) {
         int sizeOfPackage = givenCall.getPackageSize();
         int originNodeForGivenCall = givenCall.getOriginNode();
         int givenCallLowerBoundForPickup = givenCall.getLowerBoundTimeWindowForPickup();
         int givenCallUpperBoundForPickup = givenCall.getUpperBoundTimeWindowForPickup();
         int pickupTimeForGivenCall = nodeTimesAndCostsForGivenCall.getOriginNodeTime();
         int travelTimeFromPreviousNodeToGivenCall = getTravelTime(
-                previousNode, originNodeForGivenCall, vehicleNumber);
+                currentNode, originNodeForGivenCall, vehicleNumber);
         int alternativeCurrentTime = Math
                 .max((currentTime + travelTimeFromPreviousNodeToGivenCall), givenCallLowerBoundForPickup);
         if (alternativeCurrentTime < givenCallUpperBoundForPickup) {
@@ -387,7 +391,8 @@ public class OperatorUtilities {
                             currentCall.getLowerBoundTimeWindowForPickup());
             if (alternativeCurrentTime < currentCall.getUpperBoundTimeWindowForPickup()
                     && (currentLoad + sizeOfPackage) < maxCapacity) {
-                validStartPositions.add(currentIndex); // Can visit given call before the current call
+                validStartPositions.add(currentIndex); // Can visit given call before the destination call
+                System.out.println("Could visit given call between nodes " + currentNode + " and " + destinationNode);
             }
         }
     }
@@ -395,14 +400,14 @@ public class OperatorUtilities {
     private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentDeliveryNode(
             Call givenCall, NodeTimesAndCosts nodeTimesAndCostsForGivenCall,
             List<Integer> validStartPositions, Call currentCall, int vehicleNumber, int maxCapacity,
-            int currentTime, int currentLoad, int previousNode, int currentIndex,  int destinationNode) {
+            int currentTime, int currentLoad, int currentNode, int currentIndex,  int destinationNode) {
         int sizeOfPackage = givenCall.getPackageSize();
         int originNodeForGivenCall = givenCall.getOriginNode();
         int givenCallLowerBoundForPickup = givenCall.getLowerBoundTimeWindowForPickup();
         int givenCallUpperBoundForPickup = givenCall.getUpperBoundTimeWindowForPickup();
         int pickupTimeForGivenCall = nodeTimesAndCostsForGivenCall.getOriginNodeTime();
         int travelTimeFromPreviousNodeToGivenCall = getTravelTime(
-                previousNode, originNodeForGivenCall, vehicleNumber);
+                currentNode, originNodeForGivenCall, vehicleNumber);
         int alternativeCurrentTime = Math
                 .max((currentTime + travelTimeFromPreviousNodeToGivenCall), givenCallLowerBoundForPickup);
         if (alternativeCurrentTime < givenCallUpperBoundForPickup) {
@@ -414,11 +419,54 @@ public class OperatorUtilities {
                             currentCall.getLowerBoundTimeWindowForDelivery());
             if (alternativeCurrentTime < currentCall.getUpperBoundTimeWindowForDelivery()
                     && (currentLoad + sizeOfPackage) < maxCapacity) {
-                validStartPositions.add(currentIndex); // Can visit given call before the current call
+                validStartPositions.add(currentIndex); // Can visit given call before the destination call
+                System.out.println("Could visit given call between nodes " + currentNode + " and " + destinationNode);
             }
         }
     }
 
+
+    public static int[] findLowestCostOption(List<Integer> newSolutionRepresentation, int callId,
+                                             int startIndex, int stopIndex, int vehicleNumber,
+                                             List<int[]> candidatePositionsForInsertion) {
+        int[] firstCandidatePositions = candidatePositionsForInsertion.get(0);
+        int lowestCostSoFar = computeInitialCost(
+                newSolutionRepresentation, firstCandidatePositions,
+                startIndex, stopIndex, callId, vehicleNumber);
+        int chosenPositionForPickup = firstCandidatePositions[0];
+        int chosenPositionForDelivery = firstCandidatePositions[1];
+        System.out.println("lowestCostSoFar = " + lowestCostSoFar);
+        for (int[] positions : candidatePositionsForInsertion) {
+            int firstPosition = positions[0];
+            int secondPosition = positions[1];
+            List<Integer> copyOfSolutionRepresentation = new ArrayList<>(newSolutionRepresentation);
+            copyOfSolutionRepresentation.add(firstPosition, callId);
+            copyOfSolutionRepresentation.add(secondPosition, callId);
+            int cost = computeCostForVehicle(startIndex, stopIndex + 2,
+                    vehicleNumber, copyOfSolutionRepresentation);
+            System.out.println("cost = " + cost);
+            if (cost < lowestCostSoFar) {
+                chosenPositionForPickup = firstPosition;
+                chosenPositionForDelivery = secondPosition;
+                lowestCostSoFar = cost;
+            }
+        }
+        System.out.println("chosenPositionForPickup = " + chosenPositionForPickup);
+        System.out.println("chosenPositionForDelivery = " + chosenPositionForDelivery);
+        int[] bestPositions = new int[2];
+        bestPositions[0] = chosenPositionForPickup;
+        bestPositions[1] = chosenPositionForDelivery;
+        return bestPositions;
+    }
+
+    public static int computeInitialCost(List<Integer> newSolutionRepresentation, int[] candidatePositions,
+                                         int startIndex, int stopIndex, int callId, int vehicleNumber) {
+        List<Integer> copyOfSolutionRepresentation = new ArrayList<>(newSolutionRepresentation);
+        copyOfSolutionRepresentation.add(candidatePositions[0], callId);
+        copyOfSolutionRepresentation.add(candidatePositions[1], callId);
+        return computeCostForVehicle(startIndex, stopIndex + 2,
+                vehicleNumber, copyOfSolutionRepresentation);
+    }
 
     public static int findStopIndex(List<Integer> solutionRepresentation, int startIndex) {
         int stopIndex = -1;

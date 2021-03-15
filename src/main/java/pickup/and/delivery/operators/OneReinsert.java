@@ -26,7 +26,6 @@ public class OneReinsert {
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-        int[] startAndStopIndexOfVehicle = new int[2];
         int firstIndexOfCall = -1, secondIndexOfCall = -1;
         Integer firstPartOfCallToReinsert = -1, secondPartOfCallToReinsert = -1;
     //    System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
@@ -38,7 +37,7 @@ public class OneReinsert {
             }
             firstIndexOfCall = randomIndex;
             secondIndexOfCall = getSecondIndexOfCall(
-                    newSolutionRepresentation, zeroIndices, startAndStopIndexOfVehicle, firstIndexOfCall);
+                    newSolutionRepresentation, zeroIndices, firstIndexOfCall);
        //     System.out.println("firstIndexOfCall = " + firstIndexOfCall);
        //     System.out.println("secondIndexOfCall = " + secondIndexOfCall);
             firstPartOfCallToReinsert = newSolutionRepresentation.remove(firstIndexOfCall);
