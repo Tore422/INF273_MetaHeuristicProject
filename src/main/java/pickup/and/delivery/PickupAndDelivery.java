@@ -35,8 +35,8 @@ public class PickupAndDelivery {
         SmartOneReinsert.main(null);
 
        // PartialReinsert.main(null);
-      //  final int NUMBER_OF_ITERATIONS = 10;
-      //  runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+       // final int NUMBER_OF_ITERATIONS = 10;
+       // runForNumberOfIterations(NUMBER_OF_ITERATIONS);
 
 
       //  runOnceForEachInputFile();

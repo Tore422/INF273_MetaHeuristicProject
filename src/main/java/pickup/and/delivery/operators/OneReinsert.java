@@ -121,12 +121,12 @@ public class OneReinsert {
         Integer secondPartOfCallToReinsert = solutionWithElementsToInsert.secondPartOfCallToReinsert;
 
 
-        int firstRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
+        int firstRandomIndexWithinVehicle = findRandomIndexWithinExclusiveBounds(
                 startIndexOfVehicle, stopIndexOfVehicle + 1, null);
         //     System.out.println("randomIndexOne = " + firstRandomIndexWithinVehicle);
         newSolutionRepresentation.add(firstRandomIndexWithinVehicle, firstPartOfCallToReinsert);
         //     System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-        int secondRandomIndexWithinVehicle = findRandomIndexWithinVehicle(
+        int secondRandomIndexWithinVehicle = findRandomIndexWithinExclusiveBounds(
                 startIndexOfVehicle, stopIndexOfVehicle + 2, null);
         //     System.out.println("randomIndexTwo = " + secondRandomIndexWithinVehicle);
         newSolutionRepresentation.add(secondRandomIndexWithinVehicle, secondPartOfCallToReinsert);
@@ -178,7 +178,7 @@ public class OneReinsert {
         //    System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
         //    System.out.println("stopIndexOfVehicle = " + stopIndexOfVehicle);
         List<Integer> excludedIndexes = new ArrayList<>();
-        int randomIndexOne = findRandomIndexWithinVehicle(
+        int randomIndexOne = findRandomIndexWithinExclusiveBounds(
                 startIndexOfVehicle, stopIndexOfVehicle + 1, excludedIndexes);
         if (randomIndexOne >= newSolutionRepresentation.size()) {
             newSolutionRepresentation.add(firstPartOfCallToReinsert);
@@ -186,7 +186,7 @@ public class OneReinsert {
             newSolutionRepresentation.add(randomIndexOne, firstPartOfCallToReinsert);
         }
         //      System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-        int randomIndexTwo = findRandomIndexWithinVehicle(
+        int randomIndexTwo = findRandomIndexWithinExclusiveBounds(
                 startIndexOfVehicle, stopIndexOfVehicle + 2, excludedIndexes);
         if (randomIndexTwo >= newSolutionRepresentation.size()) {
             newSolutionRepresentation.add(secondPartOfCallToReinsert);

@@ -13,7 +13,7 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 public class SmartOneReinsert {
 
     public static void main(String[] args) {
-        List<Integer> values = Arrays.asList(3, 3, 0, 1, 1, 0, 5, 5, 6, 6, 0, 4, 2, 4, 2);
+        List<Integer> values = Arrays.asList(3, 3, 0, 1, 1, 0, 5, 5, 6, 6, 0, 4, 2, 4, 2, 7, 7);
                 //3, 3, 0, 7, 1, 7, 1, 0, 5, 5, 6, 6, 0, 4, 2, 4, 2);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
         System.out.println("feasible(sol) = " + feasible(sol));
@@ -68,24 +68,90 @@ public class SmartOneReinsert {
                 zeroIndices.get(zeroIndices.size() - 1) != (newSolutionRepresentation.size() - 1);
         System.out.println("solutionHasOutsourcedCalls = " + solutionHasOutsourcedCalls);
         if (solutionHasOutsourcedCalls) {
-            if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
-                return newSolution;
-            }
+        //    if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
+                System.out.println("newSolution = " + newSolution);
+        //        return newSolution;
+       //     }
         }
-        while (true) {
-            int randomIndex = RANDOM.nextInt(zeroIndices.get(zeroIndices.size() - 1));
-            int element = newSolutionRepresentation.get(randomIndex);
-            if (element != 0) {
-                int firstIndexOfCall = randomIndex;
-                int secondIndexOfCall = getSecondIndexOfCall(newSolutionRepresentation, zeroIndices, firstIndexOfCall);
-                    
-
-
+        int startIndexOfOutsourcedVehicles = zeroIndices.get(zeroIndices.size() - 1);
+        List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
+        while (ignoredIndices.size() < startIndexOfOutsourcedVehicles) {
+            int firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, startIndexOfOutsourcedVehicles, ignoredIndices);
+            int secondIndexOfCall = getSecondIndexOfCall(newSolutionRepresentation, zeroIndices, firstIndexOfCall);
+            int callID = newSolutionRepresentation.get(firstIndexOfCall);
+            List<Integer> startIndicesOfVehiclesThatCanTakeTheCall =
+                    findStartIndicesOfVehiclesThatCanTakeTheCall(zeroIndices, callID);
+            int[] startAndStopIndicesOfSelectedVehicle = findStartAndStopIndexOfVehicle(
+                    zeroIndices, firstIndexOfCall, newSolutionRepresentation.size());
+            // Remove selected calls vehicle to avoid reinserting the call in the original position
+            startIndicesOfVehiclesThatCanTakeTheCall.remove((Integer) startAndStopIndicesOfSelectedVehicle[0]);
+            // Also remove the start for outsourced calls, as we do not want to outsource the call
+            startIndicesOfVehiclesThatCanTakeTheCall.remove(startIndicesOfVehiclesThatCanTakeTheCall.size() - 1);
+            if (!startIndicesOfVehiclesThatCanTakeTheCall.isEmpty()) {
+                boolean foundNewPositionsForCall = processVehiclesThatCanTakeTheCall(
+                        newSolutionRepresentation, zeroIndices, firstIndexOfCall, secondIndexOfCall,
+                        callID, startIndicesOfVehiclesThatCanTakeTheCall);
+                if (foundNewPositionsForCall) {
+                    System.out.println("newSolution = " + newSolution);
+                    return newSolution;
+                }
+                /*
+                List<Integer> processedVehicles = new ArrayList<>();
+                while (processedVehicles.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
+                    int randomVehicleNotYetProcessed = findRandomIndexWithinExclusiveBounds(
+                            MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), processedVehicles);
+                    int startIndexOfRandomVehicle = startIndicesOfVehiclesThatCanTakeTheCall
+                            .get(randomVehicleNotYetProcessed);
+                    int stopIndexOfRandomVehicle = findStopIndex(newSolutionRepresentation, startIndexOfRandomVehicle);
+                    if (findNumberOfDifferentCallsInVehicle(startIndexOfRandomVehicle, stopIndexOfRandomVehicle) == 0) {
+                        // The vehicle is empty, so we assume it can handle the call within
+                        // the constraints and simply add the call to the vehicle.
+                        addCallToEmptyVehicle(newSolutionRepresentation, firstIndexOfCall,
+                                secondIndexOfCall, callID, stopIndexOfRandomVehicle);
+                        return newSolution;
+                    }
+                    int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
+                            startIndexOfRandomVehicle, zeroIndices);
+                    int[] startAndStopIndicesOfRandomVehicle = new int[2];
+                    startAndStopIndicesOfRandomVehicle[0] = startIndexOfRandomVehicle;
+                    startAndStopIndicesOfRandomVehicle[1] = stopIndexOfRandomVehicle;
+                    List<int[]> candidatePositions = findPositionsWithinConstraints(vehicleNumber, callID,
+                            startAndStopIndicesOfRandomVehicle, newSolutionRepresentation);
+                    if (!candidatePositions.isEmpty()) {
+                        int[] lowestCostOption = findLowestCostOption(newSolutionRepresentation, callID,
+                                startIndexOfRandomVehicle, stopIndexOfRandomVehicle, vehicleNumber, candidatePositions);
+                        newSolutionRepresentation.add(lowestCostOption[0], callID);
+                        newSolutionRepresentation.add(lowestCostOption[1], callID);
+                        return newSolution;
+                    }
+                    processedVehicles.add(randomVehicleNotYetProcessed);
+                }
+                */
             }
-
+            ignoredIndices.add(firstIndexOfCall);
+            ignoredIndices.add(secondIndexOfCall);
         }
-
+        for (int i : ignoredIndices) {
+            System.out.println("ignored element = " + i);
+        }
+        System.out.println("ignoredIndices = " + ignoredIndices.size());
+        // On the off chance that no call can be moved, we simply outsource a randomly selected call
+        outsourceRandomCall(newSolutionRepresentation, zeroIndices, startIndexOfOutsourcedVehicles);
         return newSolution;
+    }
+
+    private static void outsourceRandomCall(List<Integer> newSolutionRepresentation, List<Integer> zeroIndices, int startIndexOfOutsourcedVehicles) {
+        int firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
+                MINUS_ONE, startIndexOfOutsourcedVehicles, zeroIndices);
+        int secondIndexOfCall = getSecondIndexOfCall(newSolutionRepresentation, zeroIndices, firstIndexOfCall);
+        int callID = newSolutionRepresentation.get(firstIndexOfCall);
+        int randomOutsourcedCallPosition1 = findRandomIndexWithinExclusiveBounds(
+                startIndexOfOutsourcedVehicles, newSolutionRepresentation.size() + 1,null);
+        int randomOutsourcedCallPosition2 = findRandomIndexWithinExclusiveBounds(
+                startIndexOfOutsourcedVehicles, newSolutionRepresentation.size() + 1,null);
+        addCallToVehicle(newSolutionRepresentation, firstIndexOfCall, secondIndexOfCall, callID,
+                randomOutsourcedCallPosition1, randomOutsourcedCallPosition2);
     }
 
     private static boolean processOutsourcedCalls(List<Integer> newSolutionRepresentation, List<Integer> zeroIndices) {
@@ -97,44 +163,21 @@ public class SmartOneReinsert {
         System.out.println("numberOfCallsThatCanBeProcessed = " + numberOfCallsThatCanBeProcessed);
         List<Integer> ignoredIndices = new ArrayList<>();
         do {
-            int firstIndexOfOutsourcedCall = findRandomIndexWithinVehicle(
+            int firstIndexOfOutsourcedCall = findRandomIndexWithinExclusiveBounds(
                     startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1], ignoredIndices);
             int secondIndexOfOutsourcedCall = getSecondIndexOfCall(
                     newSolutionRepresentation, zeroIndices, firstIndexOfOutsourcedCall);
             int callId = newSolutionRepresentation.get(firstIndexOfOutsourcedCall);
             List<Integer> startIndicesOfVehiclesThatCanTakeTheCall =
                     findStartIndicesOfVehiclesThatCanTakeTheCall(zeroIndices, callId);
+            // Remove the start index for outsourced calls, as we want to move the call elsewhere if possible
+            startIndicesOfVehiclesThatCanTakeTheCall.remove(startIndicesOfVehiclesThatCanTakeTheCall.size() - 1);
             if (!startIndicesOfVehiclesThatCanTakeTheCall.isEmpty()) {
-                List<Integer> vehiclesProcessedSoFar = new ArrayList<>();
-                while (vehiclesProcessedSoFar.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
-                    int randomVehicleIndex = RANDOM.nextInt(startIndicesOfVehiclesThatCanTakeTheCall.size());
-                    if (!vehiclesProcessedSoFar.contains(randomVehicleIndex)) {
-                        int startIndex = startIndicesOfVehiclesThatCanTakeTheCall.get(randomVehicleIndex);
-                        int stopIndex = findStopIndex(newSolutionRepresentation, startIndex);
-                        if (findNumberOfDifferentCallsInVehicle(startIndex, stopIndex) == 0) {
-                            // Here we assume that a vehicle that can handle the call is not limited by
-                            // constraints when it's not handling any other calls.
-                            addCallToEmptyVehicle(newSolutionRepresentation, firstIndexOfOutsourcedCall,
-                                    secondIndexOfOutsourcedCall, callId, stopIndex);
-                            return true;
-                        }
-                        int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(startIndex, zeroIndices);
-                        int[] startAndStopIndicesForVehicle = new int[2]; // Needed for method call
-                        startAndStopIndicesForVehicle[0] = startIndex;
-                        startAndStopIndicesForVehicle[1] = stopIndex;
-                        List<int[]> candidatePositionsForInsertion = findPositionsWithinConstraints(
-                                vehicleNumber, callId, startAndStopIndicesForVehicle, newSolutionRepresentation);
-                        if (!candidatePositionsForInsertion.isEmpty()) {
-                            int[] lowestCostOption = findLowestCostOption(newSolutionRepresentation, callId,
-                                    startIndex, stopIndex, vehicleNumber, candidatePositionsForInsertion);
-                            newSolutionRepresentation.add(lowestCostOption[0], callId);
-                            newSolutionRepresentation.add(lowestCostOption[1], callId);
-                            return true;
-                        }
-                        // Found no positions for which the constraints hold, so we try another vehicle
-                        vehiclesProcessedSoFar.add(randomVehicleIndex);
-                    }
-                }
+                boolean foundNewPositionsForCall = processVehiclesThatCanTakeTheCall(
+                        newSolutionRepresentation, zeroIndices, firstIndexOfOutsourcedCall,
+                        secondIndexOfOutsourcedCall, callId, startIndicesOfVehiclesThatCanTakeTheCall);
+                if (foundNewPositionsForCall)
+                    return true;
             }
             ignoredIndices.add(firstIndexOfOutsourcedCall); // No vehicle could handle the call,
             ignoredIndices.add(secondIndexOfOutsourcedCall);// so we try another outsourced call.
@@ -142,15 +185,88 @@ public class SmartOneReinsert {
         return false;
     }
 
-    private static void addCallToEmptyVehicle(
+    private static boolean processVehiclesThatCanTakeTheCall(
+            List<Integer> newSolutionRepresentation, List<Integer> zeroIndices,
+            int firstIndexOfCall, int secondIndexOfCall, int callId,
+            List<Integer> startIndicesOfVehiclesThatCanTakeTheCall) {
+        List<Integer> vehiclesProcessedSoFar = new ArrayList<>();
+        while (vehiclesProcessedSoFar.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
+            int randomVehicleIndex = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), vehiclesProcessedSoFar);
+            int startIndex = startIndicesOfVehiclesThatCanTakeTheCall.get(randomVehicleIndex);
+            int stopIndex = findStopIndex(newSolutionRepresentation, startIndex);
+            if (findNumberOfDifferentCallsInVehicle(startIndex, stopIndex) == 0) {
+                // Here we assume that a vehicle that can handle the call is not limited by
+                // constraints when it's not handling any other calls.
+                addCallToVehicle(newSolutionRepresentation, firstIndexOfCall,
+                        secondIndexOfCall, callId, stopIndex, stopIndex);
+                return true;
+            }
+            int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(startIndex, zeroIndices);
+            int[] startAndStopIndicesForVehicle = new int[2]; // Needed for method call
+            startAndStopIndicesForVehicle[0] = startIndex;
+            startAndStopIndicesForVehicle[1] = stopIndex;
+            List<int[]> candidatePositionsForInsertion = findPositionsWithinConstraints(
+                    vehicleNumber, callId, startAndStopIndicesForVehicle, newSolutionRepresentation);
+            if (!candidatePositionsForInsertion.isEmpty()) {
+                int[] lowestCostOption = findLowestCostOption(newSolutionRepresentation, callId,
+                        startIndex, stopIndex, vehicleNumber, candidatePositionsForInsertion);
+                addCallToVehicle(newSolutionRepresentation, firstIndexOfCall, secondIndexOfCall,
+                        callId, lowestCostOption[0], lowestCostOption[1]);
+                return true;
+            }
+            // Found no positions for which the constraints hold, so we try another vehicle
+            vehiclesProcessedSoFar.add(randomVehicleIndex);
+        }
+        return false;
+    }
+
+    private static void addCallToVehicle(
             List<Integer> newSolutionRepresentation, int firstIndexOfCall,
-            int secondIndexOfCall, int callId, int stopIndex) {
+            int secondIndexOfCall, int callId, int firstInsertionIndex, int secondInsertionIndex) {
         // If there is a vehicle that can handle the call and is empty,
         // we simply add the call to that vehicle as the order of insertion does not matter.
+        System.out.println("Inserting call: " + callId + " into positions "
+                + firstInsertionIndex + " and " + secondInsertionIndex);
+        System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
         newSolutionRepresentation.remove(firstIndexOfCall);
+        if (firstIndexOfCall < secondIndexOfCall) {
+            secondIndexOfCall--;
+        }
         newSolutionRepresentation.remove(secondIndexOfCall);
-        newSolutionRepresentation.add(stopIndex, callId);
-        newSolutionRepresentation.add(stopIndex, callId);
+        System.out.println("newSolutionRepresentation after remove = " + newSolutionRepresentation);
+        if (firstIndexOfCall < firstInsertionIndex) {
+            firstInsertionIndex--;
+            System.out.println("firstIndex updated to = " + firstInsertionIndex);
+        }
+        if (secondIndexOfCall < firstInsertionIndex) {
+            firstInsertionIndex--;
+            System.out.println("firstIndex updated to = " + firstInsertionIndex);
+        }
+        if (firstIndexOfCall < secondInsertionIndex) {
+            secondInsertionIndex--;
+            System.out.println("secondIndex updated to = " + secondInsertionIndex);
+        }
+        if (secondIndexOfCall < secondInsertionIndex) {
+            secondInsertionIndex--;
+            System.out.println("secondIndex updated to = " + secondInsertionIndex);
+        }
+        if (firstInsertionIndex >= newSolutionRepresentation.size()) {
+            newSolutionRepresentation.add(callId);// Add to end if supposed to insert in last position
+        } else {
+            newSolutionRepresentation.add(firstInsertionIndex, callId);
+        }
+        System.out.println("newSolutionRepresentation after first insertion = " + newSolutionRepresentation);
+        if (firstInsertionIndex < secondInsertionIndex) {
+            secondInsertionIndex++;
+            System.out.println("secondIndex updated to = " + secondInsertionIndex);
+        }
+        if (secondInsertionIndex >= newSolutionRepresentation.size()) {
+            newSolutionRepresentation.add(callId);
+        } else {
+            newSolutionRepresentation.add(secondInsertionIndex, callId);
+        }
+        System.out.println("newSolutionRepresentation after second insertion = " + newSolutionRepresentation);
     }
 
 /*

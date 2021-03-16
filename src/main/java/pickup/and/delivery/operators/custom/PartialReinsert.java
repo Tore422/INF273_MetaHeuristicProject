@@ -140,9 +140,9 @@ public class PartialReinsert {
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         int startIndex = zeroIndices.get(zeroIndices.size() - 1);
         int stopIndex = newSolutionRepresentation.size();
-        int randomIndex = findRandomIndexWithinVehicle(startIndex, stopIndex, null);
+        int randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex, null);
         int randomlySelectedCall = newSolutionRepresentation.remove(randomIndex);
-        randomIndex = findRandomIndexWithinVehicle(startIndex, stopIndex - 1, null);
+        randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex - 1, null);
         newSolutionRepresentation.add(randomIndex, randomlySelectedCall);
         return newSolution;
     }
