@@ -164,11 +164,6 @@ public class OperatorUtilities {
                     stopIndex = zeroIndices.get(i + 1);
                 }
             }
-        /*
-         for (int[] element : startAndStopIndicesOfVehiclesWithMoreThanOneCall) {
-            System.out.println("element = " + Arrays.toString(element));
-        }
-       */
         return startAndStopIndicesOfVehiclesWithMoreThanOneCall;
     }
 
@@ -452,9 +447,9 @@ public class OperatorUtilities {
                 lowestCostSoFar = cost;
             }
         }
-        System.out.println("cost improvement = " + (a - lowestCostSoFar));
+      /*  System.out.println("cost improvement = " + (a - lowestCostSoFar));
         System.out.println("chosenPositionForPickup = " + chosenPositionForPickup);
-        System.out.println("chosenPositionForDelivery = " + chosenPositionForDelivery);
+        System.out.println("chosenPositionForDelivery = " + chosenPositionForDelivery);*/
         int[] bestPositions = new int[2];
         bestPositions[0] = chosenPositionForPickup;
         bestPositions[1] = chosenPositionForDelivery;

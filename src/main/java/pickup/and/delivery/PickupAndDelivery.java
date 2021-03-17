@@ -7,7 +7,6 @@ import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
-import pickup.and.delivery.operators.custom.SmartOneReinsert;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -31,12 +30,12 @@ public class PickupAndDelivery {
     private static final String pathToFile5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
-        initialize(PATH_TO_FILE_1);
-        SmartOneReinsert.main(null);
+        initialize(PATH_TO_FILE_5);
+      //  SmartOneReinsert.main(null);
 
        // PartialReinsert.main(null);
-       // final int NUMBER_OF_ITERATIONS = 10;
-       // runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+        final int NUMBER_OF_ITERATIONS = 10;
+        runForNumberOfIterations(NUMBER_OF_ITERATIONS);
 
 
       //  runOnceForEachInputFile();

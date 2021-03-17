@@ -63,15 +63,15 @@ public class SmartOneReinsert {
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-        System.out.println("zeroIndices = " + zeroIndices);
+       // System.out.println("zeroIndices = " + zeroIndices);
         boolean solutionHasOutsourcedCalls =
                 zeroIndices.get(zeroIndices.size() - 1) != (newSolutionRepresentation.size() - 1);
-        System.out.println("solutionHasOutsourcedCalls = " + solutionHasOutsourcedCalls);
+      //  System.out.println("solutionHasOutsourcedCalls = " + solutionHasOutsourcedCalls);
         if (solutionHasOutsourcedCalls) {
-        //    if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
-                System.out.println("newSolution = " + newSolution);
-        //        return newSolution;
-       //     }
+            if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
+         //       System.out.println("newSolution = " + newSolution);
+                return newSolution;
+            }
         }
         int startIndexOfOutsourcedVehicles = zeroIndices.get(zeroIndices.size() - 1);
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
@@ -93,7 +93,7 @@ public class SmartOneReinsert {
                         newSolutionRepresentation, zeroIndices, firstIndexOfCall, secondIndexOfCall,
                         callID, startIndicesOfVehiclesThatCanTakeTheCall);
                 if (foundNewPositionsForCall) {
-                    System.out.println("newSolution = " + newSolution);
+               //     System.out.println("newSolution = " + newSolution);
                     return newSolution;
                 }
                 /*
@@ -132,10 +132,10 @@ public class SmartOneReinsert {
             ignoredIndices.add(firstIndexOfCall);
             ignoredIndices.add(secondIndexOfCall);
         }
-        for (int i : ignoredIndices) {
+      /*  for (int i : ignoredIndices) {
             System.out.println("ignored element = " + i);
         }
-        System.out.println("ignoredIndices = " + ignoredIndices.size());
+        System.out.println("ignoredIndices = " + ignoredIndices.size());*/
         // On the off chance that no call can be moved, we simply outsource a randomly selected call
         outsourceRandomCall(newSolutionRepresentation, zeroIndices, startIndexOfOutsourcedVehicles);
         return newSolution;
@@ -160,7 +160,7 @@ public class SmartOneReinsert {
         startAndStopIndexOfVehicle[1] = newSolutionRepresentation.size();
         int numberOfCallsThatCanBeProcessed = findNumberOfDifferentCallsInVehicle(
                 startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1]);
-        System.out.println("numberOfCallsThatCanBeProcessed = " + numberOfCallsThatCanBeProcessed);
+      //  System.out.println("numberOfCallsThatCanBeProcessed = " + numberOfCallsThatCanBeProcessed);
         List<Integer> ignoredIndices = new ArrayList<>();
         do {
             int firstIndexOfOutsourcedCall = findRandomIndexWithinExclusiveBounds(
@@ -226,47 +226,43 @@ public class SmartOneReinsert {
             int secondIndexOfCall, int callId, int firstInsertionIndex, int secondInsertionIndex) {
         // If there is a vehicle that can handle the call and is empty,
         // we simply add the call to that vehicle as the order of insertion does not matter.
-        System.out.println("Inserting call: " + callId + " into positions "
-                + firstInsertionIndex + " and " + secondInsertionIndex);
-        System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+      //  System.out.println("Inserting call: " + callId + " into positions "
+      //          + firstInsertionIndex + " and " + secondInsertionIndex);
+      //  System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
         newSolutionRepresentation.remove(firstIndexOfCall);
         if (firstIndexOfCall < secondIndexOfCall) {
             secondIndexOfCall--;
         }
         newSolutionRepresentation.remove(secondIndexOfCall);
-        System.out.println("newSolutionRepresentation after remove = " + newSolutionRepresentation);
+      //  System.out.println("newSolutionRepresentation after remove = " + newSolutionRepresentation);
         if (firstIndexOfCall < firstInsertionIndex) {
             firstInsertionIndex--;
-            System.out.println("firstIndex updated to = " + firstInsertionIndex);
+       //     System.out.println("firstIndex updated to = " + firstInsertionIndex);
         }
         if (secondIndexOfCall < firstInsertionIndex) {
             firstInsertionIndex--;
-            System.out.println("firstIndex updated to = " + firstInsertionIndex);
+        //    System.out.println("firstIndex updated to = " + firstInsertionIndex);
         }
         if (firstIndexOfCall < secondInsertionIndex) {
             secondInsertionIndex--;
-            System.out.println("secondIndex updated to = " + secondInsertionIndex);
+        //    System.out.println("secondIndex updated to = " + secondInsertionIndex);
         }
         if (secondIndexOfCall < secondInsertionIndex) {
             secondInsertionIndex--;
-            System.out.println("secondIndex updated to = " + secondInsertionIndex);
+        //    System.out.println("secondIndex updated to = " + secondInsertionIndex);
         }
         if (firstInsertionIndex >= newSolutionRepresentation.size()) {
             newSolutionRepresentation.add(callId);// Add to end if supposed to insert in last position
         } else {
             newSolutionRepresentation.add(firstInsertionIndex, callId);
         }
-        System.out.println("newSolutionRepresentation after first insertion = " + newSolutionRepresentation);
-        if (firstInsertionIndex < secondInsertionIndex) {
-            secondInsertionIndex++;
-            System.out.println("secondIndex updated to = " + secondInsertionIndex);
-        }
+      //  System.out.println("newSolutionRepresentation after first insertion = " + newSolutionRepresentation);
         if (secondInsertionIndex >= newSolutionRepresentation.size()) {
             newSolutionRepresentation.add(callId);
         } else {
             newSolutionRepresentation.add(secondInsertionIndex, callId);
         }
-        System.out.println("newSolutionRepresentation after second insertion = " + newSolutionRepresentation);
+     //   System.out.println("newSolutionRepresentation after second insertion = " + newSolutionRepresentation);
     }
 
 /*
