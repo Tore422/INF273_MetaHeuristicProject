@@ -111,7 +111,7 @@ public class OperatorUtilities {
      */
     public static int findRandomIndexWithinExclusiveBounds(int lowerBound, int upperBound, List<Integer> exceptions) {
         if (upperBound <= lowerBound + 1) {
-            throw new IllegalArgumentException("Given bound does allow values in between");
+            throw new IllegalArgumentException("Given bound does not allow values in-between");
         }
         int attempts = 0;
         final int MAX_ATTEMPTS = 100000;
