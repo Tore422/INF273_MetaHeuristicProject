@@ -36,31 +36,40 @@ public class PartialReinsert {
             return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
         }
         List<Integer> vehiclesProcessedSoFar = new ArrayList<>(indicesOfVehiclesToProcess.size());
-        while (true) {
-            int randomIndex = RANDOM.nextInt(indicesOfVehiclesToProcess.size());
-            if (!vehiclesProcessedSoFar.contains(randomIndex)) {
-                // Process vehicle
-                int[] startAndStopIndexOfVehicle = indicesOfVehiclesToProcess.get(randomIndex);
-                int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
-                        startAndStopIndexOfVehicle[0], zeroIndices);
-                int costOfInitialSolution = computeCostForVehicle(
-                        startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1],
-                        vehicleNumber, newSolutionRepresentation);
-                boolean foundImprovement = processVehicleLookingForImprovement(
-                        newSolution, startAndStopIndexOfVehicle, vehicleNumber, costOfInitialSolution);
-                if (foundImprovement) {
-                    return newSolution;
-                }
-                vehiclesProcessedSoFar.add(randomIndex);
+        while (vehiclesProcessedSoFar.size() < indicesOfVehiclesToProcess.size()) {
+            int indexOfRandomVehicleToProcess = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, indicesOfVehiclesToProcess.size(), vehiclesProcessedSoFar);
+            int[] startAndStopIndexOfVehicle = indicesOfVehiclesToProcess.get(indexOfRandomVehicleToProcess);
+            int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
+                    startAndStopIndexOfVehicle[0], zeroIndices);
+            int costOfInitialSolution = computeCostForVehicle(
+                    startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1],
+                    vehicleNumber, newSolutionRepresentation);
+            boolean foundImprovement = processVehicleLookingForImprovement(
+                    newSolution, startAndStopIndexOfVehicle, vehicleNumber, costOfInitialSolution);
+            if (foundImprovement) {
+                return newSolution;
             }
-            if (vehiclesProcessedSoFar.size() >= indicesOfVehiclesToProcess.size()) {
-                //Tried all possibilities without finding an improvement,
-                //so we select a random element from outsourced calls,
-                //and insert that element into a random position there.
-                return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
-            }
+            vehiclesProcessedSoFar.add(indexOfRandomVehicleToProcess);
         }
-
+        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
+        if (findNumberOfDifferentCallsInVehicle(startIndexOfOutsourcedCalls, newSolutionRepresentation.size()) != 0) {
+            //Tried all possibilities without finding an improvement,
+            //so we select a random element from outsourced calls,
+            //and insert that element into a random position there.
+            return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
+        } else {
+            //No outsourced calls to move, so we select a random vehicle, and perform a random move there
+            int indexOfCallToMove = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, startIndexOfOutsourcedCalls, zeroIndices);
+            int[] startAndStopIndices = findStartAndStopIndexOfVehicle(
+                    zeroIndices, indexOfCallToMove, newSolutionRepresentation.size());
+            int callId = newSolutionRepresentation.remove(indexOfCallToMove);
+            int randomIndexToInsertCallInVehicle = findRandomIndexWithinExclusiveBounds(
+                    startAndStopIndices[0], startAndStopIndices[1], null);
+            newSolutionRepresentation.add(randomIndexToInsertCallInVehicle, callId);
+            return newSolution;
+        }
 /*
     from solution
     find zeroIndices
