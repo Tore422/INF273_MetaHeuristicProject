@@ -4,6 +4,8 @@ import pickup.and.delivery.PickupAndDelivery;
 import pickup.and.delivery.operators.OneReinsert;
 import pickup.and.delivery.operators.ThreeExchange;
 import pickup.and.delivery.operators.TwoExchange;
+import pickup.and.delivery.operators.custom.PartialReinsert;
+import pickup.and.delivery.operators.custom.SmartOneReinsert;
 import solution.representations.vector.IVectorSolutionRepresentation;
 
 import java.util.Random;
@@ -14,13 +16,16 @@ public class SimulatedAnnealing {
     private static final int NUMBER_OF_ITERATIONS = 10000;
     private static final double INITIAL_TEMPERATURE = 115000000.0;
     private static final double COOLING_FACTOR = 0.9679850447;
+    // private static final double FINAL_TEMPERATURE = 0.2;
     private static final double PROBABILITY_OF_USING_TWO_EXCHANGE = 0.15;
     private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
-  /*
-    private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
-            PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
-    private static final double FINAL_TEMPERATURE = 0.2;
-  */
+   // private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
+   //         PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
+    private static final double PROBABILITY_OF_USING_SMART_TWO_EXCHANGE = 0.80; // Avg. best solution ~ 21,6M
+    private static final double PROBABILITY_OF_USING_PARTIAL_REINSERT = 0.05;
+//    private static final double PROBABILITY_OF_USING_SMART_ONE_REINSERT = 1 -
+//            PROBABILITY_OF_USING_SMART_TWO_EXCHANGE - PROBABILITY_OF_USING_PARTIAL_REINSERT;
+
 
     public static IVectorSolutionRepresentation<Integer> simulatedAnnealingSearch(
             IVectorSolutionRepresentation<Integer> initialSolution) {
@@ -33,7 +38,8 @@ public class SimulatedAnnealing {
     //    int numberOfTimesSolutionWasFeasible = 0;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
            // System.out.println("Iteration number = " + i);
-            newSolution = selectAndApplyOperatorOnSolution(currentlyAcceptedSolution);
+            newSolution = selectAndApplyCustomOperatorOnSolution(currentlyAcceptedSolution);
+        //selectAndApplyOperatorOnSolution(currentlyAcceptedSolution);
           /*  if (deltaE > 0 && deltaE < min) {
                 min = deltaE;
             }
@@ -77,6 +83,21 @@ public class SimulatedAnnealing {
             newSolution = ThreeExchange.useThreeExchangeOnSolution(currentlyAcceptedSolution);
         } else {
             newSolution = OneReinsert.useOneReinsertOnSolution(currentlyAcceptedSolution);
+        }
+        return newSolution;
+    }
+
+    private static IVectorSolutionRepresentation<Integer> selectAndApplyCustomOperatorOnSolution(
+            IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution) {
+        IVectorSolutionRepresentation<Integer> newSolution;
+        double operatorChoice = RANDOM.nextDouble();
+        if (operatorChoice < PROBABILITY_OF_USING_SMART_TWO_EXCHANGE) {
+            newSolution = TwoExchange.useTwoExchangeOnSolution(currentlyAcceptedSolution);
+        //SmartTwoExchange.useSmartTwoExchangeOnSolution(currentlyAcceptedSolution);
+        } else if (operatorChoice < (PROBABILITY_OF_USING_SMART_TWO_EXCHANGE + PROBABILITY_OF_USING_PARTIAL_REINSERT)) {
+            newSolution = PartialReinsert.usePartialReinsertOnSolution(currentlyAcceptedSolution);
+        } else {
+            newSolution = SmartOneReinsert.useSmartOneReinsertOnSolution(currentlyAcceptedSolution);
         }
         return newSolution;
     }
