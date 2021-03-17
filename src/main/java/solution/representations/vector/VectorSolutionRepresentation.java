@@ -64,10 +64,8 @@ public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresent
         } else {
             T elementA = solution.get(indexForElementA);
             T elementB = solution.get(indexForElementB);
-            solution.remove(indexForElementA);
-            solution.add(indexForElementA, elementB);
-            solution.remove(indexForElementB);
-            solution.add(indexForElementB, elementA);
+            solution.set(indexForElementA, elementB);
+            solution.set(indexForElementB, elementA);
         }
     }
 
