@@ -466,6 +466,9 @@ public class OperatorUtilities {
     }
 
     public static int findStopIndex(List<Integer> solutionRepresentation, int startIndex) {
+        if (startIndex < -1 || startIndex >= solutionRepresentation.size()) {
+            throw new IllegalArgumentException("Start index is outside of the solution");
+        }
         int stopIndex = -1;
         for (int i = startIndex + 1; i < solutionRepresentation.size(); i++) {
             int element = solutionRepresentation.get(i);
@@ -477,6 +480,46 @@ public class OperatorUtilities {
         return stopIndex;
     }
 
+    public static int findStartIndex(List<Integer> solutionRepresentation, int stopIndex) {
+        if (stopIndex < 0 || stopIndex > solutionRepresentation.size()) {
+            throw new IllegalArgumentException("Stop index is outside of the solution");
+        }
+        int startIndex = -1;
+        for (int i = stopIndex - 1; i >= 0; i--) {
+            int element = solutionRepresentation.get(i);
+            if (element == 0) {
+                startIndex = i;
+                break;
+            }
+        }
+        return startIndex;
+    }
 
+
+
+    public static List<Integer> findEmptyVehicles(List<Integer> newSolutionRepresentation, List<Integer> zeroIndices) {
+        List<Integer> startIndicesOfVehiclesWithoutAnyCalls = new ArrayList<>();
+        if (zeroIndices.isEmpty()) {
+            return startIndicesOfVehiclesWithoutAnyCalls;
+        }
+        // special case for first vehicle
+        int firstZeroIndex = zeroIndices.get(0);
+        if (firstZeroIndex == 0) {
+            startIndicesOfVehiclesWithoutAnyCalls.add(-1);
+        }
+        for (int i = 0; i < zeroIndices.size() - 1; i++) {
+            int startIndex = zeroIndices.get(i);
+            int stopIndex = zeroIndices.get(i + 1);
+            if ((stopIndex - startIndex) == 1) {
+                startIndicesOfVehiclesWithoutAnyCalls.add(startIndex);
+            }
+        }
+        // special case for outsourced calls
+        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
+        if (startIndexOfOutsourcedCalls == newSolutionRepresentation.size() - 1) {
+            startIndicesOfVehiclesWithoutAnyCalls.add(startIndexOfOutsourcedCalls);
+        }
+        return startIndicesOfVehiclesWithoutAnyCalls;
+    }
 
 }
