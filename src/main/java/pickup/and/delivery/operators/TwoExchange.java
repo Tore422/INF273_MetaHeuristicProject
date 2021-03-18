@@ -96,8 +96,8 @@ decrement all other indexes >= secondCallAIndex
                 break;
             }
         }
-        newSolution.swapElements(firstIndexOfCallA, firstIndexOfCallB);
-        newSolution.swapElements(secondIndexOfCallA, secondIndexOfCallB);
+        newSolution.swapElementsAtIndices(firstIndexOfCallA, firstIndexOfCallB);
+        newSolution.swapElementsAtIndices(secondIndexOfCallA, secondIndexOfCallB);
         return newSolution;
         /*
         [3, 3, 0, 7, 1, 7, 1, 0, 0, 4, 5, 6, 4, 6, 2, 5, 2]
