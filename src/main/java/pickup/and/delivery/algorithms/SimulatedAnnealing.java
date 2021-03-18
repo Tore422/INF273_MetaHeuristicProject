@@ -6,6 +6,7 @@ import pickup.and.delivery.operators.ThreeExchange;
 import pickup.and.delivery.operators.TwoExchange;
 import pickup.and.delivery.operators.custom.PartialReinsert;
 import pickup.and.delivery.operators.custom.SmartOneReinsert;
+import pickup.and.delivery.operators.custom.SmartTwoExchange;
 import solution.representations.vector.IVectorSolutionRepresentation;
 
 import java.util.Random;
@@ -92,8 +93,7 @@ public class SimulatedAnnealing {
         IVectorSolutionRepresentation<Integer> newSolution;
         double operatorChoice = RANDOM.nextDouble();
         if (operatorChoice < PROBABILITY_OF_USING_SMART_TWO_EXCHANGE) {
-            newSolution = TwoExchange.useTwoExchangeOnSolution(currentlyAcceptedSolution);
-        //SmartTwoExchange.useSmartTwoExchangeOnSolution(currentlyAcceptedSolution);
+            newSolution = SmartTwoExchange.useSmartTwoExchangeOnSolution(currentlyAcceptedSolution);
         } else if (operatorChoice < (PROBABILITY_OF_USING_SMART_TWO_EXCHANGE + PROBABILITY_OF_USING_PARTIAL_REINSERT)) {
             newSolution = PartialReinsert.usePartialReinsertOnSolution(currentlyAcceptedSolution);
         } else {
