@@ -56,7 +56,7 @@ public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresent
     }
 
     @Override
-    public void swapElements(int indexForElementA, int indexForElementB) {
+    public void swapElementsAtIndices(int indexForElementA, int indexForElementB) {
         if (indexForElementA < 0 || indexForElementA >= solution.size()
                 || indexForElementB < 0 || indexForElementB >= solution.size()) {
             System.out.println("An index was pointing outside " +
@@ -77,8 +77,8 @@ public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresent
             System.out.println("An index was pointing outside " +
                     "the solution representation. Did not swap the elements");
         } else {
-            swapElements(indexForElementA, indexForElementB);
-            swapElements(indexForElementA, indexForElementC);
+            swapElementsAtIndices(indexForElementA, indexForElementB);
+            swapElementsAtIndices(indexForElementA, indexForElementC);
         }
     }
 

@@ -26,7 +26,7 @@ public interface IVectorSolutionRepresentation<T> extends ISolutionRepresentatio
      * @param indexForElementA
      * @param indexForElementB
      */
-    void swapElements(int indexForElementA, int indexForElementB);
+    void swapElementsAtIndices(int indexForElementA, int indexForElementB);
 
     /**
      * Swap the position of three elements in the solution representation.<br>
