@@ -22,12 +22,12 @@ public class SimulatedAnnealing {
     private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
    // private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
    //         PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
-    private static final double PROBABILITY_OF_USING_SMART_TWO_EXCHANGE = 0.80; // Avg. best solution ~ 21,6M
+    private static final double PROBABILITY_OF_USING_SMART_TWO_EXCHANGE = 0.70; // Avg. best solution ~ 21,6M
     private static final double PROBABILITY_OF_USING_PARTIAL_REINSERT = 0.05;
 //    private static final double PROBABILITY_OF_USING_SMART_ONE_REINSERT = 1 -
 //            PROBABILITY_OF_USING_SMART_TWO_EXCHANGE - PROBABILITY_OF_USING_PARTIAL_REINSERT;
 
-
+// Best cost 18121675?
     public static IVectorSolutionRepresentation<Integer> simulatedAnnealingSearch(
             IVectorSolutionRepresentation<Integer> initialSolution) {
         double temperature = INITIAL_TEMPERATURE;

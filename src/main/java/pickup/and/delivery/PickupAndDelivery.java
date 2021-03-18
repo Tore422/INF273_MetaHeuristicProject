@@ -36,10 +36,11 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
-        initialize(PATH_TO_FILE_5);
+        initialize(PATH_TO_FILE_2);
       //  SmartOneReinsert.main(null);
-
+        //SmartTwoExchange.main(null);
        // PartialReinsert.main(null);
+
         final int NUMBER_OF_ITERATIONS = 10;
         runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
 
