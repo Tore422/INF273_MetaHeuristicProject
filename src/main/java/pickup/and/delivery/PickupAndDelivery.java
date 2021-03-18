@@ -15,6 +15,12 @@ import java.util.List;
 
 public class PickupAndDelivery {
 
+    enum SearchAlgorithm {
+        BLIND_RANDOM_SEARCH,
+        LOCAL_SEARCH,
+        SIMULATED_ANNEALING_SEARCH
+    }
+
     // Files for test data
     private static final String PATH_TO_FILE_1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
     private static final String PATH_TO_FILE_2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
@@ -23,11 +29,11 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
 
     // Files for the exam
-/*    private static final String pathToFile1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";
-    private static final String pathToFile2 = "src/main/resources/exam.test.data/Call_18_Vehicle_5.txt";
-    private static final String pathToFile3 = "src/main/resources/exam.test.data/Call_035_Vehicle_07.txt";
-    private static final String pathToFile4 = "src/main/resources/exam.test.data/Call_080_Vehicle_20.txt";
-    private static final String pathToFile5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
+/*    private static final String PATH_TO_FILE_1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";
+    private static final String PATH_TO_FILE_2 = "src/main/resources/exam.test.data/Call_18_Vehicle_5.txt";
+    private static final String PATH_TO_FILE_3 = "src/main/resources/exam.test.data/Call_035_Vehicle_07.txt";
+    private static final String PATH_TO_FILE_4 = "src/main/resources/exam.test.data/Call_080_Vehicle_20.txt";
+    private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
 
     public static void main(String[] args) {
         initialize(PATH_TO_FILE_5);
@@ -35,53 +41,53 @@ public class PickupAndDelivery {
 
        // PartialReinsert.main(null);
         final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(NUMBER_OF_ITERATIONS);
+        runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
 
 
-      //  runOnceForEachInputFile();
+ //       runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
     }
 
-    private static void runOnceForEachInputFile() {
+    private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
         final int ONE = 1;
         long timerStart = System.currentTimeMillis();
         System.out.println("Computing solution for input file 1");
         System.out.println("***********************************");
         initialize(PATH_TO_FILE_1);
-        runForNumberOfIterations(ONE);
+        runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 2");
         System.out.println("***********************************");
         initialize(PATH_TO_FILE_2);
-        runForNumberOfIterations(ONE);
+        runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 3");
         System.out.println("***********************************");
         initialize(PATH_TO_FILE_3);
-        runForNumberOfIterations(ONE);
+        runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 4");
         System.out.println("***********************************");
         initialize(PATH_TO_FILE_4);
-        runForNumberOfIterations(ONE);
+        runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 5");
         System.out.println("***********************************");
         initialize(PATH_TO_FILE_5);
-        runForNumberOfIterations(ONE);
+        runForNumberOfIterations(algorithm, ONE);
         long timerStop = System.currentTimeMillis();
         long result = (timerStop - timerStart);
         System.out.println();
         System.out.println("Total runtime = " + result);
     }
 
-    private static void runForNumberOfIterations(int numberOfIterations) {
+    private static void runForNumberOfIterations(SearchAlgorithm algorithm, int numberOfIterations) {
         int totalCost = 0;
         long totalTime = 0L;
         IVectorSolutionRepresentation<Integer> bestSolution = null;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             long timerStart = System.currentTimeMillis();
-            calculateSolution();
+            calculateSolution(algorithm);
             long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("Time: " + result + " micro-seconds");
@@ -311,20 +317,22 @@ public class PickupAndDelivery {
         nodeTimesAndCosts = sortedNodeTimesAndCosts;
     }
 
-
-    private static void calculateSolution() {
+    private static void calculateSolution(SearchAlgorithm algorithm) {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
-      //  System.out.println("worst solution cost: " + calculateCost(solutionRepresentation));
 
-        //useBlindRandomSearchOnSolution();
-        //useLocalSearchOnSolution();
-        useSimulatedAnnealingOnSolution();
-
+        switch (algorithm) {
+            case BLIND_RANDOM_SEARCH ->
+                    useBlindRandomSearchOnSolution();
+            case LOCAL_SEARCH ->
+                    useLocalSearchOnSolution();
+            case SIMULATED_ANNEALING_SEARCH ->
+                    useSimulatedAnnealingOnSolution();
+            default -> System.out.println("Did not recognize the selected algorithm");
+        }
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
         System.out.println("Feasible = " + feasible(solutionRepresentation));
         System.out.println("Solution cost = " + calculateCost(solutionRepresentation));
-
 
 
         // [7, 7, 5, 5, 0, 0, 0, 6, 6] = 901763
