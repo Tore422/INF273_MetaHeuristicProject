@@ -4,6 +4,9 @@ import pickup.and.delivery.PickupAndDelivery;
 import pickup.and.delivery.operators.OneReinsert;
 import pickup.and.delivery.operators.ThreeExchange;
 import pickup.and.delivery.operators.TwoExchange;
+import pickup.and.delivery.operators.custom.PartialReinsert;
+import pickup.and.delivery.operators.custom.SmartOneReinsert;
+import pickup.and.delivery.operators.custom.SmartTwoExchange;
 import solution.representations.vector.IVectorSolutionRepresentation;
 
 import java.util.Random;
@@ -16,12 +19,17 @@ public class LocalSearch {
     private static final double PROBABILITY_OF_USING_THREE_EXCHANGE = 0.35;
    // private static final double PROBABILITY_OF_USING_ONE_REINSERT = 1 -
    //         PROBABILITY_OF_USING_TWO_EXCHANGE - PROBABILITY_OF_USING_THREE_EXCHANGE;
+    private static final double PROBABILITY_OF_USING_SMART_TWO_EXCHANGE = 0.70; // Avg. best solution ~ 21,6M
+    private static final double PROBABILITY_OF_USING_PARTIAL_REINSERT = 0.05;
+//    private static final double PROBABILITY_OF_USING_SMART_ONE_REINSERT = 1 -
+//            PROBABILITY_OF_USING_SMART_TWO_EXCHANGE - PROBABILITY_OF_USING_PARTIAL_REINSERT;
 
     public static IVectorSolutionRepresentation<Integer> localSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-            currentSolution = selectAndApplyOperatorOnSolution(bestSolution);
+            currentSolution = selectAndApplyCustomOperatorOnSolution(bestSolution);
+        //selectAndApplyOperatorOnSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && (PickupAndDelivery.calculateCost(currentSolution)
                     < PickupAndDelivery.calculateCost(bestSolution))) {
@@ -43,5 +51,19 @@ public class LocalSearch {
             currentSolution = OneReinsert.useOneReinsertOnSolution(solution);
         }
         return currentSolution;
+    }
+
+    private static IVectorSolutionRepresentation<Integer> selectAndApplyCustomOperatorOnSolution(
+            IVectorSolutionRepresentation<Integer> currentlyAcceptedSolution) {
+        IVectorSolutionRepresentation<Integer> newSolution;
+        double operatorChoice = RANDOM.nextDouble();
+        if (operatorChoice < PROBABILITY_OF_USING_SMART_TWO_EXCHANGE) {
+            newSolution = SmartTwoExchange.useSmartTwoExchangeOnSolution(currentlyAcceptedSolution);
+        } else if (operatorChoice < (PROBABILITY_OF_USING_SMART_TWO_EXCHANGE + PROBABILITY_OF_USING_PARTIAL_REINSERT)) {
+            newSolution = PartialReinsert.usePartialReinsertOnSolution(currentlyAcceptedSolution);
+        } else {
+            newSolution = SmartOneReinsert.useSmartOneReinsertOnSolution(currentlyAcceptedSolution);
+        }
+        return newSolution;
     }
 }
