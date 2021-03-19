@@ -19,8 +19,8 @@ public class SmartTwoExchange {
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
         System.out.println("feasible(sol) = " + feasible(sol));
         System.out.println(calculateCost(sol));
-        System.out.println(useSmartTwoExchangeOnSolution(sol));
-        System.out.println(calculateCost(sol));
+       // System.out.println(useSmartTwoExchangeOnSolution(sol));
+       // System.out.println(calculateCost(sol));
     }
 
     public static IVectorSolutionRepresentation<Integer> useSmartTwoExchangeOnSolution(
@@ -62,11 +62,21 @@ public class SmartTwoExchange {
             List<Integer> zeroIndices, List<Integer> startIndicesOfEmptyVehicles, List<Integer> positionsToIgnore) {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
         //ignoredIndices.addAll(positionsToIgnore);
+        boolean tryMovingMostExpensiveCall = decideRemovalOperator();
         while (ignoredIndices.size() < newSolutionRepresentation.size()) {
-            int firstIndexOfRandomCall = findRandomIndexWithinExclusiveBounds(
-                    MINUS_ONE, newSolutionRepresentation.size(), ignoredIndices);
-            int secondIndexOfRandomCall = getSecondIndexOfCall(
-                    newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall);
+            int firstIndexOfRandomCall, secondIndexOfRandomCall;
+            if (tryMovingMostExpensiveCall) {
+                int[] positionsOfMostExpensiveCall = findPositionsOfMostExpensiveCall(
+                        newSolutionRepresentation, zeroIndices);
+                firstIndexOfRandomCall = positionsOfMostExpensiveCall[0];
+                secondIndexOfRandomCall = positionsOfMostExpensiveCall[1];
+                tryMovingMostExpensiveCall = false;
+            } else {
+                firstIndexOfRandomCall = findRandomIndexWithinExclusiveBounds(
+                        MINUS_ONE, newSolutionRepresentation.size(), ignoredIndices);
+                secondIndexOfRandomCall = getSecondIndexOfCall(
+                        newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall);
+            }
             int callId = newSolutionRepresentation.get(firstIndexOfRandomCall);
             int startIndexOfRandomCallsVehicle = findStartIndex(newSolutionRepresentation, firstIndexOfRandomCall);
             List<Integer> startIndicesOfVehiclesThatCanTakeTheCall =

@@ -495,8 +495,6 @@ public class OperatorUtilities {
         return startIndex;
     }
 
-
-
     public static List<Integer> findEmptyVehicles(List<Integer> newSolutionRepresentation, List<Integer> zeroIndices) {
         List<Integer> startIndicesOfVehiclesWithoutAnyCalls = new ArrayList<>();
         if (zeroIndices.isEmpty()) {
@@ -522,4 +520,45 @@ public class OperatorUtilities {
         return startIndicesOfVehiclesWithoutAnyCalls;
     }
 
+    public static int[] findPositionsOfMostExpensiveCall(
+            List<Integer> solutionRepresentation, List<Integer> zeroIndices) {
+        int[] positionsOfCallWithLargestCost = new int[2];
+        int largestCostDifference = -1;
+        List<Integer> indicesToIgnore = new ArrayList<>(zeroIndices);
+        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
+        for (int i = 0; i < startIndexOfOutsourcedCalls; i++) {
+            if (!indicesToIgnore.contains(i)) {
+                List<Integer> copyOfSolutionRepresentation = new ArrayList<>(solutionRepresentation);
+                int secondIndexOfCall = getSecondIndexOfCall(copyOfSolutionRepresentation, zeroIndices, i);
+                int[] startAndStopIndexOfVehicle = findStartAndStopIndexOfVehicle(
+                        zeroIndices, i, copyOfSolutionRepresentation.size());
+                int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
+                        startAndStopIndexOfVehicle[0], zeroIndices);
+                int oldCostForVehicle = computeCostForVehicle(
+                        startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1], vehicleNumber,
+                        copyOfSolutionRepresentation);
+                copyOfSolutionRepresentation.remove(i);
+                copyOfSolutionRepresentation.remove(secondIndexOfCall);
+                int newCostForVehicle = computeCostForVehicle(
+                        startAndStopIndexOfVehicle[0], (startAndStopIndexOfVehicle[1] - 2), vehicleNumber,
+                        copyOfSolutionRepresentation);
+                int costDifference = oldCostForVehicle - newCostForVehicle;
+                if (costDifference > largestCostDifference) {
+                    positionsOfCallWithLargestCost[0] = i;
+                    positionsOfCallWithLargestCost[1] = secondIndexOfCall;
+                    largestCostDifference = costDifference;
+                }
+                indicesToIgnore.add(i);
+                indicesToIgnore.add(secondIndexOfCall);
+            }
+        }
+        return positionsOfCallWithLargestCost;
+    }
+
+    private static final double PROBABILITY_OF_PICKING_MOVE_MOST_EXPENSIVE_CALL_APPROACH = 0.30;
+
+    public static boolean decideRemovalOperator() {
+        double selectedRemoveApproach = RANDOM.nextDouble();
+        return selectedRemoveApproach < PROBABILITY_OF_PICKING_MOVE_MOST_EXPENSIVE_CALL_APPROACH;
+    }
 }

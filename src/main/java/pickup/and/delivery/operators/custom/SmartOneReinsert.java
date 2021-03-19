@@ -75,10 +75,20 @@ public class SmartOneReinsert {
         }
         int startIndexOfOutsourcedVehicles = zeroIndices.get(zeroIndices.size() - 1);
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
+        boolean tryMovingMostExpensiveCall = decideRemovalOperator();
         while (ignoredIndices.size() < startIndexOfOutsourcedVehicles) {
-            int firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
-                    MINUS_ONE, startIndexOfOutsourcedVehicles, ignoredIndices);
-            int secondIndexOfCall = getSecondIndexOfCall(newSolutionRepresentation, zeroIndices, firstIndexOfCall);
+            int firstIndexOfCall, secondIndexOfCall;
+            if (tryMovingMostExpensiveCall) {
+                int[] positionsOfMostExpensiveCall = findPositionsOfMostExpensiveCall(
+                        newSolutionRepresentation, zeroIndices);
+                firstIndexOfCall = positionsOfMostExpensiveCall[0];
+                secondIndexOfCall = positionsOfMostExpensiveCall[1];
+                tryMovingMostExpensiveCall = false;
+            } else {
+                firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
+                        MINUS_ONE, startIndexOfOutsourcedVehicles, ignoredIndices);
+                secondIndexOfCall = getSecondIndexOfCall(newSolutionRepresentation, zeroIndices, firstIndexOfCall);
+            }
             int callID = newSolutionRepresentation.get(firstIndexOfCall);
             List<Integer> startIndicesOfVehiclesThatCanTakeTheCall =
                     findStartIndicesOfVehiclesThatCanTakeTheCall(zeroIndices, callID);
@@ -132,10 +142,6 @@ public class SmartOneReinsert {
             ignoredIndices.add(firstIndexOfCall);
             ignoredIndices.add(secondIndexOfCall);
         }
-      /*  for (int i : ignoredIndices) {
-            System.out.println("ignored element = " + i);
-        }
-        System.out.println("ignoredIndices = " + ignoredIndices.size());*/
         // On the off chance that no call can be moved, we simply outsource a randomly selected call
         outsourceRandomCall(newSolutionRepresentation, zeroIndices, startIndexOfOutsourcedVehicles);
         return newSolution;
