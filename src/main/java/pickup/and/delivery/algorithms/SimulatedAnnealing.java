@@ -1,9 +1,9 @@
 package pickup.and.delivery.algorithms;
 
 import pickup.and.delivery.PickupAndDelivery;
-import pickup.and.delivery.operators.OneReinsert;
-import pickup.and.delivery.operators.ThreeExchange;
-import pickup.and.delivery.operators.TwoExchange;
+import pickup.and.delivery.operators.original.OneReinsert;
+import pickup.and.delivery.operators.original.ThreeExchange;
+import pickup.and.delivery.operators.original.TwoExchange;
 import pickup.and.delivery.operators.custom.PartialReinsert;
 import pickup.and.delivery.operators.custom.SmartOneReinsert;
 import pickup.and.delivery.operators.custom.SmartTwoExchange;
