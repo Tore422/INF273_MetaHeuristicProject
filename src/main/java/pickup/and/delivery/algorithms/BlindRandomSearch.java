@@ -11,13 +11,17 @@ import java.util.Random;
 
 public class BlindRandomSearch {
 
+    private BlindRandomSearch() {
+        throw new IllegalStateException("Utility class");
+    }
+
+
     private static final Random RANDOM = new Random();
     private static final int NUMBER_OF_ITERATIONS = 10000;
 
     public static IVectorSolutionRepresentation<Integer> blindRandomSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
-         //   System.out.println("iteration number:" + i);
             IVectorSolutionRepresentation<Integer> currentSolution = createRandomSolution(bestSolution);
             if (PickupAndDelivery.feasible(currentSolution)
                     && PickupAndDelivery.calculateCost(currentSolution)

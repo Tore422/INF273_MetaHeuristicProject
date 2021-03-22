@@ -13,6 +13,10 @@ import java.util.Random;
 
 public class LocalSearch {
 
+    private LocalSearch() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final Random RANDOM = new Random();
     private static final int NUMBER_OF_ITERATIONS = 10000;
     private static final double PROBABILITY_OF_USING_TWO_EXCHANGE = 0.15;

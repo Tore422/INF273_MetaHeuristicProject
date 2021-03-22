@@ -1,5 +1,7 @@
 package pickup.and.delivery;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pickup.and.delivery.algorithms.BlindRandomSearch;
 import pickup.and.delivery.algorithms.LocalSearch;
 import pickup.and.delivery.algorithms.SimulatedAnnealing;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PickupAndDelivery {
+    private static final Logger log = LoggerFactory.getLogger(PickupAndDelivery.class);
 
     enum SearchAlgorithm {
         BLIND_RANDOM_SEARCH,
@@ -27,52 +30,53 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
     private static final String PATH_TO_FILE_4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
     private static final String PATH_TO_FILE_5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-
+/*
     // Files for the exam
-/*    private static final String PATH_TO_FILE_1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";
+    private static final String PATH_TO_FILE_1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";
     private static final String PATH_TO_FILE_2 = "src/main/resources/exam.test.data/Call_18_Vehicle_5.txt";
     private static final String PATH_TO_FILE_3 = "src/main/resources/exam.test.data/Call_035_Vehicle_07.txt";
     private static final String PATH_TO_FILE_4 = "src/main/resources/exam.test.data/Call_080_Vehicle_20.txt";
-    private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";*/
+    private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";//*/
 
     public static void main(String[] args) {
-        initialize(PATH_TO_FILE_2);
+        initialize(PATH_TO_FILE_5);
       //  SmartOneReinsert.main(null);
         //SmartTwoExchange.main(null);
-       // PartialReinsert.main(null);
+      //  PartialReinsert.main(null);
 
         final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
+       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
 
 
- //       runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
+        runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
         final int ONE = 1;
+        final String UNDERSCORE = "***********************************";
         long timerStart = System.currentTimeMillis();
         System.out.println("Computing solution for input file 1");
-        System.out.println("***********************************");
+        System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_1);
         runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 2");
-        System.out.println("***********************************");
+        System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_2);
         runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 3");
-        System.out.println("***********************************");
+        System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_3);
         runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 4");
-        System.out.println("***********************************");
+        System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_4);
         runForNumberOfIterations(algorithm, ONE);
         System.out.println();
         System.out.println("Computing solution for input file 5");
-        System.out.println("***********************************");
+        System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_5);
         runForNumberOfIterations(algorithm, ONE);
         long timerStop = System.currentTimeMillis();
@@ -139,24 +143,11 @@ public class PickupAndDelivery {
         possibleJourneys = new ArrayList<>();
         nodeTimesAndCosts = new ArrayList<>();
         processLines(getFileContents(pathToFile));
-     /*   sortInputVehicles();
+        sortInputVehicles();
         sortInputCalls();
         sortInputNodeTimesAndCosts();
-        sortInputPossibleJourneys();*/
+        sortInputPossibleJourneys();
     }
-
-/*
-    private static void start() {
-        String pathToFile1 = "src/main/resources/assignment2.test.data/Call_7_Vehicle_3.txt";
-        String pathToFile2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
-        String pathToFile3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
-        String pathToFile4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
-        String pathToFile5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
-        processLines(getFileContents(pathToFile1));
-        int solutionSize = (2 * numberOfNodes) + numberOfVehicles;
-        solutionRepresentation = new VectorSolutionRepresentation<>(solutionSize);
-        calculateSolution();
-    }*/
 
     private static List<String> getFileContents(String pathToFile) {
         ReadFromFile fileReader = new ReadFromFile();
@@ -187,7 +178,7 @@ public class PickupAndDelivery {
                 } else if (counter == 6) {
                     extractCalls(line);
                 } else {
-                    System.out.println("What happened here?");
+                    log.error("What happened here? Got unexpected input data");
                 }
             } else {
                 if (counter == 7) {
@@ -195,26 +186,10 @@ public class PickupAndDelivery {
                 } else if (counter == 8) {
                     extractNodeTimesAndCosts(line);
                 } else {
-                    System.out.println("What happened here?");
+                    log.error("What happened here? Got unexpected input data");
                 }
             }
         }
-/*
-        System.out.println("numberOfNodes = " + numberOfNodes);
-        System.out.println("numberOfVehicles = " + numberOfVehicles);
-        System.out.println("numberOfCalls = " + numberOfCalls);
-       for (Vehicle vehicle : vehicles) {
-            System.out.println("vehicle = " + vehicle);
-        }
-        for (Call call : calls) {
-      //      System.out.println("call = " + call);
-        }
-        for (Journey journey : possibleJourneys) {
-     //       System.out.println("journey = " + journey);
-        }
-        for (NodeTimesAndCosts nodeTimesAndCosts : nodeTimesAndCosts) {
-     //       System.out.println("nodeTimesAndCosts = " + nodeTimesAndCosts);
-        }*/
     }
 
     private static void extractNodeTimesAndCosts(String line) {
@@ -329,7 +304,7 @@ public class PickupAndDelivery {
                     useLocalSearchOnSolution();
             case SIMULATED_ANNEALING_SEARCH ->
                     useSimulatedAnnealingOnSolution();
-            default -> System.out.println("Did not recognize the selected algorithm");
+            default -> log.error("Did not recognize the selected algorithm");
         }
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
         System.out.println("Feasible = " + feasible(solutionRepresentation));
@@ -337,10 +312,6 @@ public class PickupAndDelivery {
 
 
         // [7, 7, 5, 5, 0, 0, 0, 6, 6] = 901763
-  //      List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
-    //    IVectorSolutionRepresentation<Integer> sol2 = new VectorSolutionRepresentation<>(values);
-   //     System.out.println(calculateCost(sol2));
-
         // [1, 1, 0, 0, 0] = 253136 v
         // [2, 2, 0, 0, 0] = 123912 v
         // [3, 3, 0, 0, 0] = 78456 v
@@ -384,7 +355,6 @@ public class PickupAndDelivery {
 
     /* Assumes that the given solution is valid */
     public static boolean feasible(IVectorSolutionRepresentation<Integer> solution) {
-        //  System.out.println("Calculating feasibility for solution " + solution.toString());
         int currentLoad = 0;
         int currentMaxLoad = vehicles.get(0).getCapacity();
         int currentTime = vehicles.get(0).getStartingTime();
@@ -414,7 +384,7 @@ public class PickupAndDelivery {
                     int lowerBoundTimeWindowForDelivery = call.getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = call.getUpperBoundTimeWindowForDelivery();
                     if (currentTime > upperBoundTimeWindowForDelivery) {
-                        // System.out.println("Time window exceeded");
+                        // System.out.println("Time window exceeded for delivery");
                         return false;
                     }
                     if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
@@ -435,7 +405,7 @@ public class PickupAndDelivery {
                     int lowerBoundTimeWindowForPickup = call.getLowerBoundTimeWindowForPickup();
                     int upperBoundTimeWindowForPickup = call.getUpperBoundTimeWindowForPickup();
                     if (currentTime > upperBoundTimeWindowForPickup) {
-                        // System.out.println("Time window exceeded");
+                        // System.out.println("Time window exceeded for pickup");
                         return false;
                     }
                     if (currentTime < lowerBoundTimeWindowForPickup) { // If too early, wait for pickup
@@ -501,7 +471,6 @@ public class PickupAndDelivery {
 
     /* Assumes that the given solution is valid */
     public static Integer calculateCost(IVectorSolutionRepresentation<Integer> solution) {
-      //  System.out.println("Calculating cost for solution " + solution.toString());
         int totalCost = 0;
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;

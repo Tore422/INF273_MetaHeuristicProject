@@ -13,6 +13,10 @@ import java.util.Random;
 
 public class SimulatedAnnealing {
 
+    private SimulatedAnnealing() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final Random RANDOM = new Random();
     private static final int NUMBER_OF_ITERATIONS = 10000;
     private static final double INITIAL_TEMPERATURE = 115000000.0;

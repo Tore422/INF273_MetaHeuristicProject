@@ -12,6 +12,10 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class OneReinsert {
 
+    private OneReinsert() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void main(String[] args) {
        // List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
         List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 2, 2, 0, 3, 4, 4, 3, 1, 1, 0, 6, 6);

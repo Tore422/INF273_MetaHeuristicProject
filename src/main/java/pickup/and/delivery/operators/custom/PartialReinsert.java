@@ -12,6 +12,9 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class PartialReinsert {
 
+    private PartialReinsert() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(3, 3, 0, 7, 1, 7, 1, 0, 5, 5, 6, 6, 0, 4, 2, 4, 2);

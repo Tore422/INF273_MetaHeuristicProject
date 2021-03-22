@@ -10,6 +10,10 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class ThreeExchange {
 
+    private ThreeExchange() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(7, 7, 5, 5, 0, 0, 0, 6, 6);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
