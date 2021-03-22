@@ -204,7 +204,7 @@ public class SmartOneReinsert {
             int randomVehicleIndex = findRandomIndexWithinExclusiveBounds(
                     MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), vehiclesProcessedSoFar);
             int startIndex = startIndicesOfVehiclesThatCanTakeTheCall.get(randomVehicleIndex);
-            int stopIndex = findStopIndex(newSolutionRepresentation, startIndex);
+            int stopIndex = findStopIndex(newSolutionRepresentation, zeroIndices, startIndex);
             if (findNumberOfDifferentCallsInVehicle(startIndex, stopIndex) == 0) {
                 // Here we assume that a vehicle that can handle the call is not limited by
                 // constraints when it's not handling any other calls.

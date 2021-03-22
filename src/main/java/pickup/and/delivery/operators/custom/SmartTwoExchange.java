@@ -67,8 +67,12 @@ public class SmartTwoExchange {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
         //ignoredIndices.addAll(positionsToIgnore);
         boolean tryMovingMostExpensiveCall = decideRemovalOperator();
+        if (findEmptyVehicles(newSolutionRepresentation, zeroIndices).size() == zeroIndices.size()) {
+            tryMovingMostExpensiveCall = false; // Only outsourced vehicles, so makes no sense to call
+        }
         while (ignoredIndices.size() < newSolutionRepresentation.size()) {
-            int firstIndexOfRandomCall, secondIndexOfRandomCall;
+            int firstIndexOfRandomCall;
+            int secondIndexOfRandomCall;
             if (tryMovingMostExpensiveCall) {
                 int[] positionsOfMostExpensiveCall = findPositionsOfMostExpensiveCall(
                         newSolutionRepresentation, zeroIndices);
@@ -82,7 +86,8 @@ public class SmartTwoExchange {
                         newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall);
             }
             int callId = newSolutionRepresentation.get(firstIndexOfRandomCall);
-            int startIndexOfRandomCallsVehicle = findStartIndex(newSolutionRepresentation, firstIndexOfRandomCall);
+            int startIndexOfRandomCallsVehicle = findStartIndex(
+                    newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall);
             List<Integer> startIndicesOfVehiclesThatCanTakeTheCall =
                     findStartIndicesOfVehiclesThatCanTakeTheCall(zeroIndices, callId);
             startIndicesOfVehiclesThatCanTakeTheCall.removeAll(startIndicesOfEmptyVehicles);
@@ -125,7 +130,8 @@ public class SmartTwoExchange {
                     MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), processedVehicles);
             int startIndexOfSelectedVehicle = startIndicesOfVehiclesThatCanTakeTheCall
                     .get(indexOfRandomVehicleToProcess);
-            int stopIndexOfSelectedVehicle = findStopIndex(newSolutionRepresentation, startIndexOfSelectedVehicle);
+            int stopIndexOfSelectedVehicle = findStopIndex(
+                    newSolutionRepresentation, zeroIndices, startIndexOfSelectedVehicle);
             int numberOfCallsInVehicle = findNumberOfDifferentCallsInVehicle(
                     startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
             List<Integer> indicesOfProcessedCalls = indicesPreviouslyProcessed(

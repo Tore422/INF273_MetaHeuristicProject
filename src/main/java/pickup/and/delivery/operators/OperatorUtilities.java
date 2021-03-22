@@ -429,7 +429,6 @@ public class OperatorUtilities {
         int lowestCostSoFar = computeInitialCost(
                 newSolutionRepresentation, firstCandidatePositions,
                 startIndex, stopIndex, callId, vehicleNumber);
-        int a = lowestCostSoFar;
         int chosenPositionForPickup = firstCandidatePositions[0];
         int chosenPositionForDelivery = firstCandidatePositions[1];
       //  System.out.println("lowestCostSoFar = " + lowestCostSoFar);
@@ -465,30 +464,29 @@ public class OperatorUtilities {
                 vehicleNumber, copyOfSolutionRepresentation);
     }
 
-    public static int findStopIndex(List<Integer> solutionRepresentation, int startIndex) {
+    public static int findStopIndex(List<Integer> solutionRepresentation, List<Integer> zeroIndices, int startIndex) {
         if (startIndex < -1 || startIndex >= solutionRepresentation.size()) {
             throw new IllegalArgumentException("Start index is outside of the solution");
         }
-        int stopIndex = -1;
-        for (int i = startIndex + 1; i < solutionRepresentation.size(); i++) {
-            int element = solutionRepresentation.get(i);
-            if (element == 0) {
-                stopIndex = i;
+        int stopIndex = solutionRepresentation.size();
+        for (int zeroIndex : zeroIndices) {
+            if (zeroIndex > startIndex) {
+                stopIndex = zeroIndex;
                 break;
             }
         }
         return stopIndex;
     }
 
-    public static int findStartIndex(List<Integer> solutionRepresentation, int stopIndex) {
+    public static int findStartIndex(List<Integer> solutionRepresentation, List<Integer> zeroIndices, int stopIndex) {
         if (stopIndex < 0 || stopIndex > solutionRepresentation.size()) {
             throw new IllegalArgumentException("Stop index is outside of the solution");
         }
         int startIndex = -1;
-        for (int i = stopIndex - 1; i >= 0; i--) {
-            int element = solutionRepresentation.get(i);
-            if (element == 0) {
-                startIndex = i;
+        for (int i = (zeroIndices.size() - 1); i >= 0; i--) {
+            int zeroIndex = zeroIndices.get(i);
+            if (zeroIndex < stopIndex) {
+                startIndex = zeroIndex;
                 break;
             }
         }
@@ -520,6 +518,7 @@ public class OperatorUtilities {
         return startIndicesOfVehiclesWithoutAnyCalls;
     }
 
+    /* Assumes that there are calls in vehicles, besides those outsourced */
     public static int[] findPositionsOfMostExpensiveCall(
             List<Integer> solutionRepresentation, List<Integer> zeroIndices) {
         int[] positionsOfCallWithLargestCost = new int[2];

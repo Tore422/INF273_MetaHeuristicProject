@@ -1,6 +1,5 @@
 package pickup.and.delivery.operators.original;
 
-import pickup.and.delivery.operators.OperatorUtilities;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -31,27 +30,15 @@ public class OneReinsert {
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-        int firstIndexOfCall = -1, secondIndexOfCall = -1;
-        Integer firstPartOfCallToReinsert = -1, secondPartOfCallToReinsert = -1;
-    //    System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
-        while (true) {
-            int randomIndex = OperatorUtilities.RANDOM.nextInt(newSolutionRepresentation.size());
-            Integer element = newSolutionRepresentation.get(randomIndex);
-            if (element.equals(0)) {
-                continue;
-            }
-            firstIndexOfCall = randomIndex;
-            secondIndexOfCall = getSecondIndexOfCall(
-                    newSolutionRepresentation, zeroIndices, firstIndexOfCall);
-       //     System.out.println("firstIndexOfCall = " + firstIndexOfCall);
-       //     System.out.println("secondIndexOfCall = " + secondIndexOfCall);
-            firstPartOfCallToReinsert = newSolutionRepresentation.remove(firstIndexOfCall);
-            if (secondIndexOfCall > firstIndexOfCall) {
-                secondIndexOfCall--;
-            }
-            secondPartOfCallToReinsert = newSolutionRepresentation.remove(secondIndexOfCall);
-            break;
+        int firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
+                MINUS_ONE, newSolutionRepresentation.size(), zeroIndices);
+        int secondIndexOfCall = getSecondIndexOfCall(
+                newSolutionRepresentation, zeroIndices, firstIndexOfCall);
+        int firstPartOfCallToReinsert = newSolutionRepresentation.remove(firstIndexOfCall);
+        if (secondIndexOfCall > firstIndexOfCall) {
+            secondIndexOfCall--;
         }
+        int secondPartOfCallToReinsert = newSolutionRepresentation.remove(secondIndexOfCall);
         //System.out.println("solution = " + newSolution);
         //System.out.println("zeroIndices old = " + zeroIndices);
         zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation); // Updating after having removed the call
@@ -60,35 +47,22 @@ public class OneReinsert {
         //System.out.println("secondPartOfCallToReinsert = " + secondPartOfCallToReinsert);
         List<Integer> startIndicesOfVehiclesThatCanTakeTheCall = findStartIndicesOfVehiclesThatCanTakeTheCall(
                 zeroIndices, firstPartOfCallToReinsert);
-        //System.out.println("startIndicesOfVehiclesThatCanTakeTheCall = " + startIndicesOfVehiclesThatCanTakeTheCall);
-        int randomStartIndex = OperatorUtilities.RANDOM.nextInt(startIndicesOfVehiclesThatCanTakeTheCall.size());
-        int startIndexOfVehicle, stopIndexOfVehicle = -1;
-        startIndexOfVehicle = startIndicesOfVehiclesThatCanTakeTheCall.get(randomStartIndex);
+        int randomStartIndex = RANDOM.nextInt(startIndicesOfVehiclesThatCanTakeTheCall.size());
+        int startIndexOfVehicle = startIndicesOfVehiclesThatCanTakeTheCall.get(randomStartIndex);
         SolutionWithElementsToInsert solutionWithElementsToInsert = new SolutionWithElementsToInsert(
                 newSolution, firstPartOfCallToReinsert, secondPartOfCallToReinsert);
+        int stopIndexOfVehicle = findStopIndex(newSolutionRepresentation, zeroIndices, startIndexOfVehicle);
         if (startIndexOfVehicle == newSolutionRepresentation.size() - 1) {
             return getSolutionWhenStartingAtEmptyOutsourcedCallsVehicle(solutionWithElementsToInsert);
-        }
-
-        if (randomStartIndex == startIndicesOfVehiclesThatCanTakeTheCall.size() - 1) {
+        } else if (randomStartIndex == startIndicesOfVehiclesThatCanTakeTheCall.size() - 1) {
             return solutionWhenMovingOutsourcedCalls(solutionWithElementsToInsert, startIndexOfVehicle);
-        } else {
-            for (int i = 0; i < zeroIndices.size(); i++) {
-                if (zeroIndices.get(i) > startIndexOfVehicle) {
-                    stopIndexOfVehicle = zeroIndices.get(i);
-                    break;
-                }
-            }
-        }
-   //     System.out.println("startIndexOfVehicle = " + startIndexOfVehicle);
-   //     System.out.println("stopIndexOfVehicle = " + stopIndexOfVehicle);
-        if (stopIndexOfVehicle == startIndexOfVehicle + 1) {
+        } else if (stopIndexOfVehicle == startIndexOfVehicle + 1) {
             return getSolutionWhenInsertingIntoEmptyVehicle(
                     solutionWithElementsToInsert, stopIndexOfVehicle);
+        } else {
+            return getGeneralSolutionWhenInsertingIntoAVehicle(
+                    solutionWithElementsToInsert, startIndexOfVehicle, stopIndexOfVehicle);
         }
-
-        return getGeneralSolutionWhenInsertingIntoAVehicle(
-                solutionWithElementsToInsert, startIndexOfVehicle, stopIndexOfVehicle);
 /*
     [7, 7, 5, 5, 0, 2, 2, 0, 3, 4, 4, 3, 1, 1, 0, 6, 6]
     pick randomly call 1
