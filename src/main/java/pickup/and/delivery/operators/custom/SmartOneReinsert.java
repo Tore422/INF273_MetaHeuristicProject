@@ -81,7 +81,8 @@ public class SmartOneReinsert {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
         boolean tryMovingMostExpensiveCall = decideRemovalOperator();
         while (ignoredIndices.size() < startIndexOfOutsourcedVehicles) {
-            int firstIndexOfCall, secondIndexOfCall;
+            int firstIndexOfCall;
+            int secondIndexOfCall;
             if (tryMovingMostExpensiveCall) {
                 int[] positionsOfMostExpensiveCall = findPositionsOfMostExpensiveCall(
                         newSolutionRepresentation, zeroIndices);
@@ -212,7 +213,7 @@ public class SmartOneReinsert {
                         secondIndexOfCall, callId, stopIndex, stopIndex);
                 return true;
             }
-            int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(startIndex, zeroIndices);
+            int vehicleNumber = findVehicleNumberForVehicleContainingIndex(startIndex, zeroIndices);
             int[] startAndStopIndicesForVehicle = new int[2]; // Needed for method call
             startAndStopIndicesForVehicle[0] = startIndex;
             startAndStopIndicesForVehicle[1] = stopIndex;

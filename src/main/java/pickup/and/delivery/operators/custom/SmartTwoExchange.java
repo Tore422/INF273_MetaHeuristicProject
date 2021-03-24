@@ -170,6 +170,12 @@ public class SmartTwoExchange {
             List<Integer> zeroIndices, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
             int startIndexOfSelectedVehicle, int stopIndexOfSelectedVehicle,
             int numberOfCallsInVehicle, List<Integer> indicesOfProcessedCalls, List<Integer> positionsToIgnore) {
+        boolean firstVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
+                firstIndexOfRandomCall);
+        boolean secondVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
+                stopIndexOfSelectedVehicle);
+        int[] vehicleNumbers = getVehicleNumbers(zeroIndices, firstIndexOfRandomCall, (startIndexOfSelectedVehicle + 1),
+                firstVehicleIsOutsourced, secondVehicleIsOutsourced);
         while (indicesOfProcessedCalls.size() < (2 * numberOfCallsInVehicle)) {
             int firstRandomIndexOfCallInSelectedVehicle = findRandomIndexWithinExclusiveBounds(
                     startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle, indicesOfProcessedCalls);
@@ -177,11 +183,9 @@ public class SmartTwoExchange {
                     newSolutionRepresentation, zeroIndices, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(firstIndexOfRandomCall, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(secondIndexOfRandomCall, secondRandomIndexOfCallInSelectedVehicle);
-            if (feasible(newSolution)) {
-                //positionsToIgnore.add(firstRandomIndexOfCallInSelectedVehicle);
-                //positionsToIgnore.add(secondRandomIndexOfCallInSelectedVehicle);
+            if (isSolutionFeasibleAfterSwappingTwoCalls(
+                    newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers))
                 return true;
-            }
             // Swap back if solution is not feasible
             newSolution.swapElementsAtIndices(firstRandomIndexOfCallInSelectedVehicle, firstIndexOfRandomCall);
             newSolution.swapElementsAtIndices(secondRandomIndexOfCallInSelectedVehicle, secondIndexOfRandomCall);
@@ -190,6 +194,37 @@ public class SmartTwoExchange {
         }
         return false;
     }
+
+    private static int[] getVehicleNumbers(
+            List<Integer> zeroIndices, int firstIndex, int secondIndex,
+            boolean firstVehicleIsOutsourced, boolean secondVehicleIsOutsourced) {
+        int[] vehicleNumbers = new int[2];
+        if (!firstVehicleIsOutsourced) {
+            vehicleNumbers[0] = findVehicleNumberForVehicleContainingIndex(firstIndex, zeroIndices);
+        }
+        if (!secondVehicleIsOutsourced) {
+            vehicleNumbers[1] = findVehicleNumberForVehicleContainingIndex(secondIndex, zeroIndices);
+        }
+        return vehicleNumbers;
+    }
+
+    private static boolean isSolutionFeasibleAfterSwappingTwoCalls(
+            List<Integer> newSolutionRepresentation, boolean firstVehicleIsOutsourced,
+            boolean secondVehicleIsOutsourced, int[] vehicleNumbers) {
+        boolean firstVehicleIsFeasible = true; // Outsourced vehicle is always feasible
+        boolean secondVehicleIsFeasible = true;
+        if (!firstVehicleIsOutsourced) {
+            firstVehicleIsFeasible = constraintsHoldForVehicle(vehicleNumbers[0], newSolutionRepresentation);
+        }
+        if (!secondVehicleIsOutsourced) {
+            secondVehicleIsFeasible = constraintsHoldForVehicle(vehicleNumbers[1], newSolutionRepresentation);
+        }
+        //positionsToIgnore.add(firstRandomIndexOfCallInSelectedVehicle);
+        //positionsToIgnore.add(secondRandomIndexOfCallInSelectedVehicle);
+        return firstVehicleIsFeasible && secondVehicleIsFeasible;
+    }
+
+
 
 
 

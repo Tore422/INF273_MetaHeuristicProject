@@ -193,6 +193,20 @@ public class OperatorUtilities {
         return totalCost;
     }
 
+    public static boolean constraintsHoldForVehicle(int vehicleNumber, List<Integer> solutionRepresentation) {
+        List<Integer> zeroIndices = getIndicesOfAllZeroes(solutionRepresentation);
+        if (vehicleNumber > zeroIndices.size()) {
+            throw new IllegalArgumentException("That many vehicles does not exist");
+        }
+        int stopIndex = zeroIndices.get(vehicleNumber - 1);
+        int startIndex = findStartIndex(solutionRepresentation, zeroIndices, stopIndex);
+        boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
+                startIndex, stopIndex, vehicleNumber, solutionRepresentation);
+        boolean capacityConstraintHolds = vehicleCapacityConstraintHoldsFor(
+                startIndex, stopIndex, vehicleNumber, solutionRepresentation);
+        return timeWindowConstraintHolds && capacityConstraintHolds;
+    }
+
   public static boolean timeWindowConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
                                                      List<Integer> solutionRepresentation) {
       Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
@@ -255,19 +269,15 @@ public class OperatorUtilities {
     }
 
 
-    public static int findVehicleNumberForVehicleStartingAtIndex(int startIndex, List<Integer> zeroIndices) {
+    public static int findVehicleNumberForVehicleContainingIndex(int elementIndex, List<Integer> zeroIndices) {
         int vehicleNumber = 1;
-        if (startIndex == -1) {
-            return vehicleNumber;
-        }
-        for (int i = 0; i < zeroIndices.size() - 1; i++) {
-            vehicleNumber++;
-            int zeroIndex = zeroIndices.get(i);
-            if (zeroIndex == startIndex) {
+        for (int zeroIndex : zeroIndices) {
+            if (zeroIndex > elementIndex) {
                 return vehicleNumber;
             }
+            vehicleNumber++;
         }
-        if (zeroIndices.get(zeroIndices.size() - 1).equals(startIndex)) {
+        if (zeroIndices.get(zeroIndices.size() - 1).equals(elementIndex)) {
             throw new IllegalArgumentException("Start index matches vehicle for outsourced calls");
         } else {
             throw new IllegalArgumentException("Given start index does not match for any vehicle");
@@ -284,9 +294,13 @@ public class OperatorUtilities {
         return numberOfDifferentCallsInVehicle;
     }
 
-
-
-
+    public static boolean isOutsourcedVehicle(List<Integer> solutionRepresentation, List<Integer> zeroIndices,
+                                              int index) {
+        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
+        int startIndexOfSelectedVehicle = (index != startIndexOfOutsourcedCalls) ?
+                findStartIndex(solutionRepresentation, zeroIndices, index) : startIndexOfOutsourcedCalls;
+        return startIndexOfSelectedVehicle == startIndexOfOutsourcedCalls;
+    }
 
     public static List<int[]> findPositionsWithinConstraints(
             int vehicleNumber, int callID, int[] startAndStopIndicesForVehicle, List<Integer> solutionRepresentation) {
@@ -531,7 +545,7 @@ public class OperatorUtilities {
                 int secondIndexOfCall = getSecondIndexOfCall(copyOfSolutionRepresentation, zeroIndices, i);
                 int[] startAndStopIndexOfVehicle = findStartAndStopIndexOfVehicle(
                         zeroIndices, i, copyOfSolutionRepresentation.size());
-                int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
+                int vehicleNumber = findVehicleNumberForVehicleContainingIndex(
                         startAndStopIndexOfVehicle[0], zeroIndices);
                 int oldCostForVehicle = computeCostForVehicle(
                         startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1], vehicleNumber,

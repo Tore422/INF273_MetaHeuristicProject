@@ -43,7 +43,7 @@ public class PartialReinsert {
             int indexOfRandomVehicleToProcess = findRandomIndexWithinExclusiveBounds(
                     MINUS_ONE, indicesOfVehiclesToProcess.size(), vehiclesProcessedSoFar);
             int[] startAndStopIndexOfVehicle = indicesOfVehiclesToProcess.get(indexOfRandomVehicleToProcess);
-            int vehicleNumber = findVehicleNumberForVehicleStartingAtIndex(
+            int vehicleNumber = findVehicleNumberForVehicleContainingIndex(
                     startAndStopIndexOfVehicle[0], zeroIndices);
             int costOfInitialSolution = computeCostForVehicle(
                     startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1],
@@ -111,7 +111,8 @@ public class PartialReinsert {
             int vehicleNumber, int costOfInitialSolution) {
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         int bestCostSoFarForCurrentVehicle = costOfInitialSolution;
-        int indexOfCallToMove = -1, indexToInsertCall = -1;
+        int indexOfCallToMove = -1;
+        int indexToInsertCall = -1;
         int startIndex = startAndStopIndexOfVehicle[0];
         int stopIndex = startAndStopIndexOfVehicle[1];
         for (int i = startIndex + 1; i < stopIndex; i++) {
