@@ -124,8 +124,12 @@ public class PickupAndDelivery {
         }
         System.out.println("bestCost = " + bestCost);
         System.out.println("bestSolution = " + bestSolution);
-        double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
-        System.out.println("improvementInPercent = " + improvementInPercent);
+        if (worstCost <= 0) {
+            log.error("WorstCost was zero or negative");
+        } else {
+            double improvementInPercent = (100.0 * (worstCost - bestCost) / worstCost);
+            System.out.println("improvementInPercent = " + improvementInPercent);
+        }
     }
 
     private static int numberOfNodes;
@@ -366,7 +370,8 @@ public class PickupAndDelivery {
                 vehicleNumber++;
                 currentLoad = 0;
                 if (!unfinishedCalls.isEmpty()) {
-                    unfinishedCalls.clear();
+                    System.out.println("Solution has unfinished calls and is therefore not valid");
+                    return false;
                 }
                 if (vehicleNumber <= numberOfVehicles) {
                     currentTime = vehicles.get(vehicleNumber - 1).getStartingTime();
@@ -377,23 +382,21 @@ public class PickupAndDelivery {
                 break; // Outsourced jobs are always feasible. Becomes somebody else's problem anyway...
             } else {
                 Call call = calls.get(element - 1);
+                NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
+                        vehicleNumber, call.getCallIndex());
                 int destinationNode;
                 if (unfinishedCalls.contains(call.getCallIndex())) { // Deliver package
                     destinationNode = call.getDestinationNode();
-                    currentTime += getTravelTime(previousNode, destinationNode, vehicleNumber);
+                    int travelTime = getTravelTime(previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForDelivery = call.getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = call.getUpperBoundTimeWindowForDelivery();
+                    currentTime = Math.max(currentTime + travelTime, lowerBoundTimeWindowForDelivery);
                     if (currentTime > upperBoundTimeWindowForDelivery) {
                         // System.out.println("Time window exceeded for delivery");
                         return false;
                     }
-                    if (currentTime < lowerBoundTimeWindowForDelivery) { // If too early, wait for delivery
-                        currentTime += (lowerBoundTimeWindowForDelivery - currentTime);
-                    }
                     currentLoad -= call.getPackageSize(); // Unload package
                     unfinishedCalls.remove((Integer) call.getCallIndex()); // Call has been finished
-                    NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
-                            vehicleNumber, call.getCallIndex());
                     currentTime += nodeTimesAndCosts.getDestinationNodeTime(); // Add time cost for delivering package
                 } else { // Pickup package
                     if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
@@ -401,15 +404,13 @@ public class PickupAndDelivery {
                         return false;
                     }
                     destinationNode = call.getOriginNode();
-                    currentTime += getTravelTime(previousNode, destinationNode, vehicleNumber);
+                    int travelTime = getTravelTime(previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForPickup = call.getLowerBoundTimeWindowForPickup();
                     int upperBoundTimeWindowForPickup = call.getUpperBoundTimeWindowForPickup();
+                    currentTime = Math.max(currentTime + travelTime, lowerBoundTimeWindowForPickup);
                     if (currentTime > upperBoundTimeWindowForPickup) {
                         // System.out.println("Time window exceeded for pickup");
                         return false;
-                    }
-                    if (currentTime < lowerBoundTimeWindowForPickup) { // If too early, wait for pickup
-                        currentTime += (lowerBoundTimeWindowForPickup - currentTime);
                     }
                     currentLoad += call.getPackageSize();
                     if (currentLoad > currentMaxLoad) {
@@ -417,8 +418,6 @@ public class PickupAndDelivery {
                         return false;
                     }
                     unfinishedCalls.add(element);
-                    NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
-                            vehicleNumber, call.getCallIndex());
                     currentTime += nodeTimesAndCosts.getOriginNodeTime(); // Add time cost for picking up package
                 }
                 previousNode = destinationNode;
