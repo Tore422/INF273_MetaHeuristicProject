@@ -364,13 +364,13 @@ public class PickupAndDelivery {
         int currentTime = vehicles.get(0).getStartingTime();
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
-        List<Integer> unfinishedCalls = new ArrayList<>();
+        List<Call> unfinishedCalls = new ArrayList<>();
         for (Integer element : solution.getSolutionRepresentation()) {
             if (element == 0) {
                 vehicleNumber++;
                 currentLoad = 0;
                 if (!unfinishedCalls.isEmpty()) {
-                    System.out.println("Solution has unfinished calls and is therefore not valid");
+                    log.error("Solution has unfinished calls and is therefore not valid");
                     return false;
                 }
                 if (vehicleNumber <= numberOfVehicles) {
@@ -385,22 +385,22 @@ public class PickupAndDelivery {
                 NodeTimesAndCosts nodeTimesAndCosts = getNodeTimesAndCostsForVehicle(
                         vehicleNumber, call.getCallIndex());
                 int destinationNode;
-                if (unfinishedCalls.contains(call.getCallIndex())) { // Deliver package
+                if (unfinishedCalls.contains(call)) { // Deliver package
                     destinationNode = call.getDestinationNode();
                     int travelTime = getTravelTime(previousNode, destinationNode, vehicleNumber);
                     int lowerBoundTimeWindowForDelivery = call.getLowerBoundTimeWindowForDelivery();
                     int upperBoundTimeWindowForDelivery = call.getUpperBoundTimeWindowForDelivery();
                     currentTime = Math.max(currentTime + travelTime, lowerBoundTimeWindowForDelivery);
                     if (currentTime > upperBoundTimeWindowForDelivery) {
-                        // System.out.println("Time window exceeded for delivery");
+                        //log.error("Time window exceeded for delivery");
                         return false;
                     }
                     currentLoad -= call.getPackageSize(); // Unload package
-                    unfinishedCalls.remove((Integer) call.getCallIndex()); // Call has been finished
+                    unfinishedCalls.remove(call); // Call has been finished
                     currentTime += nodeTimesAndCosts.getDestinationNodeTime(); // Add time cost for delivering package
                 } else { // Pickup package
                     if (!vehicles.get(vehicleNumber - 1).getPossibleCalls().contains(element)) {
-                        // System.out.println("Incompatible vessel and cargo");
+                        //log.error("Incompatible vessel and cargo");
                         return false;
                     }
                     destinationNode = call.getOriginNode();
@@ -409,15 +409,15 @@ public class PickupAndDelivery {
                     int upperBoundTimeWindowForPickup = call.getUpperBoundTimeWindowForPickup();
                     currentTime = Math.max(currentTime + travelTime, lowerBoundTimeWindowForPickup);
                     if (currentTime > upperBoundTimeWindowForPickup) {
-                        // System.out.println("Time window exceeded for pickup");
+                        //log.error("Time window exceeded for pickup");
                         return false;
                     }
                     currentLoad += call.getPackageSize();
                     if (currentLoad > currentMaxLoad) {
-                        // System.out.println("Capacity exceeded");
+                        //log.error("Capacity exceeded");
                         return false;
                     }
-                    unfinishedCalls.add(element);
+                    unfinishedCalls.add(call);
                     currentTime += nodeTimesAndCosts.getOriginNodeTime(); // Add time cost for picking up package
                 }
                 previousNode = destinationNode;
@@ -473,29 +473,26 @@ public class PickupAndDelivery {
         int totalCost = 0;
         int previousNode = vehicles.get(0).getHomeNode();
         int vehicleNumber = 1;
-        List<Integer> unfinishedCalls = new ArrayList<>();
+        List<Call> unfinishedCalls = new ArrayList<>();
         for (Integer element : solution.getSolutionRepresentation()) {
             if (element == 0) {
                 vehicleNumber++;
-                if (!unfinishedCalls.isEmpty()) {
-                    unfinishedCalls.clear();
-                }
                 if (vehicleNumber <= numberOfVehicles) {
                     previousNode = vehicles.get(vehicleNumber - 1).getHomeNode();
                 }
             } else if (vehicleNumber == numberOfVehicles + 1) {
-                totalCost = processOutsourcedCall(totalCost, unfinishedCalls, element);
+                totalCost = processOutsourcedCall(totalCost, unfinishedCalls, calls.get(element - 1));
             } else {
                 Call call = calls.get(element - 1);
                 int destinationNode;
-                if (unfinishedCalls.contains(call.getCallIndex())) {
+                if (unfinishedCalls.contains(call)) {
                     destinationNode = call.getDestinationNode();
-                    totalCost = processDeliveryCosts(totalCost, previousNode, vehicleNumber,
-                            unfinishedCalls, element, destinationNode);
+                    totalCost = processDeliveryCosts(totalCost, previousNode, vehicleNumber, element, destinationNode);
+                    unfinishedCalls.remove(call); // Call has been finished
                 } else {
                     destinationNode = call.getOriginNode();
-                    totalCost = processPickupCosts(totalCost, previousNode, vehicleNumber,
-                            unfinishedCalls, element, destinationNode);
+                    totalCost = processPickupCosts(totalCost, previousNode, vehicleNumber, element, destinationNode);
+                    unfinishedCalls.add(call);
                 }
                 previousNode = destinationNode;
             }
@@ -504,26 +501,24 @@ public class PickupAndDelivery {
     }
 
     private static int processDeliveryCosts(int totalCost, int previousNode, int vehicleNumber,
-                                            List<Integer> unfinishedCalls, Integer callId, int destinationNode) {
+                                            int callId, int destinationNode) {
         totalCost += getTravelCostForJourney(previousNode, destinationNode, vehicleNumber);
         totalCost += getNodeTimesAndCostsForVehicle(vehicleNumber, callId)
                 .getDestinationNodeCosts(); // Cost of delivering package
-        unfinishedCalls.remove(callId); // Call has been finished
         return totalCost;
     }
 
     private static int processPickupCosts(int totalCost, int previousNode, int vehicleNumber,
-                                          List<Integer> unfinishedCalls, Integer callId, int destinationNode) {
+                                          int callId, int destinationNode) {
         totalCost += getTravelCostForJourney(previousNode, destinationNode, vehicleNumber);
         totalCost += getNodeTimesAndCostsForVehicle(vehicleNumber, callId)
                 .getOriginNodeCosts(); // Cost of picking up package
-        unfinishedCalls.add(callId);
         return totalCost;
     }
 
-    private static int processOutsourcedCall(int totalCost, List<Integer> unfinishedCalls, Integer element) {
+    private static int processOutsourcedCall(int totalCost, List<Call> unfinishedCalls, Call element) {
         if (unfinishedCalls.contains(element)) {
-            totalCost += calls.get(element - 1).getCostOfNotTransporting();
+            totalCost += element.getCostOfNotTransporting();
         } else {
             unfinishedCalls.add(element);
         }
