@@ -3,6 +3,7 @@ package pickup.and.delivery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pickup.and.delivery.algorithms.BlindRandomSearch;
+import pickup.and.delivery.algorithms.GeneralAdaptiveMetaheuristic;
 import pickup.and.delivery.algorithms.LocalSearch;
 import pickup.and.delivery.algorithms.SimulatedAnnealing;
 import pickup.and.delivery.entities.Call;
@@ -21,7 +22,8 @@ public class PickupAndDelivery {
     enum SearchAlgorithm {
         BLIND_RANDOM_SEARCH,
         LOCAL_SEARCH,
-        SIMULATED_ANNEALING_SEARCH
+        SIMULATED_ANNEALING_SEARCH,
+        ADAPTIVE_METAHEURISTIC_SEARCH
     }
 
     // Files for test data
@@ -45,10 +47,11 @@ public class PickupAndDelivery {
       //  PartialReinsert.main(null);
 
         final int NUMBER_OF_ITERATIONS = 10;
-       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
+        runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
 
 
-        runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
+
+        //runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
@@ -308,6 +311,8 @@ public class PickupAndDelivery {
                     useLocalSearchOnSolution();
             case SIMULATED_ANNEALING_SEARCH ->
                     useSimulatedAnnealingOnSolution();
+            case ADAPTIVE_METAHEURISTIC_SEARCH ->
+                    useAdaptiveMetaheuristicOnSolution();
             default -> log.error("Did not recognize the selected algorithm");
         }
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
@@ -355,6 +360,11 @@ public class PickupAndDelivery {
     private static void useSimulatedAnnealingOnSolution() {
         System.out.println("\nSimulated annealing search");
         solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
+    }
+
+    private static void useAdaptiveMetaheuristicOnSolution() {
+        System.out.println("\nAdaptive Metaheuristic search");
+        solutionRepresentation = GeneralAdaptiveMetaheuristic.adaptiveMetaheuristicSearch(solutionRepresentation);
     }
 
     /* Assumes that the given solution is valid */
