@@ -62,11 +62,16 @@ public class GeneralAdaptiveMetaheuristic {
         List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
+        System.out.println("initialSolution = " + initialSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             foundNewBestSolutionThisIteration = false;
+            System.out.println();
+            System.out.println("iteration number = " + i);
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
+                System.out.println("Escaping local optima");
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
+                    System.out.println("currentSolution = " + currentSolution);
                     int objectiveCostForCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
                     if (objectiveCostForCurrentSolution < bestObjectiveFoundSoFar) {
                         bestSolution = currentSolution;
@@ -77,18 +82,22 @@ public class GeneralAdaptiveMetaheuristic {
                 numberOfIterationsSincePreviousBestWasFound = 0; // Reset to avoid escaping again immediately
             } else {
                 IVectorSolutionRepresentation<Integer> newSolution = selectAndApplyOperatorOnSolution(currentSolution);
+                System.out.println("selectedOperator = " + selectedOperator);
+                System.out.println("newSolution = " + newSolution);
                 if (!PickupAndDelivery.feasible(newSolution)) {
                     System.out.println("Error, not a feasible solution");
                 }
                 int objectiveCostForNewSolution = PickupAndDelivery.calculateCost(newSolution);
                 if (objectiveCostForNewSolution < bestObjectiveFoundSoFar
                         && PickupAndDelivery.feasible(newSolution)) { // Should always be feasible?
+                    System.out.println("Found a new best solution");
                     bestSolution = newSolution;
                     bestObjectiveFoundSoFar = objectiveCostForNewSolution;
                     numberOfIterationsSincePreviousBestWasFound = 0;
                     foundNewBestSolutionThisIteration = true;
                 }
                 if (accept(newSolution)) {
+                    System.out.println("Solution was acceptable");
                     currentSolution = newSolution;
                 }
                 updateOperatorSelectionParameters(newSolution, currentSolution, objectiveCostForNewSolution,
