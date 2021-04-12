@@ -91,10 +91,12 @@ public class GeneralAdaptiveMetaheuristic {
                 if (accept(newSolution)) {
                     currentSolution = newSolution;
                 }
-                discoveredSolutions.add(newSolution);
-                objectiveCostOfDiscoveredSolutions.add(objectiveCostForNewSolution);
                 updateOperatorSelectionParameters(newSolution, currentSolution, objectiveCostForNewSolution,
                         discoveredSolutions, objectiveCostOfDiscoveredSolutions);
+                // Update selection parameters before registering solution as discovered,
+                // to avoid always finding duplicate of new solution.
+                discoveredSolutions.add(newSolution);
+                objectiveCostOfDiscoveredSolutions.add(objectiveCostForNewSolution);
                 numberOfIterationsSincePreviousBestWasFound++;
             }
         }//*/
@@ -160,17 +162,18 @@ public class GeneralAdaptiveMetaheuristic {
                                      int objectiveCostForNewSolution,
                                      List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
                                      List<Integer> objectiveCostOfDiscoveredSolutions) {
+        int oldScore = scores.get(selectedOperator);
         if (foundNewBestSolutionThisIteration) {
-            scores.put(selectedOperator, SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
+            scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
             System.out.println("Adding scores for new best: " + scores.values());
         } else if (objectiveCostForNewSolution < PickupAndDelivery.calculateCost(currentSolution)) {
-            scores.put(selectedOperator, SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
+            scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
             System.out.println("Adding scores for better than current solution: " + scores.values());
         } else {
             boolean foundUnexploredSolution = isUnexploredSolution(
                     newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostForNewSolution);
             if (foundUnexploredSolution) {
-                scores.put(selectedOperator, SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
+                scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
                 System.out.println("Adding scores for unexplored solution: " + scores.values());
             }
         } // Are scores assigned by only the highest amount, or all that apply to the solution?
