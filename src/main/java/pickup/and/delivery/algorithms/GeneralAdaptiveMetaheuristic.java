@@ -43,6 +43,8 @@ public class GeneralAdaptiveMetaheuristic {
     private static Map<Integer, Double> operatorWeights;
     private static Map<Integer, Integer> scores;
     private static int selectedOperator;
+    private static boolean foundNewBestSolutionThisIteration;
+
 
     private GeneralAdaptiveMetaheuristic() {}
 
@@ -56,11 +58,12 @@ public class GeneralAdaptiveMetaheuristic {
 
         System.out.println("Operators.getOperators() = " + Operators.getOperatorsWithID());
 
-
-        /*
+        List<IVectorSolutionRepresentation<Integer>> discoveredSolutions = new ArrayList<>();
+        List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+            foundNewBestSolutionThisIteration = false;
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
@@ -83,11 +86,15 @@ public class GeneralAdaptiveMetaheuristic {
                     bestSolution = newSolution;
                     bestObjectiveFoundSoFar = objectiveCostForNewSolution;
                     numberOfIterationsSincePreviousBestWasFound = 0;
+                    foundNewBestSolutionThisIteration = true;
                 }
                 if (accept(newSolution)) {
                     currentSolution = newSolution;
                 }
-                updateOperatorSelectionParameters(newSolution, currentSolution);
+                discoveredSolutions.add(newSolution);
+                objectiveCostOfDiscoveredSolutions.add(objectiveCostForNewSolution);
+                updateOperatorSelectionParameters(newSolution, currentSolution,
+                        discoveredSolutions, objectiveCostOfDiscoveredSolutions);
                 numberOfIterationsSincePreviousBestWasFound++;
             }
         }//*/
@@ -116,23 +123,61 @@ public class GeneralAdaptiveMetaheuristic {
         return operatorWeights;
     }
 
+    private static void updateOperatorSelectionParameters(
+            IVectorSolutionRepresentation<Integer> newSolution,
+            IVectorSolutionRepresentation<Integer> currentSolution,
+            List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
+            List<Integer> objectiveCostOfDiscoveredSolutions) {
+        updateScores(newSolution, currentSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions);
+        updateWeights();
+    }
+
+    private static void updateWeights() {
+    }
+
     private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1;
     private static final int SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION = 2;
     private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 4;
 
-    private static void updateOperatorSelectionParameters(IVectorSolutionRepresentation<Integer> newSolution,
-                                                          IVectorSolutionRepresentation<Integer> currentSolution) {
+    private static void updateScores(IVectorSolutionRepresentation<Integer> newSolution,
+                                     IVectorSolutionRepresentation<Integer> currentSolution,
+                                     List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
+                                     List<Integer> objectiveCostOfDiscoveredSolutions) {
+        int objectiveCostForNewSolution = PickupAndDelivery.calculateCost(newSolution);
+        boolean foundUnexploredSolution = isUnexploredSolution(
+                newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostForNewSolution);
+        if (foundUnexploredSolution) {
+            scores.put(selectedOperator, SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
+            System.out.println("Adding scores for unexplored solution: " + scores.values());
+        }
+        if (objectiveCostForNewSolution < PickupAndDelivery.calculateCost(currentSolution)) {
+            scores.put(selectedOperator, SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
+            System.out.println("Adding scores for better than current solution: " + scores.values());
+        }
+        if (foundNewBestSolutionThisIteration) {
+            scores.put(selectedOperator, SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
+            System.out.println("Adding scores for new best: " + scores.values());
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
+    private static boolean isUnexploredSolution(IVectorSolutionRepresentation<Integer> newSolution,
+                                                List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
+                                                List<Integer> objectiveCostOfDiscoveredSolutions,
+                                                int objectiveCostForNewSolution) {
+        boolean foundUnexploredSolution = true;
+        int i = 0;
+        for (Integer objectiveCost : objectiveCostOfDiscoveredSolutions) {
+            if (objectiveCost.equals(objectiveCostForNewSolution)) {
+                IVectorSolutionRepresentation<Integer> possibleDuplicateSolution = discoveredSolutions.get(i);
+                if (newSolution.equals(possibleDuplicateSolution)) {
+                    foundUnexploredSolution = false;
+                    System.out.println("Found duplicate solution of solution from iteration: " + i);
+                    break;
+                }
+            }
+            i++;
+        }
+        return foundUnexploredSolution;
     }
 
     private static boolean accept(IVectorSolutionRepresentation<Integer> newSolution) {
