@@ -2,10 +2,7 @@ package solution.representations.vector;
 
 import pickup.and.delivery.PickupAndDelivery;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresentation<T> {
 
@@ -87,5 +84,18 @@ public class VectorSolutionRepresentation<T> implements IVectorSolutionRepresent
         return "VectorSolutionRepresentation{" +
                 "solution=" + solution +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VectorSolutionRepresentation<?> that = (VectorSolutionRepresentation<?>) o;
+        return solution.equals(that.solution);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(solution);
     }
 }
