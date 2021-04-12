@@ -93,7 +93,7 @@ public class GeneralAdaptiveMetaheuristic {
                 }
                 discoveredSolutions.add(newSolution);
                 objectiveCostOfDiscoveredSolutions.add(objectiveCostForNewSolution);
-                updateOperatorSelectionParameters(newSolution, currentSolution,
+                updateOperatorSelectionParameters(newSolution, currentSolution, objectiveCostForNewSolution,
                         discoveredSolutions, objectiveCostOfDiscoveredSolutions);
                 numberOfIterationsSincePreviousBestWasFound++;
             }
@@ -126,13 +126,29 @@ public class GeneralAdaptiveMetaheuristic {
     private static void updateOperatorSelectionParameters(
             IVectorSolutionRepresentation<Integer> newSolution,
             IVectorSolutionRepresentation<Integer> currentSolution,
-            List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
+            int objectiveCostForNewSolution, List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
             List<Integer> objectiveCostOfDiscoveredSolutions) {
-        updateScores(newSolution, currentSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions);
+        updateScores(newSolution, currentSolution, objectiveCostForNewSolution,
+                discoveredSolutions, objectiveCostOfDiscoveredSolutions);
         updateWeights();
     }
 
+    private static final double MINIMUM_WEIGHT = 0.05;
+
     private static void updateWeights() {
+        for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
+          //  double newWeight =
+
+
+
+
+        }
+
+
+
+
+
+
     }
 
     private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1;
@@ -141,23 +157,23 @@ public class GeneralAdaptiveMetaheuristic {
 
     private static void updateScores(IVectorSolutionRepresentation<Integer> newSolution,
                                      IVectorSolutionRepresentation<Integer> currentSolution,
+                                     int objectiveCostForNewSolution,
                                      List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
                                      List<Integer> objectiveCostOfDiscoveredSolutions) {
-        int objectiveCostForNewSolution = PickupAndDelivery.calculateCost(newSolution);
-        boolean foundUnexploredSolution = isUnexploredSolution(
-                newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostForNewSolution);
-        if (foundUnexploredSolution) {
-            scores.put(selectedOperator, SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
-            System.out.println("Adding scores for unexplored solution: " + scores.values());
-        }
-        if (objectiveCostForNewSolution < PickupAndDelivery.calculateCost(currentSolution)) {
-            scores.put(selectedOperator, SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
-            System.out.println("Adding scores for better than current solution: " + scores.values());
-        }
         if (foundNewBestSolutionThisIteration) {
             scores.put(selectedOperator, SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
             System.out.println("Adding scores for new best: " + scores.values());
-        }
+        } else if (objectiveCostForNewSolution < PickupAndDelivery.calculateCost(currentSolution)) {
+            scores.put(selectedOperator, SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
+            System.out.println("Adding scores for better than current solution: " + scores.values());
+        } else {
+            boolean foundUnexploredSolution = isUnexploredSolution(
+                    newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostForNewSolution);
+            if (foundUnexploredSolution) {
+                scores.put(selectedOperator, SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
+                System.out.println("Adding scores for unexplored solution: " + scores.values());
+            }
+        } // Are scores assigned by only the highest amount, or all that apply to the solution?
     }
 
     private static boolean isUnexploredSolution(IVectorSolutionRepresentation<Integer> newSolution,
