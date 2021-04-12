@@ -136,21 +136,23 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final double MINIMUM_WEIGHT = 0.05;
+    private static final double R = 0.05; // What value should this have?
 
     private static void updateWeights() {
         for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
-          //  double newWeight =
-
-
-
-
+            double oldWeight = operatorWeights.get(i);
+            double theta = 0.0;
+            double newWeight = oldWeight * (1.0 - R) + (R * (Math.PI / theta));
+            if (newWeight > MINIMUM_WEIGHT) {
+                operatorWeights.put(i, newWeight);
+            } else {
+                operatorWeights.put(i, MINIMUM_WEIGHT);
+            }
+            System.out.println("theta = " + theta);
+            System.out.println("oldWeight = " + oldWeight);
+            System.out.println("newWeight = " + newWeight);
         }
-
-
-
-
-
-
+        // How to update weights?
     }
 
     private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1;
