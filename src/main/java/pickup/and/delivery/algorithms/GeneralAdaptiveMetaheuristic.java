@@ -31,9 +31,6 @@ public class GeneralAdaptiveMetaheuristic {
             System.out.println("objectiveValuesAfterOperatorUse = " + objectiveValuesAfterOperatorUse.get(i));
             System.out.println("newSolutionWasFeasible = " + newSolutionWasFeasible.get(i));
         }
-
-
-
     }
 
     enum Operators {
@@ -51,15 +48,14 @@ public class GeneralAdaptiveMetaheuristic {
         }
 
         public static Operators getOperatorNameFromID(int operatorID) {
-            if (operatorID == 1) {
-                return SMART_ONE_REINSERT;
-            } else if (operatorID == 2) {
-                return SMART_TWO_EXCHANGE;
-            } else if (operatorID == 3) {
-                return PARTIAL_REINSERT;
-            } else {
-                throw new IllegalArgumentException("Not a valid operator ID");
+            int i = 1;
+            for (Operators operatorName : Operators.getOperatorsWithID().keySet()) {
+                if (operatorID == i) {
+                    return operatorName;
+                }
+                i++;
             }
+            throw new IllegalArgumentException("Not a valid operator ID");
         }
     }
 
