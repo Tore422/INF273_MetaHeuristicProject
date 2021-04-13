@@ -17,7 +17,23 @@ public class GeneralAdaptiveMetaheuristic {
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
-        System.out.println("sol = " + adaptiveMetaheuristicSearch(sol));
+        IVectorSolutionRepresentation<Integer> bestSolution = adaptiveMetaheuristicSearch(sol);
+        System.out.println("bestSolution = " + bestSolution);
+        System.out.println("best cost = " + PickupAndDelivery.calculateCost(bestSolution));
+
+        System.out.println("Operator performance stats");
+        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+            System.out.println();
+            System.out.println("iteration = " + i);
+            int operator = operatorSelected.get(i);
+            System.out.println("operator = " + Operators.getOperatorNameFromID(operator));
+            System.out.println("objectiveValuesBeforeOperatorUse = " + objectiveValuesBeforeOperatorUse.get(i));
+            System.out.println("objectiveValuesAfterOperatorUse = " + objectiveValuesAfterOperatorUse.get(i));
+            System.out.println("newSolutionWasFeasible = " + newSolutionWasFeasible.get(i));
+        }
+
+
+
     }
 
     enum Operators {
@@ -33,6 +49,18 @@ public class GeneralAdaptiveMetaheuristic {
             }
             return operatorIndices;
         }
+
+        public static Operators getOperatorNameFromID(int operatorID) {
+            if (operatorID == 1) {
+                return SMART_ONE_REINSERT;
+            } else if (operatorID == 2) {
+                return SMART_TWO_EXCHANGE;
+            } else if (operatorID == 3) {
+                return PARTIAL_REINSERT;
+            } else {
+                throw new IllegalArgumentException("Not a valid operator ID");
+            }
+        }
     }
 
     private static final int NUMBER_OF_OPERATORS = Operators.values().length;
@@ -44,6 +72,11 @@ public class GeneralAdaptiveMetaheuristic {
     private static Map<Integer, Integer> scores;
     private static int selectedOperator;
     private static boolean foundNewBestSolutionThisIteration;
+
+    private static List<Integer> objectiveValuesBeforeOperatorUse;
+    private static List<Integer> objectiveValuesAfterOperatorUse;
+    private static List<Boolean> newSolutionWasFeasible;
+    private static List<Integer> operatorSelected;
 
 
     private GeneralAdaptiveMetaheuristic() {}
@@ -60,8 +93,14 @@ public class GeneralAdaptiveMetaheuristic {
 
         List<IVectorSolutionRepresentation<Integer>> discoveredSolutions = new ArrayList<>();
         List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
+        objectiveValuesBeforeOperatorUse = new ArrayList<>();
+        objectiveValuesAfterOperatorUse = new ArrayList<>();
+        newSolutionWasFeasible = new ArrayList<>();
+        operatorSelected = new ArrayList<>();
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
+
+        int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
         System.out.println("initialSolution = " + initialSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             foundNewBestSolutionThisIteration = false;
@@ -81,31 +120,37 @@ public class GeneralAdaptiveMetaheuristic {
                 }
                 numberOfIterationsSincePreviousBestWasFound = 0; // Reset to avoid escaping again immediately
             } else {
+                objectiveValuesBeforeOperatorUse.add(objectiveCostOfCurrentSolution);
                 IVectorSolutionRepresentation<Integer> newSolution = selectAndApplyOperatorOnSolution(currentSolution);
+                int objectiveCostOfNewSolution = PickupAndDelivery.calculateCost(newSolution);
+                objectiveValuesAfterOperatorUse.add(objectiveCostOfNewSolution);
+                newSolutionWasFeasible.add(PickupAndDelivery.feasible(newSolution));
+                operatorSelected.add(selectedOperator);
                 System.out.println("selectedOperator = " + selectedOperator);
                 System.out.println("newSolution = " + newSolution);
                 if (!PickupAndDelivery.feasible(newSolution)) {
                     System.out.println("Error, not a feasible solution");
                 }
-                int objectiveCostForNewSolution = PickupAndDelivery.calculateCost(newSolution);
-                if (objectiveCostForNewSolution < bestObjectiveFoundSoFar
+
+                if (objectiveCostOfNewSolution < bestObjectiveFoundSoFar
                         && PickupAndDelivery.feasible(newSolution)) { // Should always be feasible?
                     System.out.println("Found a new best solution");
                     bestSolution = newSolution;
-                    bestObjectiveFoundSoFar = objectiveCostForNewSolution;
+                    bestObjectiveFoundSoFar = objectiveCostOfNewSolution;
                     numberOfIterationsSincePreviousBestWasFound = 0;
                     foundNewBestSolutionThisIteration = true;
                 }
                 if (accept(newSolution)) {
                     System.out.println("Solution was acceptable");
                     currentSolution = newSolution;
+                    objectiveCostOfCurrentSolution = objectiveCostOfNewSolution;
                 }
-                updateOperatorSelectionParameters(newSolution, currentSolution, objectiveCostForNewSolution,
-                        discoveredSolutions, objectiveCostOfDiscoveredSolutions);
+                updateOperatorSelectionParameters(newSolution, objectiveCostOfCurrentSolution,
+                        objectiveCostOfNewSolution, (i + 1), discoveredSolutions, objectiveCostOfDiscoveredSolutions);
                 // Update selection parameters before registering solution as discovered,
                 // to avoid always finding duplicate of new solution.
                 discoveredSolutions.add(newSolution);
-                objectiveCostOfDiscoveredSolutions.add(objectiveCostForNewSolution);
+                objectiveCostOfDiscoveredSolutions.add(objectiveCostOfNewSolution);
                 numberOfIterationsSincePreviousBestWasFound++;
             }
         }//*/
@@ -134,33 +179,37 @@ public class GeneralAdaptiveMetaheuristic {
         return operatorWeights;
     }
 
+    private static final int SEGMENT_SIZE = 10;
+
     private static void updateOperatorSelectionParameters(
             IVectorSolutionRepresentation<Integer> newSolution,
-            IVectorSolutionRepresentation<Integer> currentSolution,
-            int objectiveCostForNewSolution, List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
+            int objectiveCostOfCurrentSolution, int objectiveCostForNewSolution, int iterationNumber,
+            List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
             List<Integer> objectiveCostOfDiscoveredSolutions) {
-        updateScores(newSolution, currentSolution, objectiveCostForNewSolution,
+        updateScores(newSolution, objectiveCostOfCurrentSolution, objectiveCostForNewSolution,
                 discoveredSolutions, objectiveCostOfDiscoveredSolutions);
-        updateWeights();
+        if (iterationNumber % SEGMENT_SIZE == 0) {
+            updateWeights(iterationNumber);
+        }
     }
 
     private static final double MINIMUM_WEIGHT = 0.05;
-    private static final double R = 0.05; // What value should this have?
+    private static final double R = INITIAL_OPERATOR_WEIGHTS; // What value should this have?
 
-    private static void updateWeights() {
+    private static void updateWeights(int iterationNumber) {
+        double sum = 0;
         for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
             double oldWeight = operatorWeights.get(i);
-            double theta = 0.0;
-            double newWeight = oldWeight * (1.0 - R) + (R * (Math.PI / theta));
-            if (newWeight > MINIMUM_WEIGHT) {
-                operatorWeights.put(i, newWeight);
-            } else {
-                operatorWeights.put(i, MINIMUM_WEIGHT);
-            }
+            int score = scores.get(i);
+            double theta = (double) SEGMENT_SIZE;
+            double newWeight = oldWeight * (1.0 - R) + (R * (score / theta));
+            operatorWeights.put(i, Math.max(newWeight, MINIMUM_WEIGHT));
             System.out.println("theta = " + theta);
             System.out.println("oldWeight = " + oldWeight);
             System.out.println("newWeight = " + newWeight);
+            sum += operatorWeights.get(i);
         }
+        System.out.println("sum = " + sum);
         // How to update weights?
     }
 
@@ -169,20 +218,19 @@ public class GeneralAdaptiveMetaheuristic {
     private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 4;
 
     private static void updateScores(IVectorSolutionRepresentation<Integer> newSolution,
-                                     IVectorSolutionRepresentation<Integer> currentSolution,
-                                     int objectiveCostForNewSolution,
+                                     int objectiveCostOfCurrentSolution, int objectiveCostOfNewSolution,
                                      List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
                                      List<Integer> objectiveCostOfDiscoveredSolutions) {
         int oldScore = scores.get(selectedOperator);
         if (foundNewBestSolutionThisIteration) {
             scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
             System.out.println("Adding scores for new best: " + scores.values());
-        } else if (objectiveCostForNewSolution < PickupAndDelivery.calculateCost(currentSolution)) {
+        } else if (objectiveCostOfNewSolution < objectiveCostOfCurrentSolution) {
             scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
             System.out.println("Adding scores for better than current solution: " + scores.values());
         } else {
             boolean foundUnexploredSolution = isUnexploredSolution(
-                    newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostForNewSolution);
+                    newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostOfNewSolution);
             if (foundUnexploredSolution) {
                 scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
                 System.out.println("Adding scores for unexplored solution: " + scores.values());
@@ -193,11 +241,11 @@ public class GeneralAdaptiveMetaheuristic {
     private static boolean isUnexploredSolution(IVectorSolutionRepresentation<Integer> newSolution,
                                                 List<IVectorSolutionRepresentation<Integer>> discoveredSolutions,
                                                 List<Integer> objectiveCostOfDiscoveredSolutions,
-                                                int objectiveCostForNewSolution) {
+                                                int objectiveCostOfNewSolution) {
         boolean foundUnexploredSolution = true;
         int i = 0;
         for (Integer objectiveCost : objectiveCostOfDiscoveredSolutions) {
-            if (objectiveCost.equals(objectiveCostForNewSolution)) {
+            if (objectiveCost.equals(objectiveCostOfNewSolution)) {
                 IVectorSolutionRepresentation<Integer> possibleDuplicateSolution = discoveredSolutions.get(i);
                 if (newSolution.equals(possibleDuplicateSolution)) {
                     foundUnexploredSolution = false;
