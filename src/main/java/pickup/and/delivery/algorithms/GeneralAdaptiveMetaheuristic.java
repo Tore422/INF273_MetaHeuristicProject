@@ -49,7 +49,7 @@ public class GeneralAdaptiveMetaheuristic {
 
         public static Operators getOperatorNameFromID(int operatorID) {
             int i = 1;
-            for (Operators operatorName : Operators.getOperatorsWithID().keySet()) {
+            for (Operators operatorName : Operators.values()) {
                 if (operatorID == i) {
                     return operatorName;
                 }
