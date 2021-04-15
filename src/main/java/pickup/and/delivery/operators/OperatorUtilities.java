@@ -3,6 +3,7 @@ package pickup.and.delivery.operators;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
+import solution.representations.vector.IVectorSolutionRepresentation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -193,6 +194,15 @@ public class OperatorUtilities {
         return totalCost;
     }
 
+    /**
+     * Assumes that the solution has all calls in vehicles that can handle them.
+     * Test for that might be added later...
+     *
+     * @param vehicleNumber
+     * @param solutionRepresentation
+     * @return true, if both time windows and capacity constraints
+     * hold for the selected vehicle.
+     */
     public static boolean constraintsHoldForVehicle(int vehicleNumber, List<Integer> solutionRepresentation) {
         List<Integer> zeroIndices = getIndicesOfAllZeroes(solutionRepresentation);
         if (vehicleNumber > zeroIndices.size()) {
@@ -573,5 +583,19 @@ public class OperatorUtilities {
     public static boolean decideRemovalOperator() {
         double selectedRemoveApproach = RANDOM.nextDouble();
         return selectedRemoveApproach < PROBABILITY_OF_PICKING_MOVE_MOST_EXPENSIVE_CALL_APPROACH;
+    }
+
+    public static int countNumberOfCallsInSolution(IVectorSolutionRepresentation<Integer> solution) {
+        int numberOfCalls = 0;
+        List<Integer> visitedCalls = new ArrayList<>();
+        for (Integer element : solution.getSolutionRepresentation()) {
+            if (element != 0) {
+                if (!visitedCalls.contains(element)) {
+                    numberOfCalls++;
+                    visitedCalls.add(element);
+                }
+            }
+        }
+        return numberOfCalls;
     }
 }
