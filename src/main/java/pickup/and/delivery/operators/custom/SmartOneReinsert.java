@@ -12,6 +12,8 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class SmartOneReinsert {
 
+    public static int numberOfTimesSolutionIsFeasible = 0;
+
     private SmartOneReinsert() {
         throw new IllegalStateException("Utility class");
     }
@@ -74,6 +76,7 @@ public class SmartOneReinsert {
         if (solutionHasOutsourcedCalls) {
             if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
          //       System.out.println("newSolution = " + newSolution);
+                if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
                 return newSolution;
             }
         }
@@ -109,6 +112,7 @@ public class SmartOneReinsert {
                         callID, startIndicesOfVehiclesThatCanTakeTheCall);
                 if (foundNewPositionsForCall) {
                //     System.out.println("newSolution = " + newSolution);
+                    if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
                     return newSolution;
                 }
                 /*
@@ -149,6 +153,7 @@ public class SmartOneReinsert {
         }
         // On the off chance that no call can be moved, we simply outsource a randomly selected call
         outsourceRandomCall(newSolutionRepresentation, zeroIndices, startIndexOfOutsourcedVehicles);
+        if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
         return newSolution;
     }
 

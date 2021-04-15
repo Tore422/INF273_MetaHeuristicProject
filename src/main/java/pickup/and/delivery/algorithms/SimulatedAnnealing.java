@@ -40,7 +40,14 @@ public class SimulatedAnnealing {
         IVectorSolutionRepresentation<Integer> newSolution;
      //   Double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
     //    int numberOfTimesWorseSolutionWasAccepted = 0;
-    //    int numberOfTimesSolutionWasFeasible = 0;
+        int numberOfTimesSolutionWasFeasible = 0;
+        PartialReinsert.numberOfTimesSolutionIsFeasible = 0;
+        SmartOneReinsert.numberOfTimesSolutionIsFeasible = 0;
+        SmartTwoExchange.numberOfTimesSolutionIsFeasible = 0;
+
+        SmartTwoExchange.counterA = 0;
+        SmartTwoExchange.counterB = 0;
+
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
            // System.out.println("Iteration number = " + i);
             newSolution = selectAndApplyCustomOperatorOnSolution(currentlyAcceptedSolution);
@@ -52,9 +59,9 @@ public class SimulatedAnnealing {
                 max = deltaE;
             }*/
             if (PickupAndDelivery.feasible(newSolution)) {
-     //           numberOfTimesSolutionWasFeasible++;
-                double deltaE = PickupAndDelivery.calculateCost(newSolution)
-                        - PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
+                numberOfTimesSolutionWasFeasible++;
+                double deltaE = (double) PickupAndDelivery.calculateCost(newSolution)
+                        - (double) PickupAndDelivery.calculateCost(currentlyAcceptedSolution);
                 if (deltaE < 0) {
                     currentlyAcceptedSolution = newSolution;
                     if (PickupAndDelivery.calculateCost(currentlyAcceptedSolution)
@@ -74,7 +81,15 @@ public class SimulatedAnnealing {
      /*   System.out.println("min = " + min);
         System.out.println("max = " + max);*/
  //       System.out.println("numberOfTimesWorseSolutionWasAccepted = " + numberOfTimesWorseSolutionWasAccepted);
- //       System.out.println("numberOfTimesSolutionWasFeasible = " + numberOfTimesSolutionWasFeasible);
+        System.out.println("numberOfTimesSolutionWasFeasible = " + numberOfTimesSolutionWasFeasible);
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsFeasible = " + PartialReinsert.numberOfTimesSolutionIsFeasible);
+        System.out.println("SmartOneReinsert.numberOfTimesSolutionIsFeasible = " + SmartOneReinsert.numberOfTimesSolutionIsFeasible);
+        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsFeasible = " + SmartTwoExchange.numberOfTimesSolutionIsFeasible);
+        System.out.println("total: = " + (PartialReinsert.numberOfTimesSolutionIsFeasible
+                + SmartOneReinsert.numberOfTimesSolutionIsFeasible + SmartTwoExchange.numberOfTimesSolutionIsFeasible));
+     //*/
+        System.out.println("SmartTwoExchange.counterA = " + SmartTwoExchange.counterA);
+        System.out.println("SmartTwoExchange.counterB = " + SmartTwoExchange.counterB);
         return bestSolution;
     }
 

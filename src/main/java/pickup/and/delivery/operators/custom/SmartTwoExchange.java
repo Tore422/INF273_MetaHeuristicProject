@@ -13,6 +13,8 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class SmartTwoExchange {
 
+    public static int numberOfTimesSolutionIsFeasible = 0;
+
     private SmartTwoExchange() {
         throw new IllegalStateException("Utility class");
     }
@@ -40,6 +42,7 @@ public class SmartTwoExchange {
         if (!foundFeasibleSwap) { // No feasible swaps were found in the solution space, so we make a random swap.
             makeRandomSwap(newSolution, zeroIndices);
         }
+        if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
         return newSolution;
         /* int initialCost = calculateCost(newSolution);
         int k = 1;
@@ -165,6 +168,9 @@ public class SmartTwoExchange {
         return indicesOfProcessedCalls;
     }
 
+    public static int counterA = 0;
+    public static int counterB = 0;
+
     private static boolean processCallsInSelectedVehicle(
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
             List<Integer> zeroIndices, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
@@ -183,9 +189,14 @@ public class SmartTwoExchange {
                     newSolutionRepresentation, zeroIndices, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(firstIndexOfRandomCall, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(secondIndexOfRandomCall, secondRandomIndexOfCallInSelectedVehicle);
-            if (isSolutionFeasibleAfterSwappingTwoCalls(
-                    newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers))
+            //if (isSolutionFeasibleAfterSwappingTwoCalls(
+         //           newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers)) {
+            //    counterA++;
+                if (feasible(newSolution)) {
+                    counterB++;
+
                 return true;
+            }
             // Swap back if solution is not feasible
             newSolution.swapElementsAtIndices(firstRandomIndexOfCallInSelectedVehicle, firstIndexOfRandomCall);
             newSolution.swapElementsAtIndices(secondRandomIndexOfCallInSelectedVehicle, secondIndexOfRandomCall);
