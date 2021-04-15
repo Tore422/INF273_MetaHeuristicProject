@@ -10,12 +10,12 @@ import java.util.List;
 
 import static pickup.and.delivery.operators.OperatorUtilities.*;
 
-public class ThreeReinsert {
+public class KReinsert {
 
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7);
         IVectorSolutionRepresentation<Integer> sol = new VectorSolutionRepresentation<>(values);
-        IVectorSolutionRepresentation<Integer> bestSol = useThreeReinsertOnSolution(sol, 3);
+        IVectorSolutionRepresentation<Integer> bestSol = useKReinsertOnSolution(sol, 3);
         System.out.println("PickupAndDelivery.feasible(bestSol) = " + PickupAndDelivery.feasible(bestSol));
         System.out.println("PickupAndDelivery.calculateCost(sol) = " + PickupAndDelivery.calculateCost(sol));
         System.out.println("bestSol = " + bestSol);
@@ -24,7 +24,7 @@ public class ThreeReinsert {
     
     
 
-    public static IVectorSolutionRepresentation<Integer> useThreeReinsertOnSolution(
+    public static IVectorSolutionRepresentation<Integer> useKReinsertOnSolution(
             IVectorSolutionRepresentation<Integer> solution, int numberOfReInsertions) {
         IVectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(
                 solution.getSolutionRepresentation());
@@ -33,7 +33,8 @@ public class ThreeReinsert {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
         int num = 0;
         while (num < numberOfReInsertions && ignoredIndices.size() < newSolutionRepresentation.size()) {
-            System.out.println("num = " + num);
+        //    System.out.println("num = " + num);
+        //    System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
 
             int firstIndexOfCall = findRandomIndexWithinExclusiveBounds(
                     MINUS_ONE, newSolutionRepresentation.size(), ignoredIndices);
@@ -54,60 +55,77 @@ public class ThreeReinsert {
             if (startIndicesOfVehiclesThatCanTakeTheCall.isEmpty()) {
                 continue;
             }
-            System.out.println("firstIndexOfCall = " + firstIndexOfCall);
-            System.out.println("secondIndexOfCall = " + secondIndexOfCall);
-            System.out.println("callID = " + callID);
 
-            System.out.println("startIndicesOfVehiclesThatCanTakeTheCall = " + startIndicesOfVehiclesThatCanTakeTheCall);
+       //     System.out.println("startIndicesOfVehiclesThatCanTakeTheCall = " + startIndicesOfVehiclesThatCanTakeTheCall);
 
-            System.out.println("Processing vehicles");
-            List<Integer> processedVehicles = new ArrayList<>();
-            while (processedVehicles.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
-                int randomIndexNotYetSelected = findRandomIndexWithinExclusiveBounds(
-                        MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), processedVehicles);
-                int startIndexOfSelectedVehicle = startIndicesOfVehiclesThatCanTakeTheCall
-                        .get(randomIndexNotYetSelected);
-                int stopIndexOfSelectedVehicle = findStopIndex(
-                        copyOfNewSolutionRepresentation, zeroIndicesForCopy, startIndexOfSelectedVehicle);
-                int[] feasiblePositions;
-                if (stopIndexOfSelectedVehicle == copyOfNewSolutionRepresentation.size()) {
-                    System.out.println("Adding to end of outsourced");
-                    feasiblePositions = insertIntoVehicleForOutsourcedCalls(callID, copyOfNewSolutionRepresentation,
-                            startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
-                } else if ((startIndexOfSelectedVehicle + 1) == stopIndexOfSelectedVehicle) {
-                    System.out.println("Adding to empty vehicle");
-                    feasiblePositions = insertIntoEmptyVehicle(callID, copyOfNewSolutionRepresentation, stopIndexOfSelectedVehicle);
-                } else {
-                    System.out.println("Looking for feasible positions");
-                    feasiblePositions = lookForFeasiblePositionsInVehicle(callID,
-                            copyOfNewSolutionRepresentation, zeroIndicesForCopy,
-                            startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
-                    if (feasiblePositions[0] != -1) { // Need only check one value to see if new positions were found
-                        int firstPosition = feasiblePositions[0];
-                        int secondPosition = feasiblePositions[1];
-                        copyOfNewSolutionRepresentation.add(firstPosition, callID);
-                        copyOfNewSolutionRepresentation.add(secondPosition, callID);
-                    } else {
-                        processedVehicles.add(randomIndexNotYetSelected);// Found no feasible solution for this vehicle.
-                        continue; // No changes means copyOfNewSolution is still feasible, so we need to skip the check.
-                    }
-                }
-                if (PickupAndDelivery.feasible(copyOfNewSolution)) {
-                    System.out.println("Found feasible solution");
-                    newSolution = copyOfNewSolution;
-                    updateIgnoredIndices(ignoredIndices, firstIndexOfCall, secondIndexOfCall, feasiblePositions);
-                    ignoredIndices.add(feasiblePositions[0]);
-                    ignoredIndices.add(feasiblePositions[1]);
-                    zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
-                    num++;
-                    break;
-                }
-                processedVehicles.add(randomIndexNotYetSelected);
+            boolean foundFeasiblePositionToReinsert = processVehiclesForFeasibleInsertions(
+                    ignoredIndices, firstIndexOfCall, secondIndexOfCall,
+                    callID, copyOfNewSolution, zeroIndicesForCopy, startIndicesOfVehiclesThatCanTakeTheCall);
+            if (foundFeasiblePositionToReinsert) {
+        //        System.out.println("Found feasible positions");
+                num++;
+        //        System.out.println("num is now: " + num);
+                newSolution = copyOfNewSolution;
+                newSolutionRepresentation = newSolution.getSolutionRepresentation();
+                zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
+      //          System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
             }
-            System.out.println("Processed all vehicles");
-            System.out.println("num is now: " + num);
+
         }
         return newSolution;
+    }
+
+    private static boolean processVehiclesForFeasibleInsertions(
+            List<Integer> ignoredIndices, int firstIndexOfCall, int secondIndexOfCall, int callID,
+            IVectorSolutionRepresentation<Integer> copyOfNewSolution, List<Integer> zeroIndicesForCopy,
+            List<Integer> startIndicesOfVehiclesThatCanTakeTheCall) {
+    //    System.out.println("Processing vehicles");
+        List<Integer> copyOfNewSolutionRepresentation = copyOfNewSolution.getSolutionRepresentation();
+        List<Integer> processedVehicles = new ArrayList<>();
+        while (processedVehicles.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
+            int randomIndexNotYetSelected = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, startIndicesOfVehiclesThatCanTakeTheCall.size(), processedVehicles);
+            int startIndexOfSelectedVehicle = startIndicesOfVehiclesThatCanTakeTheCall
+                    .get(randomIndexNotYetSelected);
+      //      System.out.println("startIndexOfSelectedVehicle = " + startIndexOfSelectedVehicle);
+            int stopIndexOfSelectedVehicle = findStopIndex(
+                    copyOfNewSolutionRepresentation, zeroIndicesForCopy, startIndexOfSelectedVehicle);
+            int[] feasiblePositions;
+            boolean skipFeasibilityCheck = false;
+            if (stopIndexOfSelectedVehicle == copyOfNewSolutionRepresentation.size()) {
+       //         System.out.println("Adding to end of outsourced");
+                feasiblePositions = insertIntoVehicleForOutsourcedCalls(callID, copyOfNewSolutionRepresentation,
+                        startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
+            } else if ((startIndexOfSelectedVehicle + 1) == stopIndexOfSelectedVehicle) {
+      //          System.out.println("Adding to empty vehicle");
+                feasiblePositions = insertIntoEmptyVehicle(callID, copyOfNewSolutionRepresentation, stopIndexOfSelectedVehicle);
+            } else {
+         //       System.out.println("Looking for feasible positions");
+                feasiblePositions = lookForFeasiblePositionsInVehicle(callID,
+                        copyOfNewSolutionRepresentation, zeroIndicesForCopy,
+                        startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
+                if (feasiblePositions[0] != -1) { // Need only check one value to see if new positions were found
+                    int firstPosition = feasiblePositions[0]; // No need to correct values, as long as the insertion
+                    int secondPosition = feasiblePositions[1]; // happens in the same order (i before j).
+                    copyOfNewSolutionRepresentation.add(firstPosition, callID);
+                    copyOfNewSolutionRepresentation.add(secondPosition, callID);
+                } else {
+                    // Found no feasible solution in this vehicle.
+                    // No changes means copyOfNewSolution is still feasible, so we need to skip the feasibility check.
+                    skipFeasibilityCheck = true;
+                }
+            }
+            if (!skipFeasibilityCheck && PickupAndDelivery.feasible(copyOfNewSolution)) {
+          //      System.out.println("Found feasible solution");
+                updateIgnoredIndices(ignoredIndices, firstIndexOfCall, secondIndexOfCall, feasiblePositions);
+                ignoredIndices.add(feasiblePositions[0]);
+                ignoredIndices.add(feasiblePositions[1]);
+                return true;
+            }
+            processedVehicles.add(randomIndexNotYetSelected);
+        }
+    //    System.out.println("Processed all vehicles without finding feasible solution");
+        return false;
     }
 
     private static void updateIgnoredIndices(List<Integer> ignoredIndices, int firstIndexOfCall,
@@ -116,16 +134,16 @@ public class ThreeReinsert {
         int feasiblePosition2 = feasiblePositions[1];
         for (int i = 0; i < ignoredIndices.size(); i++) {
             int index = ignoredIndices.get(i);
-            if (index > firstIndexOfCall) {
+            if (index > firstIndexOfCall) { // Shift index down if we removed an element in a lower position
                 index--;
             }
             if (index > secondIndexOfCall) {
                 index--;
             }
-            if (index > feasiblePosition1) {
+            if (index >= feasiblePosition1) { // Shift index up if we insert element at same or lower position
                 index++;
             }
-            if (index > feasiblePosition2) {
+            if (index >= feasiblePosition2) {
                 index++;
             }
             ignoredIndices.set(i, index);
