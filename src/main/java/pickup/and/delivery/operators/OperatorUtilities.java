@@ -589,11 +589,9 @@ public class OperatorUtilities {
         int numberOfCalls = 0;
         List<Integer> visitedCalls = new ArrayList<>();
         for (Integer element : solution.getSolutionRepresentation()) {
-            if (element != 0) {
-                if (!visitedCalls.contains(element)) {
-                    numberOfCalls++;
-                    visitedCalls.add(element);
-                }
+            if (element != 0 && !visitedCalls.contains(element)) {
+                numberOfCalls++;
+                visitedCalls.add(element);
             }
         }
         return numberOfCalls;
