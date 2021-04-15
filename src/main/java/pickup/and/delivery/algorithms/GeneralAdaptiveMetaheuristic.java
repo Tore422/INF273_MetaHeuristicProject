@@ -1,16 +1,17 @@
 package pickup.and.delivery.algorithms;
 
 import pickup.and.delivery.PickupAndDelivery;
+import pickup.and.delivery.operators.custom.KReinsert;
 import pickup.and.delivery.operators.custom.PartialReinsert;
 import pickup.and.delivery.operators.custom.SmartOneReinsert;
 import pickup.and.delivery.operators.custom.SmartTwoExchange;
-import pickup.and.delivery.operators.original.ThreeExchange;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
 import java.util.*;
 
 import static pickup.and.delivery.operators.OperatorUtilities.RANDOM;
+import static pickup.and.delivery.operators.OperatorUtilities.countNumberOfCallsInSolution;
 
 public class GeneralAdaptiveMetaheuristic {
 
@@ -64,6 +65,7 @@ public class GeneralAdaptiveMetaheuristic {
     private static Map<Integer, Integer> scores;
     private static Map<Integer, Integer> numberOfTimesEachOperatorHasBeenUsedThisSegment;
     private static int selectedOperator;
+    private static int numberOfReinsertsForEscapeAlgorithm;
     private static boolean foundNewBestSolutionThisIteration;
 
     private static List<Integer> objectiveValuesBeforeOperatorUse;
@@ -78,12 +80,12 @@ public class GeneralAdaptiveMetaheuristic {
             IVectorSolutionRepresentation<Integer> initialSolution) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution = initialSolution;
-        System.out.println("INITIAL_OPERATOR_WEIGHTS = " + INITIAL_OPERATOR_WEIGHTS);
+     //   System.out.println("INITIAL_OPERATOR_WEIGHTS = " + INITIAL_OPERATOR_WEIGHTS);
         operatorWeights = initializeOperatorWeights();
         scores = initializeScores();
         numberOfTimesEachOperatorHasBeenUsedThisSegment = initializeOperatorUsageCounter();
 
-        System.out.println("Operators.getOperators() = " + Operators.getOperatorsWithID());
+      //  System.out.println("Operators.getOperators() = " + Operators.getOperatorsWithID());
 
         List<IVectorSolutionRepresentation<Integer>> discoveredSolutions = new ArrayList<>();
         List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
@@ -91,20 +93,23 @@ public class GeneralAdaptiveMetaheuristic {
         objectiveValuesAfterOperatorUse = new ArrayList<>();
         newSolutionWasFeasible = new ArrayList<>();
         operatorSelected = new ArrayList<>();
+        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 2;
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
 
+        int numberOfTimesSolutionWasInfeasible = 0;
+
         int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
-        System.out.println("initialSolution = " + initialSolution);
+       // System.out.println("initialSolution = " + initialSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             foundNewBestSolutionThisIteration = false;
-            System.out.println();
-            System.out.println("iteration number = " + i);
+        //    System.out.println();
+        //    System.out.println("iteration number = " + i);
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
-                System.out.println("Escaping local optima");
+          //      System.out.println("Escaping local optima");
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
-                    System.out.println("currentSolution = " + currentSolution);
+        //            System.out.println("currentSolution = " + currentSolution);
                     int objectiveCostOfNewCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
                     registerOperatorUsageStatistics(objectiveCostOfCurrentSolution, objectiveCostOfNewCurrentSolution,
                             PickupAndDelivery.feasible(currentSolution));
@@ -122,21 +127,23 @@ public class GeneralAdaptiveMetaheuristic {
                 boolean newSolutionIsFeasible = PickupAndDelivery.feasible(newSolution);
                 registerOperatorUsageStatistics(objectiveCostOfCurrentSolution,
                         objectiveCostOfNewSolution, newSolutionIsFeasible);
-                System.out.println("selectedOperator = " + selectedOperator);
-                System.out.println("newSolution = " + newSolution);
+             //   System.out.println("selectedOperator = " + selectedOperator);
+             //   System.out.println("newSolution = " + newSolution);
                 if (!newSolutionIsFeasible) {
-                    System.out.println("Error, not a feasible solution");
+                    numberOfTimesSolutionWasInfeasible++;
+             //       System.out.println("Error, not a feasible solution");
                 }
                 if (objectiveCostOfNewSolution < bestObjectiveFoundSoFar
                         && newSolutionIsFeasible) { // Should always be feasible?
-                    System.out.println("Found a new best solution");
+           //         System.out.println("iteration Number = " + i);
+            //        System.out.println("Found a new best solution");
                     bestSolution = newSolution;
                     bestObjectiveFoundSoFar = objectiveCostOfNewSolution;
                     numberOfIterationsSincePreviousBestWasFound = 0;
                     foundNewBestSolutionThisIteration = true;
                 }
                 if (accept(newSolution)) {
-                    System.out.println("Solution was acceptable");
+              //      System.out.println("Solution was acceptable");
                     currentSolution = newSolution;
                     objectiveCostOfCurrentSolution = objectiveCostOfNewSolution;
                 }
@@ -149,6 +156,7 @@ public class GeneralAdaptiveMetaheuristic {
                 numberOfIterationsSincePreviousBestWasFound++;
             }
         }//*/
+        System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
         return bestSolution;
     }
 
@@ -208,8 +216,8 @@ public class GeneralAdaptiveMetaheuristic {
         for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
             initialScores.put(i, ZERO);
         }
-        System.out.println("initialScores.values = " + initialScores.values());
-        System.out.println("initialScores.keys = " + initialScores.keySet());
+    //    System.out.println("initialScores.values = " + initialScores.values());
+    //    System.out.println("initialScores.keys = " + initialScores.keySet());
         return initialScores;
     }
 
@@ -218,8 +226,8 @@ public class GeneralAdaptiveMetaheuristic {
         for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
             operatorWeights.put(i, INITIAL_OPERATOR_WEIGHTS);
         }
-        System.out.println("operatorWeights.values() = " + operatorWeights.values());
-        System.out.println("operatorWeights.keySet() = " + operatorWeights.keySet());
+    //    System.out.println("operatorWeights.values() = " + operatorWeights.values());
+    //    System.out.println("operatorWeights.keySet() = " + operatorWeights.keySet());
         return operatorWeights;
     }
 
@@ -228,8 +236,8 @@ public class GeneralAdaptiveMetaheuristic {
         for (int i = 1; i <= NUMBER_OF_OPERATORS; i++) {
             initialOperatorUsage.put(i, ZERO);
         }
-        System.out.println("initialOperatorUsage.values() = " + initialOperatorUsage.values());
-        System.out.println("initialOperatorUsage.keySet() = " + initialOperatorUsage.keySet());
+    //    System.out.println("initialOperatorUsage.values() = " + initialOperatorUsage.values());
+    //    System.out.println("initialOperatorUsage.keySet() = " + initialOperatorUsage.keySet());
         return initialOperatorUsage;
     }
 
@@ -248,7 +256,7 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final double MINIMUM_WEIGHT = 0.05;
-    private static final double R = 0.2;// Reaction factor [0,1].
+    private static final double R = 0.8;// Reaction factor [0,1].
                                                              // Determines how quickly the weights should change.
     private static void updateWeights(int iterationNumber) {
         double sum = 0;
@@ -258,14 +266,14 @@ public class GeneralAdaptiveMetaheuristic {
             double theta = Math.max(1.0, numberOfTimesEachOperatorHasBeenUsedThisSegment.get(currentOperatorID));
             double newWeight = oldWeight * (1.0 - R) + (R * (score / theta));
             operatorWeights.put(currentOperatorID, Math.max(newWeight, MINIMUM_WEIGHT));
-            System.out.println("theta = " + theta);
-            System.out.println("oldWeight = " + oldWeight);
+       //     System.out.println("theta = " + theta);
+       //     System.out.println("oldWeight = " + oldWeight);
             sum += operatorWeights.get(currentOperatorID);
         }
         for (int currentOperatorID = 1; currentOperatorID <= NUMBER_OF_OPERATORS; currentOperatorID++) {
             double normalizedNewWeight = operatorWeights.get(currentOperatorID) / sum;
             operatorWeights.put(currentOperatorID, normalizedNewWeight);
-            System.out.println("normalizedNewWeight = " + normalizedNewWeight);
+        //    System.out.println("normalizedNewWeight = " + normalizedNewWeight);
         }
         resetScores();
         resetOperatorUsagePerSegment();
@@ -294,16 +302,16 @@ public class GeneralAdaptiveMetaheuristic {
         int oldScore = scores.get(selectedOperator);
         if (foundNewBestSolutionThisIteration) {
             scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_NEW_BEST_SOLUTION);
-            System.out.println("Adding scores for new best: " + scores.values());
+      //      System.out.println("Adding scores for new best: " + scores.values());
         } else if (objectiveCostOfNewSolution < objectiveCostOfCurrentSolution) {
             scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION);
-            System.out.println("Adding scores for better than current solution: " + scores.values());
+      //      System.out.println("Adding scores for better than current solution: " + scores.values());
         } else {
             boolean foundUnexploredSolution = isUnexploredSolution(
                     newSolution, discoveredSolutions, objectiveCostOfDiscoveredSolutions, objectiveCostOfNewSolution);
             if (foundUnexploredSolution) {
                 scores.put(selectedOperator, oldScore + SCORE_FOR_FINDING_UNEXPLORED_SOLUTION);
-                System.out.println("Adding scores for unexplored solution: " + scores.values());
+      //          System.out.println("Adding scores for unexplored solution: " + scores.values());
             }
         } // Are scores assigned by only the highest amount, or all that apply to the solution?
     }
@@ -319,7 +327,7 @@ public class GeneralAdaptiveMetaheuristic {
                 IVectorSolutionRepresentation<Integer> possibleDuplicateSolution = discoveredSolutions.get(i);
                 if (newSolution.equals(possibleDuplicateSolution)) {
                     foundUnexploredSolution = false;
-                    System.out.println("Found duplicate solution of solution from iteration: " + i);
+             //       System.out.println("Found duplicate solution of solution from iteration: " + i);
                     break;
                 }
             }
@@ -356,14 +364,9 @@ public class GeneralAdaptiveMetaheuristic {
         return newSolution;
     }
 
-    // TODO: Replace with an operator that only provides divers, feasible solutions!
     private static IVectorSolutionRepresentation<Integer> useEscapeAlgorithmOnSolution(
             IVectorSolutionRepresentation<Integer> solution) {
         selectedOperator = 0;
-        IVectorSolutionRepresentation<Integer> newSolution;
-        do {
-            newSolution = ThreeExchange.useThreeExchangeOnSolution(solution);
-        } while (!PickupAndDelivery.feasible(newSolution));
-        return newSolution;
+        return KReinsert.useKReinsertOnSolution(solution, numberOfReinsertsForEscapeAlgorithm);
     }
 }
