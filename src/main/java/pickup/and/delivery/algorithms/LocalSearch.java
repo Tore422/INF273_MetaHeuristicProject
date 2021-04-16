@@ -31,13 +31,16 @@ public class LocalSearch {
     public static IVectorSolutionRepresentation<Integer> localSearch(IVectorSolutionRepresentation<Integer> initialSolution) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution;
+        int bestObjectiveCostFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             currentSolution = selectAndApplyCustomOperatorOnSolution(bestSolution);
         //selectAndApplyOperatorOnSolution(bestSolution);
-            if (PickupAndDelivery.feasible(currentSolution)
-                    && (PickupAndDelivery.calculateCost(currentSolution)
-                    < PickupAndDelivery.calculateCost(bestSolution))) {
-                bestSolution = currentSolution;
+            if (PickupAndDelivery.feasible(currentSolution)) {
+                int currentObjectiveCost = PickupAndDelivery.calculateCost(currentSolution);
+                if (currentObjectiveCost < bestObjectiveCostFoundSoFar) {
+                    bestSolution = currentSolution;
+                    bestObjectiveCostFoundSoFar = currentObjectiveCost;
+                }
             }
         }
         return bestSolution;
