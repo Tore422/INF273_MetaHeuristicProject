@@ -34,6 +34,7 @@ public class GeneralAdaptiveMetaheuristic {
         SMART_ONE_REINSERT,
         SMART_TWO_EXCHANGE,
         PARTIAL_REINSERT;
+//        K_REINSERT;
 
         public static Map<Operators, Integer> getOperatorsWithID() {
             Map<Operators, Integer> operatorIndices = new EnumMap<>(Operators.class);
@@ -93,7 +94,7 @@ public class GeneralAdaptiveMetaheuristic {
         objectiveValuesAfterOperatorUse = new ArrayList<>();
         newSolutionWasFeasible = new ArrayList<>();
         operatorSelected = new ArrayList<>();
-        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 2;
+        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 5;
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
 
@@ -157,6 +158,7 @@ public class GeneralAdaptiveMetaheuristic {
             }
         }//*/
         System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
+        System.out.println("operatorWeights = " + operatorWeights);
         return bestSolution;
     }
 
@@ -251,14 +253,14 @@ public class GeneralAdaptiveMetaheuristic {
         updateScores(newSolution, objectiveCostOfCurrentSolution, objectiveCostForNewSolution,
                 discoveredSolutions, objectiveCostOfDiscoveredSolutions);
         if (iterationNumber % SEGMENT_SIZE == 0) {
-            updateWeights(iterationNumber);
+            updateWeights();
         }
     }
 
     private static final double MINIMUM_WEIGHT = 0.05;
-    private static final double R = 0.8;// Reaction factor [0,1].
+    private static final double R = 0.65;// Reaction factor [0,1].
                                                              // Determines how quickly the weights should change.
-    private static void updateWeights(int iterationNumber) {
+    private static void updateWeights() {
         double sum = 0;
         for (int currentOperatorID = 1; currentOperatorID <= NUMBER_OF_OPERATORS; currentOperatorID++) {
             double oldWeight = operatorWeights.get(currentOperatorID);
@@ -273,7 +275,7 @@ public class GeneralAdaptiveMetaheuristic {
         for (int currentOperatorID = 1; currentOperatorID <= NUMBER_OF_OPERATORS; currentOperatorID++) {
             double normalizedNewWeight = operatorWeights.get(currentOperatorID) / sum;
             operatorWeights.put(currentOperatorID, normalizedNewWeight);
-        //    System.out.println("normalizedNewWeight = " + normalizedNewWeight);
+       //     System.out.println("normalizedNewWeight = " + normalizedNewWeight);
         }
         resetScores();
         resetOperatorUsagePerSegment();
@@ -291,9 +293,9 @@ public class GeneralAdaptiveMetaheuristic {
         }
     }
 
-    private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1;
-    private static final int SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION = 2;
-    private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 4;
+    private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1; // 1
+    private static final int SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION = 4; // 2
+    private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 8; // 4
 
     private static void updateScores(IVectorSolutionRepresentation<Integer> newSolution,
                                      int objectiveCostOfCurrentSolution, int objectiveCostOfNewSolution,
@@ -346,7 +348,10 @@ public class GeneralAdaptiveMetaheuristic {
             IVectorSolutionRepresentation<Integer> currentSolution) {
         IVectorSolutionRepresentation<Integer> newSolution;
         final double PROBABILITY_OF_SELECTING_SMART_ONE_REINSERT = operatorWeights.get(1);
-        final double PROBABILITY_OF_SELECTING_SMART_TWO_EXCHANGE = operatorWeights.get(1) + operatorWeights.get(2);
+        final double PROBABILITY_OF_SELECTING_SMART_TWO_EXCHANGE =
+                PROBABILITY_OF_SELECTING_SMART_ONE_REINSERT + operatorWeights.get(2);
+       // final double PROBABILITY_OF_SELECTING_PARTIAL_REINSERT =
+       //         PROBABILITY_OF_SELECTING_SMART_TWO_EXCHANGE + operatorWeights.get(3);
         Map<Operators, Integer> operatorsWithID = Operators.getOperatorsWithID();
         double operatorChoice = RANDOM.nextDouble();
         if (operatorChoice < PROBABILITY_OF_SELECTING_SMART_ONE_REINSERT) {
@@ -355,10 +360,14 @@ public class GeneralAdaptiveMetaheuristic {
         } else if (operatorChoice < PROBABILITY_OF_SELECTING_SMART_TWO_EXCHANGE) {
             newSolution = SmartTwoExchange.useSmartTwoExchangeOnSolution(currentSolution);
             selectedOperator = operatorsWithID.get(Operators.SMART_TWO_EXCHANGE);
-        } else {
+        } else { //if (operatorChoice < PROBABILITY_OF_SELECTING_PARTIAL_REINSERT) {
             newSolution = PartialReinsert.usePartialReinsertOnSolution(currentSolution);
             selectedOperator = operatorsWithID.get(Operators.PARTIAL_REINSERT);
-        }
+        } /*else {
+            int k = 1;
+            newSolution = KReinsert.useKReinsertOnSolution(currentSolution, k);
+            selectedOperator = operatorsWithID.get(Operators.K_REINSERT);
+        }*/
         int oldNumberOfOperatorUsage = numberOfTimesEachOperatorHasBeenUsedThisSegment.get(selectedOperator);
         numberOfTimesEachOperatorHasBeenUsedThisSegment.put(selectedOperator, oldNumberOfOperatorUsage + ONE);
         return newSolution;
