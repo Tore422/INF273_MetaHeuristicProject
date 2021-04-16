@@ -1,5 +1,6 @@
 package pickup.and.delivery.operators;
 
+import pickup.and.delivery.PickupAndDelivery;
 import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
@@ -234,6 +235,10 @@ public class OperatorUtilities {
 
   public static boolean timeWindowConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
                                                      List<Integer> solutionRepresentation) {
+    /*  System.out.println("Checking time window constraint for vehicle: " + vehicleNumber);
+      System.out.println("startIndex = " + startIndex);
+      System.out.println("stopIndex = " + stopIndex);
+      System.out.println("solutionRepresentation = " + solutionRepresentation);//*/
       Vehicle vehicle = getVehicles().get(vehicleNumber - 1);
       int currentTime = vehicle.getStartingTime();
       int currentNode = vehicle.getHomeNode();
@@ -383,15 +388,16 @@ public class OperatorUtilities {
             int vehicleNumber, int callID, List<Integer> solutionRepresentation,
             int startIndex, int stopIndex, List<Integer> validStartPositions) {
         List<int[]> validStartAndStopPositions = new ArrayList<>();
+        stopIndex++; // Increase by one as we insert a start element in the vehicle
         for (int startPosition : validStartPositions) {
             List<Integer> copyOfSolutionRepresentation = new ArrayList<>(solutionRepresentation);
             copyOfSolutionRepresentation.add(startPosition, callID);
-            for (int i = startPosition + 1; i < stopIndex + 1; i++) {
+            for (int i = startPosition + 1; i < stopIndex; i++) {
                 copyOfSolutionRepresentation.add(i, callID);
                 boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
-                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                        startIndex, (stopIndex + 1), vehicleNumber, copyOfSolutionRepresentation);
                 boolean vehicleCapacityConstraintHolds = vehicleCapacityConstraintHoldsFor(
-                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                        startIndex, (stopIndex + 1), vehicleNumber, copyOfSolutionRepresentation);
                 if (timeWindowConstraintHolds && vehicleCapacityConstraintHolds) {
                     int[] startAndStopIndices = new int[2];
                     startAndStopIndices[0] = startPosition;
