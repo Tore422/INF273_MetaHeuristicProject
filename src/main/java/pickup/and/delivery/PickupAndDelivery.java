@@ -42,16 +42,17 @@ public class PickupAndDelivery {
 
     public static void main(String[] args) {
         initialize(PATH_TO_FILE_5);
+       // GeneralAdaptiveMetaheuristic.main(null);
+        //System.out.println(createWorstSolution());
+        //KReinsert.main(null);
       //  SmartOneReinsert.main(null);
         //SmartTwoExchange.main(null);
       //  PartialReinsert.main(null);
 
         final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
-
-
-
-        //runOnceForEachInputFile(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH);
+        runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS);
+       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
+      //  runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
@@ -315,6 +316,8 @@ public class PickupAndDelivery {
                     useAdaptiveMetaheuristicOnSolution();
             default -> log.error("Did not recognize the selected algorithm");
         }
+       // System.out.println("cost before = " + calculateCost(solutionRepresentation));
+       // useLocalSearchOnSolution(); //TODO: uncomment before final delivery. Improves solution quite a bit.
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
         System.out.println("Feasible = " + feasible(solutionRepresentation));
         System.out.println("Solution cost = " + calculateCost(solutionRepresentation));
