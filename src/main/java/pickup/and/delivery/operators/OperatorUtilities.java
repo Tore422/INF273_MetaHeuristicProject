@@ -214,7 +214,22 @@ public class OperatorUtilities {
                 startIndex, stopIndex, vehicleNumber, solutionRepresentation);
         boolean capacityConstraintHolds = vehicleCapacityConstraintHoldsFor(
                 startIndex, stopIndex, vehicleNumber, solutionRepresentation);
-        return timeWindowConstraintHolds && capacityConstraintHolds;
+        boolean compatibilityConstraintHolds = compatibilityConstraintHoldsFor(
+                startIndex, stopIndex, vehicleNumber, solutionRepresentation);
+        return timeWindowConstraintHolds && capacityConstraintHolds && compatibilityConstraintHolds;
+    }
+
+    public static boolean compatibilityConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
+                                                          List<Integer> solutionRepresentation) {
+        Vehicle vehicle = PickupAndDelivery.getVehicles().get(vehicleNumber - 1);
+        List<Integer> callsThatAreCompatibleWithTheVehicle = vehicle.getPossibleCalls();
+        for (int i = (startIndex + 1); i < stopIndex; i++) {
+            int element = solutionRepresentation.get(i);
+            if (element != 0 && !callsThatAreCompatibleWithTheVehicle.contains(element)) {
+                return false;
+            }
+        }
+        return true;
     }
 
   public static boolean timeWindowConstraintHoldsFor(int startIndex, int stopIndex, int vehicleNumber,
