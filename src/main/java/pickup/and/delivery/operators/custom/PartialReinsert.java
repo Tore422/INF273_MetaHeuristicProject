@@ -53,7 +53,7 @@ public class PartialReinsert {
             boolean foundImprovement = processVehicleLookingForImprovement(
                     newSolution, startAndStopIndexOfVehicle, vehicleNumber, costOfInitialSolution);
             if (foundImprovement) {
-                if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+                if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
                 return newSolution;
             }
             vehiclesProcessedSoFar.add(indexOfRandomVehicleToProcess);
@@ -74,7 +74,7 @@ public class PartialReinsert {
             int randomIndexToInsertCallInVehicle = findRandomIndexWithinExclusiveBounds(
                     startAndStopIndices[0], startAndStopIndices[1], null);
             newSolutionRepresentation.add(randomIndexToInsertCallInVehicle, callId);
-            if(feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+            if(!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
             return newSolution;
         }
 /*
@@ -161,7 +161,7 @@ public class PartialReinsert {
         int randomlySelectedCall = newSolutionRepresentation.remove(randomIndex);
         randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex - 1, null);
         newSolutionRepresentation.add(randomIndex, randomlySelectedCall);
-        if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+        if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
         return newSolution;
     }
 }

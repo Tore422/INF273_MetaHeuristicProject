@@ -48,6 +48,13 @@ public class SimulatedAnnealing {
         SmartTwoExchange.counterA = 0;
         SmartTwoExchange.counterB = 0;
 
+        SmartOneReinsert.infeasibleRandom = 0;
+        SmartOneReinsert.infeasibleNormal = 0;
+        SmartOneReinsert.infeasibleOutsourced = 0;
+        
+        SmartOneReinsert.infeasibleCountForNotEmptyVehicles = 0;
+        SmartOneReinsert.infeasibleBefore = 0;
+
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
            // System.out.println("Iteration number = " + i);
             newSolution = selectAndApplyCustomOperatorOnSolution(currentlyAcceptedSolution);
@@ -90,6 +97,13 @@ public class SimulatedAnnealing {
      //*/
         System.out.println("SmartTwoExchange.counterA = " + SmartTwoExchange.counterA);
         System.out.println("SmartTwoExchange.counterB = " + SmartTwoExchange.counterB);
+        System.out.println();
+      /*  System.out.println("SmartOneReinsert.infeasibleNormal = " + SmartOneReinsert.infeasibleNormal);
+        System.out.println("SmartOneReinsert.infeasibleOutsourced = " + SmartOneReinsert.infeasibleOutsourced);
+        System.out.println("SmartOneReinsert.infeasibleRandom = " + SmartOneReinsert.infeasibleRandom);
+        System.out.println("SmartOneReinsert.infeasibleCountForNotEmptyVehicles = " + SmartOneReinsert.infeasibleCountForNotEmptyVehicles);
+        System.out.println("SmartOneReinsert.infeasibleBefore = " + SmartOneReinsert.infeasibleBefore);//*/
+        
         return bestSolution;
     }
 

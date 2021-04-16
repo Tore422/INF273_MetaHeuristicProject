@@ -42,33 +42,14 @@ public class SmartTwoExchange {
         if (!foundFeasibleSwap) { // No feasible swaps were found in the solution space, so we make a random swap.
             makeRandomSwap(newSolution, zeroIndices);
         }
-        if (feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+        if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
         return newSolution;
-        /* int initialCost = calculateCost(newSolution);
-        int k = 1;
-        while (k <= 5) {
-            boolean foundFeasibleSwap = processSolutionSpace(
-                    newSolution, newSolutionRepresentation, zeroIndices, startIndicesOfEmptyVehicles, positionsToIgnore);
-            if (!foundFeasibleSwap) {
-                if (k == 1) { // No feasible swaps were found in solution space N1, so we make a random swap.
-                    makeRandomSwap(newSolution, zeroIndices);
-                }
-                return newSolution;
-            }
-            int newCost = calculateCost(newSolution);
-            if (newCost < initialCost) {
-               // System.out.println(k);
-                return newSolution;
-            }
-            k++;
-        }*/
     }
 
     private static boolean processSolutionSpace(
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
             List<Integer> zeroIndices, List<Integer> startIndicesOfEmptyVehicles, List<Integer> positionsToIgnore) {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
-        //ignoredIndices.addAll(positionsToIgnore);
         boolean tryMovingMostExpensiveCall = decideRemovalOperator();
         if (findEmptyVehicles(newSolutionRepresentation, zeroIndices).size() == zeroIndices.size()) {
             tryMovingMostExpensiveCall = false; // Only outsourced vehicles, so makes no sense to call
@@ -138,12 +119,12 @@ public class SmartTwoExchange {
             int numberOfCallsInVehicle = findNumberOfDifferentCallsInVehicle(
                     startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle);
             List<Integer> indicesOfProcessedCalls = indicesPreviouslyProcessed(
-                    newSolutionRepresentation, firstIndexOfRandomCall, secondIndexOfRandomCall,
-                    startIndexOfRandomCallsVehicle, positionsToIgnore, startIndexOfSelectedVehicle);
+                    firstIndexOfRandomCall, secondIndexOfRandomCall,
+                    startIndexOfRandomCallsVehicle, startIndexOfSelectedVehicle);
             boolean foundFeasibleSwap = processCallsInSelectedVehicle(
                     newSolution, newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall,
                     secondIndexOfRandomCall, startIndexOfSelectedVehicle, stopIndexOfSelectedVehicle,
-                    numberOfCallsInVehicle, indicesOfProcessedCalls, positionsToIgnore);
+                    numberOfCallsInVehicle, indicesOfProcessedCalls);
             if (foundFeasibleSwap) {
                 return true;
             }
@@ -153,18 +134,13 @@ public class SmartTwoExchange {
     }
 
     private static List<Integer> indicesPreviouslyProcessed(
-            List<Integer> newSolutionRepresentation, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
-            int startIndexOfRandomCallsVehicle, List<Integer> positionsToIgnore, int startIndexOfSelectedVehicle) {
+            int firstIndexOfRandomCall, int secondIndexOfRandomCall,
+            int startIndexOfRandomCallsVehicle, int startIndexOfSelectedVehicle) {
         List<Integer> indicesOfProcessedCalls = new ArrayList<>();
         if (startIndexOfSelectedVehicle == startIndexOfRandomCallsVehicle) {
             indicesOfProcessedCalls.add(firstIndexOfRandomCall); // We want to avoid swapping the call with itself
             indicesOfProcessedCalls.add(secondIndexOfRandomCall);
         }
-     /* for (int position : positionsToIgnore) {
-            if (findStartIndex(newSolutionRepresentation, position) == startIndexOfSelectedVehicle) {
-                indicesOfProcessedCalls.add(position);
-            }
-        }*/
         return indicesOfProcessedCalls;
     }
 
@@ -175,7 +151,7 @@ public class SmartTwoExchange {
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
             List<Integer> zeroIndices, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
             int startIndexOfSelectedVehicle, int stopIndexOfSelectedVehicle,
-            int numberOfCallsInVehicle, List<Integer> indicesOfProcessedCalls, List<Integer> positionsToIgnore) {
+            int numberOfCallsInVehicle, List<Integer> indicesOfProcessedCalls) {
         boolean firstVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
                 firstIndexOfRandomCall);
         boolean secondVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
@@ -189,12 +165,13 @@ public class SmartTwoExchange {
                     newSolutionRepresentation, zeroIndices, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(firstIndexOfRandomCall, firstRandomIndexOfCallInSelectedVehicle);
             newSolution.swapElementsAtIndices(secondIndexOfRandomCall, secondRandomIndexOfCallInSelectedVehicle);
-            //if (isSolutionFeasibleAfterSwappingTwoCalls(
-         //           newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers)) {
-            //    counterA++;
-                if (feasible(newSolution)) {
+            if (isSolutionFeasibleAfterSwappingTwoCalls(
+                    newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers)) {
+                counterA++;
+                if (!feasible(newSolution)) {
                     counterB++;
-
+//                    return true;
+                }
                 return true;
             }
             // Swap back if solution is not feasible
@@ -230,8 +207,6 @@ public class SmartTwoExchange {
         if (!secondVehicleIsOutsourced) {
             secondVehicleIsFeasible = constraintsHoldForVehicle(vehicleNumbers[1], newSolutionRepresentation);
         }
-        //positionsToIgnore.add(firstRandomIndexOfCallInSelectedVehicle);
-        //positionsToIgnore.add(secondRandomIndexOfCallInSelectedVehicle);
         return firstVehicleIsFeasible && secondVehicleIsFeasible;
     }
 
