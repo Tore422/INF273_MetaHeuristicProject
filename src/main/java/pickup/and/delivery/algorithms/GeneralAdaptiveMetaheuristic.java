@@ -94,8 +94,7 @@ public class GeneralAdaptiveMetaheuristic {
         scores = initializeScores();
         numberOfTimesEachOperatorHasBeenUsedThisSegment = initializeOperatorUsageCounter();
 
-      //  System.out.println("Operators.getOperators() = " + Operators.getOperatorsWithID());
-
+        operatorWeightsForEachSegment = new ArrayList<>();
         List<IVectorSolutionRepresentation<Integer>> discoveredSolutions = new ArrayList<>();
         List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
         objectiveValuesBeforeOperatorUse = new ArrayList<>();
@@ -294,8 +293,14 @@ public class GeneralAdaptiveMetaheuristic {
             operatorWeights.put(currentOperatorID, normalizedNewWeight);
        //     System.out.println("normalizedNewWeight = " + normalizedNewWeight);
         }
+        storeACopyOfOperatorWeights();
         resetScores();
         resetOperatorUsagePerSegment();
+    }
+
+    private static void storeACopyOfOperatorWeights() {
+        Map<Integer, Double> copyOfWeights = new HashMap<>(operatorWeights);
+        operatorWeightsForEachSegment.add(copyOfWeights);
     }
 
     private static void resetScores() {
