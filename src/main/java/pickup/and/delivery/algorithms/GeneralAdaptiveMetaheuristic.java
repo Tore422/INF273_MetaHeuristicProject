@@ -28,6 +28,16 @@ public class GeneralAdaptiveMetaheuristic {
         printOperatorUsageStatisticsForIteration(100);
         printOperatorUsageStatisticsForIteration(1000);
         printOperatorUsageStatisticsForIteration(9999);
+
+        printOperatorWeightsPerSegment();
+    }
+
+    private static void printOperatorWeightsPerSegment() {
+        int segmentNumber = 0;
+        for (Map<Integer, Double> map : operatorWeightsForEachSegment) {
+            System.out.println("Segment: " + (SEGMENT_SIZE * segmentNumber++)
+                    + ", weights = " + map.values());
+        }
     }
 
     enum Operators {
