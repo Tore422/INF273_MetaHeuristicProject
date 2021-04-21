@@ -101,7 +101,7 @@ public class GeneralAdaptiveMetaheuristic {
         objectiveValuesAfterOperatorUse = new ArrayList<>();
         newSolutionWasFeasible = new ArrayList<>();
         operatorSelected = new ArrayList<>();
-        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 5;
+        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 2;
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
 
@@ -274,7 +274,7 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final double MINIMUM_WEIGHT = 0.05;
-    private static final double R = 0.65;// Reaction factor [0,1].
+    private static final double R = 0.85;// Reaction factor [0,1].
                                                              // Determines how quickly the weights should change.
     private static void updateWeights() {
         double sum = 0;
@@ -316,8 +316,8 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final int SCORE_FOR_FINDING_UNEXPLORED_SOLUTION = 1; // 1
-    private static final int SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION = 4; // 2
-    private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 8; // 4
+    private static final int SCORE_FOR_FINDING_BETTER_NEIGHBOUR_SOLUTION = 2; // 2 4
+    private static final int SCORE_FOR_FINDING_NEW_BEST_SOLUTION = 4; // 4 8
 
     private static void updateScores(IVectorSolutionRepresentation<Integer> newSolution,
                                      int objectiveCostOfCurrentSolution, int objectiveCostOfNewSolution,
@@ -373,9 +373,9 @@ public class GeneralAdaptiveMetaheuristic {
             if (iterationNumber < NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE) {
                 if (deltaE > 0 && deltaE > max) {
                     max = deltaE;
-                    System.out.println("max is now = " + max);
+                  //  System.out.println("max is now = " + max);
                 }
-                System.out.println("deltaE = " + deltaE);
+              //  System.out.println("deltaE = " + deltaE);
                 // Default: accept if better during calibration
                 return objectiveCostOfNewSolution < objectiveCostOfCurrentSolution;
             } else if (!calibratedTemperature) {
@@ -385,13 +385,14 @@ public class GeneralAdaptiveMetaheuristic {
                         (1.0 / (double) (NUMBER_OF_ITERATIONS - NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE)));
                 calibratedTemperature = true;
             }
-            double sumOfDelta = 0.0;
+           /* double sumOfDelta = 0.0;
             for (double delta : deltas) {
                 sumOfDelta += delta;
             }
-            double averageDelta = sumOfDelta / deltas.size();
-         //   System.out.println("averageDelta = " + averageDelta);
-            double probabilityOfAcceptance = Math.exp(-averageDelta / temperature);
+           // double averageDelta = sumOfDelta / deltas.size();*/
+           // System.out.println("averageDelta = " + averageDelta);
+           // System.out.println("Math.exp(-averageDelta / temperature) = " + Math.exp(-deltaE / temperature));
+            double probabilityOfAcceptance = Math.exp(-deltaE / temperature);
             if (RANDOM.nextDouble() < probabilityOfAcceptance) {
                 acceptNewSolution = true;
             }
