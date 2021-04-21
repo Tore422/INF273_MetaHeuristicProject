@@ -316,8 +316,8 @@ public class PickupAndDelivery {
                     useAdaptiveMetaheuristicOnSolution();
             default -> log.error("Did not recognize the selected algorithm");
         }
-        /*if (algorithm != SearchAlgorithm.LOCAL_SEARCH) {
-            // System.out.println("cost before = " + calculateCost(solutionRepresentation));
+        if (algorithm != SearchAlgorithm.LOCAL_SEARCH) {
+             System.out.println("cost before = " + calculateCost(solutionRepresentation));
              useLocalSearchOnSolution(); //TODO: uncomment before final delivery. Improves solution quite a bit.
         }//*/
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
