@@ -31,7 +31,7 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_2 = "src/main/resources/assignment2.test.data/Call_18_Vehicle_5.txt";
     private static final String PATH_TO_FILE_3 = "src/main/resources/assignment2.test.data/Call_035_Vehicle_07.txt";
     private static final String PATH_TO_FILE_4 = "src/main/resources/assignment2.test.data/Call_080_Vehicle_20.txt";
-    private static final String PATH_TO_FILE_5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";
+    private static final String PATH_TO_FILE_5 = "src/main/resources/assignment2.test.data/Call_130_Vehicle_40.txt";//*/
 /*
     // Files for the exam
     private static final String PATH_TO_FILE_1 = "src/main/resources/exam.test.data/Call_7_Vehicle_3.txt";

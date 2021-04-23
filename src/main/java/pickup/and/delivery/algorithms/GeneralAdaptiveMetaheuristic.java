@@ -403,7 +403,8 @@ public class GeneralAdaptiveMetaheuristic {
            // System.out.println("averageDelta = " + averageDelta);
            // System.out.println("Math.exp(-averageDelta / temperature) = " + Math.exp(-deltaE / temperature));
             double probabilityOfAcceptance = Math.exp(-deltaE / temperature);
-            if (RANDOM.nextDouble() < probabilityOfAcceptance) {
+            if (objectiveCostOfNewSolution < objectiveCostOfCurrentSolution
+                    || RANDOM.nextDouble() < probabilityOfAcceptance) {
                 acceptNewSolution = true;
             }
         }
