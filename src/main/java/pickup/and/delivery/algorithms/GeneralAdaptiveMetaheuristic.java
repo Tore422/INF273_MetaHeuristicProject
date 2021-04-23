@@ -136,16 +136,12 @@ public class GeneralAdaptiveMetaheuristic {
         SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap = 0;
         SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;
         int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
-       // System.out.println("initialSolution = " + initialSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             foundNewBestSolutionThisIteration = false;
-        //    System.out.println();
-        //    System.out.println("iteration number = " + i);
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
           //      System.out.println("Escaping local optima");
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
-        //            System.out.println("currentSolution = " + currentSolution);
                     if (!PickupAndDelivery.feasible(currentSolution)) {
                         numberOfTimesSolutionWasInfeasibleAfterEscaping++;
                     }
@@ -166,11 +162,8 @@ public class GeneralAdaptiveMetaheuristic {
                 boolean newSolutionIsFeasible = PickupAndDelivery.feasible(newSolution);
                 registerOperatorUsageStatistics(objectiveCostOfCurrentSolution,
                         objectiveCostOfNewSolution, newSolutionIsFeasible);
-             //   System.out.println("selectedOperator = " + selectedOperator);
-             //   System.out.println("newSolution = " + newSolution);
                 if (!newSolutionIsFeasible) {
                     numberOfTimesSolutionWasInfeasible++;
-             //       System.out.println("Error, not a feasible solution");
                 }
                 if (objectiveCostOfNewSolution < bestObjectiveFoundSoFar
                         && newSolutionIsFeasible) {
@@ -182,7 +175,6 @@ public class GeneralAdaptiveMetaheuristic {
                     foundNewBestSolutionThisIteration = true;
                 }
                 if (accept(newSolution, currentSolution, i)) {
-              //      System.out.println("Solution was acceptable");
                     currentSolution = newSolution;
                     objectiveCostOfCurrentSolution = objectiveCostOfNewSolution;
                 }
@@ -328,14 +320,11 @@ public class GeneralAdaptiveMetaheuristic {
             double theta = Math.max(1.0, numberOfTimesEachOperatorHasBeenUsedThisSegment.get(currentOperatorID));
             double newWeight = oldWeight * (1.0 - R) + (R * (score / theta));
             operatorWeights.put(currentOperatorID, Math.max(newWeight, MINIMUM_WEIGHT));
-       //     System.out.println("theta = " + theta);
-       //     System.out.println("oldWeight = " + oldWeight);
             sum += operatorWeights.get(currentOperatorID);
         }
         for (int currentOperatorID = 1; currentOperatorID <= NUMBER_OF_OPERATORS; currentOperatorID++) {
             double normalizedNewWeight = operatorWeights.get(currentOperatorID) / sum;
             operatorWeights.put(currentOperatorID, normalizedNewWeight);
-       //     System.out.println("normalizedNewWeight = " + normalizedNewWeight);
         }
         storeACopyOfOperatorWeights();
         resetScores();
