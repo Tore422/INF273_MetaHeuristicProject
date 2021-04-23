@@ -175,12 +175,20 @@ public class SmartTwoExchange {
                 return true;
             }
             // Swap back if solution is not feasible
-            newSolution.swapElementsAtIndices(firstRandomIndexOfCallInSelectedVehicle, firstIndexOfRandomCall);
-            newSolution.swapElementsAtIndices(secondRandomIndexOfCallInSelectedVehicle, secondIndexOfRandomCall);
-            indicesOfProcessedCalls.add(firstRandomIndexOfCallInSelectedVehicle);
-            indicesOfProcessedCalls.add(secondRandomIndexOfCallInSelectedVehicle);
+            revertSwap(newSolution, firstIndexOfRandomCall, secondIndexOfRandomCall, indicesOfProcessedCalls,
+                    firstRandomIndexOfCallInSelectedVehicle, secondRandomIndexOfCallInSelectedVehicle);
         }
         return false;
+    }
+
+    private static void revertSwap(IVectorSolutionRepresentation<Integer> newSolution, int firstIndexOfRandomCall,
+                                   int secondIndexOfRandomCall, List<Integer> indicesOfProcessedCalls,
+                                   int firstRandomIndexOfCallInSelectedVehicle,
+                                   int secondRandomIndexOfCallInSelectedVehicle) {
+        newSolution.swapElementsAtIndices(firstRandomIndexOfCallInSelectedVehicle, firstIndexOfRandomCall);
+        newSolution.swapElementsAtIndices(secondRandomIndexOfCallInSelectedVehicle, secondIndexOfRandomCall);
+        indicesOfProcessedCalls.add(firstRandomIndexOfCallInSelectedVehicle);
+        indicesOfProcessedCalls.add(secondRandomIndexOfCallInSelectedVehicle);
     }
 
     private static int[] getVehicleNumbers(
