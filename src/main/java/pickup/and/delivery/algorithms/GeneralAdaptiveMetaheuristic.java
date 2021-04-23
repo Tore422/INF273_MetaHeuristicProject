@@ -88,8 +88,6 @@ public class GeneralAdaptiveMetaheuristic {
     private static double initialTemperature;
     private static double temperature;
     private static double coolingFactor;
-    private static final int NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE = 100;
-    private static double max;
     private static boolean calibratedTemperature;
     private static List<Double> deltas;
 
@@ -123,7 +121,6 @@ public class GeneralAdaptiveMetaheuristic {
         initialTemperature = 0;
         temperature = 0;
         deltas = new ArrayList<>();
-        max = Double.MIN_VALUE;
         int numberOfTimesSolutionWasInfeasible = 0;
         int numberOfTimesSolutionWasInfeasibleAfterEscaping = 0;
         numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = 0;
@@ -201,7 +198,6 @@ public class GeneralAdaptiveMetaheuristic {
         System.out.println("temperature = " + temperature);
         System.out.println("initialTemperature = " + initialTemperature);
         System.out.println("coolingFactor = " + coolingFactor);
-        System.out.println("max = " + max);
 
         System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterEscaping = " + numberOfTimesSolutionWasInfeasibleAfterEscaping);
@@ -409,47 +405,53 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final double FINAL_TEMPERATURE = 1.0; //0.00001;
+    private static final int NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE = 100;
+    private static final double PROBABILITY_OF_ACCEPTING_WORSE_SOLUTION_DURING_TEMPERATURE_CALIBRATION = 0.8;
 
     private static boolean accept(IVectorSolutionRepresentation<Integer> newSolution,
                                   IVectorSolutionRepresentation<Integer> currentSolution, int iterationNumber) {
-        boolean acceptNewSolution = false;
+        boolean acceptSolution = false;
         if (PickupAndDelivery.feasible(newSolution)) {
             int objectiveCostOfNewSolution = PickupAndDelivery.calculateCost(newSolution);
             int objectiveCostOfCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
             double deltaE = (double) objectiveCostOfNewSolution - (double) objectiveCostOfCurrentSolution;
-            deltas.add(deltaE);
+            if (deltaE < 0) { // We found a better solution, so no need for doing anything else.
+                return true;
+            }
             if (iterationNumber < NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE) {
-                if (deltaE > 0 && deltaE > max) {
-                    max = deltaE;
-                  //  System.out.println("max is now = " + max);
+                deltas.add(deltaE);
+                if (RANDOM.nextDouble() < PROBABILITY_OF_ACCEPTING_WORSE_SOLUTION_DURING_TEMPERATURE_CALIBRATION) {
+                    return true;
                 }
-              //  System.out.println("deltaE = " + deltaE);
-                // Default: accept if better during calibration
-                return objectiveCostOfNewSolution < objectiveCostOfCurrentSolution;
             } else if (!calibratedTemperature) {
-                initialTemperature = -max / Math.log10(0.99);
+                double averageDelta = getAverageDelta();
+                initialTemperature = -averageDelta /
+                        Math.log(PROBABILITY_OF_ACCEPTING_WORSE_SOLUTION_DURING_TEMPERATURE_CALIBRATION);
+                //initialTemperature = -max / Math.log10(0.99);
                 temperature = initialTemperature;
                 coolingFactor = Math.pow((FINAL_TEMPERATURE / initialTemperature),
-                        (1.0 / (double) (NUMBER_OF_ITERATIONS - NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE)));
+                        1.0 / (double) (NUMBER_OF_ITERATIONS));
+               // coolingFactor = Math.pow((FINAL_TEMPERATURE / initialTemperature),
+               //         (1.0 / (double) (NUMBER_OF_ITERATIONS - NUMBER_OF_ITERATIONS_TO_CALIBRATE_TEMPERATURE)));
                 calibratedTemperature = true;
             }
-           /* double sumOfDelta = 0.0;
-            for (double delta : deltas) {
-                sumOfDelta += delta;
-            }
-           // double averageDelta = sumOfDelta / deltas.size();*/
-           // System.out.println("averageDelta = " + averageDelta);
-           // System.out.println("Math.exp(-averageDelta / temperature) = " + Math.exp(-deltaE / temperature));
             double probabilityOfAcceptance = Math.exp(-deltaE / temperature);
-            if (objectiveCostOfNewSolution < objectiveCostOfCurrentSolution
-                    || RANDOM.nextDouble() < probabilityOfAcceptance) {
-                acceptNewSolution = true;
+            if (RANDOM.nextDouble() < probabilityOfAcceptance) {
+                acceptSolution = true;
             }
         }
         if (calibratedTemperature) {
             temperature = coolingFactor * temperature;
         }
-        return acceptNewSolution;
+        return acceptSolution;
+    }
+
+    private static double getAverageDelta() {
+        double sumOfDelta = 0.0;
+        for (double delta : deltas) {
+            sumOfDelta += delta;
+        }
+        return (sumOfDelta / deltas.size());
     }
 
     private static final int ONE = 1;
