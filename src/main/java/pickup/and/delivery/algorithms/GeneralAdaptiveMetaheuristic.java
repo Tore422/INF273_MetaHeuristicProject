@@ -69,7 +69,7 @@ public class GeneralAdaptiveMetaheuristic {
 
     private static final int NUMBER_OF_OPERATORS = Operators.values().length;
     private static final double INITIAL_OPERATOR_WEIGHTS = 1.0 / NUMBER_OF_OPERATORS;
-    private static final int NUMBER_OF_ITERATIONS = 10000;
+    private static final int NUMBER_OF_ITERATIONS = 20000;
     private static final int NUMBER_OF_ESCAPE_ITERATIONS = 20;
     private static final int THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA = 500;
     private static Map<Integer, Double> operatorWeights;
@@ -92,6 +92,10 @@ public class GeneralAdaptiveMetaheuristic {
     private static double max;
     private static boolean calibratedTemperature;
     private static List<Double> deltas;
+
+    private static int numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert;
+    private static int numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange;
+    private static int numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert;
 
 
     private GeneralAdaptiveMetaheuristic() {}
@@ -121,6 +125,19 @@ public class GeneralAdaptiveMetaheuristic {
         deltas = new ArrayList<>();
         max = Double.MIN_VALUE;
         int numberOfTimesSolutionWasInfeasible = 0;
+        int numberOfTimesSolutionWasInfeasibleAfterEscaping = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = 0;
+        SmartTwoExchange.numberOfTimesSolutionIsInfeasible = 0;
+        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival = 0;
+        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap = 0;
+        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;
         int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
        // System.out.println("initialSolution = " + initialSolution);
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
@@ -132,6 +149,9 @@ public class GeneralAdaptiveMetaheuristic {
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
         //            System.out.println("currentSolution = " + currentSolution);
+                    if (!PickupAndDelivery.feasible(currentSolution)) {
+                        numberOfTimesSolutionWasInfeasibleAfterEscaping++;
+                    }
                     int objectiveCostOfNewCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
                     registerOperatorUsageStatistics(objectiveCostOfCurrentSolution, objectiveCostOfNewCurrentSolution,
                             PickupAndDelivery.feasible(currentSolution));
@@ -156,7 +176,7 @@ public class GeneralAdaptiveMetaheuristic {
              //       System.out.println("Error, not a feasible solution");
                 }
                 if (objectiveCostOfNewSolution < bestObjectiveFoundSoFar
-                        && newSolutionIsFeasible) { // Should always be feasible?
+                        && newSolutionIsFeasible) {
            //         System.out.println("iteration Number = " + i);
             //        System.out.println("Found a new best solution");
                     bestSolution = newSolution;
@@ -184,6 +204,24 @@ public class GeneralAdaptiveMetaheuristic {
         System.out.println("max = " + max);
 
         System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
+        System.out.println("numberOfTimesSolutionWasInfeasibleAfterEscaping = " + numberOfTimesSolutionWasInfeasibleAfterEscaping);
+        System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert);
+        System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange);
+        System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert);
+        System.out.println();
+
+        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasible = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasible);
+        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival);
+        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap);
+        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap);
+        System.out.println();
+
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival);
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced);
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall);
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove);
+        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove);
+
         System.out.println("operatorWeights = " + operatorWeights);
         return bestSolution;
     }
@@ -370,7 +408,7 @@ public class GeneralAdaptiveMetaheuristic {
         return foundUnexploredSolution;
     }
 
-    private static final double FINAL_TEMPERATURE = 0.00001;
+    private static final double FINAL_TEMPERATURE = 1.0; //0.00001;
 
     private static boolean accept(IVectorSolutionRepresentation<Integer> newSolution,
                                   IVectorSolutionRepresentation<Integer> currentSolution, int iterationNumber) {
@@ -429,12 +467,21 @@ public class GeneralAdaptiveMetaheuristic {
         if (operatorChoice < PROBABILITY_OF_SELECTING_SMART_ONE_REINSERT) {
             newSolution = SmartOneReinsert.useSmartOneReinsertOnSolution(currentSolution);
             selectedOperator = operatorsWithID.get(Operators.SMART_ONE_REINSERT);
+            if (!PickupAndDelivery.feasible(newSolution)) {
+                numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert++;
+            }
         } else if (operatorChoice < PROBABILITY_OF_SELECTING_SMART_TWO_EXCHANGE) {
             newSolution = SmartTwoExchange.useSmartTwoExchangeOnSolution(currentSolution);
             selectedOperator = operatorsWithID.get(Operators.SMART_TWO_EXCHANGE);
+            if (!PickupAndDelivery.feasible(newSolution)) {
+                numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange++;
+            }
         } else { //if (operatorChoice < PROBABILITY_OF_SELECTING_PARTIAL_REINSERT) {
             newSolution = PartialReinsert.usePartialReinsertOnSolution(currentSolution);
             selectedOperator = operatorsWithID.get(Operators.PARTIAL_REINSERT);
+            if (!PickupAndDelivery.feasible(newSolution)) {
+                numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert++;
+            }
         } /*else {
             int k = 1;
             newSolution = KReinsert.useKReinsertOnSolution(currentSolution, k);

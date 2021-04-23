@@ -1,5 +1,6 @@
 package pickup.and.delivery.operators.custom;
 
+import pickup.and.delivery.PickupAndDelivery;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -16,7 +17,11 @@ public class PartialReinsert {
         throw new IllegalStateException("Utility class");
     }
 
-    public static int numberOfTimesSolutionIsFeasible = 0;
+    public static int numberOfTimesSolutionIsInfeasibleOnArrival = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRegularMove = 0;
 
     public static void main(String[] args) {
         List<Integer> values = Arrays.asList(3, 3, 0, 7, 1, 7, 1, 0, 5, 5, 6, 6, 0, 4, 2, 4, 2);
@@ -37,8 +42,15 @@ public class PartialReinsert {
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         List<int[]> indicesOfVehiclesToProcess = findVehiclesWithMoreThanOneCall(zeroIndices);
+        if (!PickupAndDelivery.feasible(solution)) {
+            numberOfTimesSolutionIsInfeasibleOnArrival++;
+        }
         if (indicesOfVehiclesToProcess.isEmpty()) {
-            return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
+            IVectorSolutionRepresentation<Integer> newSol = randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
+            if (!feasible(newSol)) {
+                numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced++;
+            }
+            return newSol;
         }
         List<Integer> vehiclesProcessedSoFar = new ArrayList<>(indicesOfVehiclesToProcess.size());
         while (vehiclesProcessedSoFar.size() < indicesOfVehiclesToProcess.size()) {
@@ -53,7 +65,9 @@ public class PartialReinsert {
             boolean foundImprovement = processVehicleLookingForImprovement(
                     newSolution, startAndStopIndexOfVehicle, vehicleNumber, costOfInitialSolution);
             if (foundImprovement) {
-                if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+                if (!feasible(newSolution)) {
+                    numberOfTimesSolutionIsInfeasibleAfterRegularMove++;
+                }
                 return newSolution;
             }
             vehiclesProcessedSoFar.add(indexOfRandomVehicleToProcess);
@@ -63,7 +77,11 @@ public class PartialReinsert {
             //Tried all possibilities without finding an improvement,
             //so we select a random element from outsourced calls,
             //and insert that element into a random position there.
-            return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
+            IVectorSolutionRepresentation<Integer> newSol = randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
+            if (!feasible(newSol)) {
+                numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall++;
+            }
+            return newSol;
         } else {
             //No outsourced calls to move, so we select a random vehicle, and perform a random move there
             int indexOfCallToMove = findRandomIndexWithinExclusiveBounds(
@@ -74,7 +92,9 @@ public class PartialReinsert {
             int randomIndexToInsertCallInVehicle = findRandomIndexWithinExclusiveBounds(
                     startAndStopIndices[0], startAndStopIndices[1], null);
             newSolutionRepresentation.add(randomIndexToInsertCallInVehicle, callId);
-            if(!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+            if(!feasible(newSolution)) {
+                numberOfTimesSolutionIsInfeasibleAfterRandomMove++;
+            }
             return newSolution;
         }
 /*
@@ -161,7 +181,7 @@ public class PartialReinsert {
         int randomlySelectedCall = newSolutionRepresentation.remove(randomIndex);
         randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex - 1, null);
         newSolutionRepresentation.add(randomIndex, randomlySelectedCall);
-        if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+        if (!feasible(newSolution)) numberOfTimesSolutionIsInfeasibleAfterRandomMove++;
         return newSolution;
     }
 }

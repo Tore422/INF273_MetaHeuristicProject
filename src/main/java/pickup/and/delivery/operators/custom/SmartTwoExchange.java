@@ -13,7 +13,10 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class SmartTwoExchange {
 
-    public static int numberOfTimesSolutionIsFeasible = 0;
+    public static int numberOfTimesSolutionIsInfeasible = 0;
+    public static int numberOfTimesSolutionIsInfeasibleOnArrival = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRegularSwap = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;
 
     private SmartTwoExchange() {
         throw new IllegalStateException("Utility class");
@@ -37,12 +40,20 @@ public class SmartTwoExchange {
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         List<Integer> startIndicesOfEmptyVehicles = findEmptyVehicles(newSolutionRepresentation, zeroIndices);
         List<Integer> positionsToIgnore = new ArrayList<>();
+        if (!feasible(solution)) {
+            numberOfTimesSolutionIsInfeasibleOnArrival++;
+        }
         boolean foundFeasibleSwap = processSolutionSpace(
                 newSolution, newSolutionRepresentation, zeroIndices, startIndicesOfEmptyVehicles, positionsToIgnore);
         if (!foundFeasibleSwap) { // No feasible swaps were found in the solution space, so we make a random swap.
             makeRandomSwap(newSolution, zeroIndices);
+            if (!feasible(newSolution)) {
+                numberOfTimesSolutionIsInfeasibleAfterRandomSwap++;
+            }
         }
-        if (!feasible(newSolution)) numberOfTimesSolutionIsFeasible++;
+        if (!feasible(newSolution)) {
+            numberOfTimesSolutionIsInfeasible++;
+        }
         return newSolution;
     }
 
@@ -170,6 +181,7 @@ public class SmartTwoExchange {
                 counterA++;
                 if (!feasible(newSolution)) {
                     counterB++;
+                    numberOfTimesSolutionIsInfeasibleAfterRegularSwap++;
 //                    return true;
                 }
                 return true;
