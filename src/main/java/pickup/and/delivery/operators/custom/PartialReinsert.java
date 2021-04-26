@@ -179,9 +179,12 @@ public class PartialReinsert {
         int stopIndex = newSolutionRepresentation.size();
         int randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex, null);
         int randomlySelectedCall = newSolutionRepresentation.remove(randomIndex);
-        randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex - 1, null);
-        newSolutionRepresentation.add(randomIndex, randomlySelectedCall);
-        if (!feasible(newSolution)) numberOfTimesSolutionIsInfeasibleAfterRandomMove++;
+        randomIndex = findRandomIndexWithinExclusiveBounds(startIndex, stopIndex, null);
+        if (randomIndex == (stopIndex - 1)) {
+            newSolutionRepresentation.add(randomlySelectedCall);
+        } else {
+            newSolutionRepresentation.add(randomIndex, randomlySelectedCall);
+        }
         return newSolution;
     }
 }
