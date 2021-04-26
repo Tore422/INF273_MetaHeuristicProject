@@ -131,12 +131,9 @@ public class GeneralAdaptiveMetaheuristic {
         PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
         PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = 0;
         PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = 0;
-        SmartTwoExchange.numberOfTimesSolutionIsInfeasible = 0;
-        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival = 0;
-        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap = 0;
-        SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;
         int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+        //    System.out.println("i = " + i);
             foundNewBestSolutionThisIteration = false;
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
           //      System.out.println("Escaping local optima");
@@ -196,12 +193,6 @@ public class GeneralAdaptiveMetaheuristic {
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert);
-        System.out.println();
-
-        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasible = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasible);
-        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleOnArrival);
-        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRegularSwap);
-        System.out.println("SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap = " + SmartTwoExchange.numberOfTimesSolutionIsInfeasibleAfterRandomSwap);
         System.out.println();
 
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival);

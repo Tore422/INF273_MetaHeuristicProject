@@ -45,10 +45,7 @@ public class SimulatedAnnealing {
         int numberOfTimesSolutionWasFeasible = 0;
         PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
         SmartOneReinsert.numberOfTimesSolutionIsFeasible = 0;
-        SmartTwoExchange.numberOfTimesSolutionIsInfeasible = 0;
-
-        SmartTwoExchange.counterA = 0;
-        SmartTwoExchange.counterB = 0;
+     //   SmartTwoExchange.numberOfTimesSolutionIsInfeasible = 0;
 
         SmartOneReinsert.infeasibleRandom = 0;
         SmartOneReinsert.infeasibleNormal = 0;
@@ -94,11 +91,9 @@ public class SimulatedAnnealing {
         System.out.println("PartialReinsert.numberOfTimesSolutionIsFeasible = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove);
         System.out.println("SmartOneReinsert.numberOfTimesSolutionIsFeasible = " + SmartOneReinsert.numberOfTimesSolutionIsFeasible);
      //   System.out.println("SmartTwoExchange.numberOfTimesSolutionIsFeasible = " + SmartTwoExchange.numberOfTimesSolutionIsFeasible);
-        System.out.println("total: = " + (PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove
-                + SmartOneReinsert.numberOfTimesSolutionIsFeasible + SmartTwoExchange.numberOfTimesSolutionIsInfeasible));
+     //   System.out.println("total: = " + (PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove
+     //           + SmartOneReinsert.numberOfTimesSolutionIsFeasible + SmartTwoExchange.numberOfTimesSolutionIsInfeasible));
      //*/
-        System.out.println("SmartTwoExchange.counterA = " + SmartTwoExchange.counterA);
-        System.out.println("SmartTwoExchange.counterB = " + SmartTwoExchange.counterB);
         System.out.println();
       /*  System.out.println("SmartOneReinsert.infeasibleNormal = " + SmartOneReinsert.infeasibleNormal);
         System.out.println("SmartOneReinsert.infeasibleOutsourced = " + SmartOneReinsert.infeasibleOutsourced);

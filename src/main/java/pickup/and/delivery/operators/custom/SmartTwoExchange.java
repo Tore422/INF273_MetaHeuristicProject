@@ -13,10 +13,10 @@ import static pickup.and.delivery.operators.OperatorUtilities.*;
 
 public class SmartTwoExchange {
 
-    public static int numberOfTimesSolutionIsInfeasible = 0;
+   /* public static int numberOfTimesSolutionIsInfeasible = 0;
     public static int numberOfTimesSolutionIsInfeasibleOnArrival = 0;
     public static int numberOfTimesSolutionIsInfeasibleAfterRegularSwap = 0;
-    public static int numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;
+    public static int numberOfTimesSolutionIsInfeasibleAfterRandomSwap = 0;*/
 
     private SmartTwoExchange() {
         throw new IllegalStateException("Utility class");
@@ -39,27 +39,17 @@ public class SmartTwoExchange {
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         List<Integer> startIndicesOfEmptyVehicles = findEmptyVehicles(newSolutionRepresentation, zeroIndices);
-        List<Integer> positionsToIgnore = new ArrayList<>();
-        if (!feasible(solution)) {
-            numberOfTimesSolutionIsInfeasibleOnArrival++;
-        }
         boolean foundFeasibleSwap = processSolutionSpace(
-                newSolution, newSolutionRepresentation, zeroIndices, startIndicesOfEmptyVehicles, positionsToIgnore);
+                newSolution, newSolutionRepresentation, zeroIndices, startIndicesOfEmptyVehicles);
         if (!foundFeasibleSwap) { // No feasible swaps were found in the solution space, so we make a random swap.
             makeRandomSwap(newSolution, zeroIndices);
-            if (!feasible(newSolution)) {
-                numberOfTimesSolutionIsInfeasibleAfterRandomSwap++;
-            }
-        }
-        if (!feasible(newSolution)) {
-            numberOfTimesSolutionIsInfeasible++;
         }
         return newSolution;
     }
 
     private static boolean processSolutionSpace(
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
-            List<Integer> zeroIndices, List<Integer> startIndicesOfEmptyVehicles, List<Integer> positionsToIgnore) {
+            List<Integer> zeroIndices, List<Integer> startIndicesOfEmptyVehicles) {
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
         boolean tryMovingMostExpensiveCall = decideRemovalOperator();
         if (findEmptyVehicles(newSolutionRepresentation, zeroIndices).size() == zeroIndices.size()) {
@@ -88,8 +78,7 @@ public class SmartTwoExchange {
             startIndicesOfVehiclesThatCanTakeTheCall.removeAll(startIndicesOfEmptyVehicles);
             boolean foundFeasibleSwap = processVehiclesThatCanTakeTheCall(
                     newSolution, newSolutionRepresentation, zeroIndices, firstIndexOfRandomCall,
-                    secondIndexOfRandomCall, startIndexOfRandomCallsVehicle, startIndicesOfVehiclesThatCanTakeTheCall,
-                    positionsToIgnore);
+                    secondIndexOfRandomCall, startIndexOfRandomCallsVehicle, startIndicesOfVehiclesThatCanTakeTheCall);
             if (foundFeasibleSwap) {
                 return true;
             }
@@ -117,8 +106,7 @@ public class SmartTwoExchange {
     private static boolean processVehiclesThatCanTakeTheCall(
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
             List<Integer> zeroIndices, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
-            int startIndexOfRandomCallsVehicle, List<Integer> startIndicesOfVehiclesThatCanTakeTheCall,
-            List<Integer> positionsToIgnore) {
+            int startIndexOfRandomCallsVehicle, List<Integer> startIndicesOfVehiclesThatCanTakeTheCall) {
         List<Integer> processedVehicles = new ArrayList<>();
         while (processedVehicles.size() < startIndicesOfVehiclesThatCanTakeTheCall.size()) {
             int indexOfRandomVehicleToProcess = findRandomIndexWithinExclusiveBounds(
@@ -155,9 +143,6 @@ public class SmartTwoExchange {
         return indicesOfProcessedCalls;
     }
 
-    public static int counterA = 0;
-    public static int counterB = 0;
-
     private static boolean processCallsInSelectedVehicle(
             IVectorSolutionRepresentation<Integer> newSolution, List<Integer> newSolutionRepresentation,
             List<Integer> zeroIndices, int firstIndexOfRandomCall, int secondIndexOfRandomCall,
@@ -178,12 +163,6 @@ public class SmartTwoExchange {
             newSolution.swapElementsAtIndices(secondIndexOfRandomCall, secondRandomIndexOfCallInSelectedVehicle);
             if (isSolutionFeasibleAfterSwappingTwoCalls(
                     newSolutionRepresentation, firstVehicleIsOutsourced, secondVehicleIsOutsourced, vehicleNumbers)) {
-                counterA++;
-                if (!feasible(newSolution)) {
-                    counterB++;
-                    numberOfTimesSolutionIsInfeasibleAfterRegularSwap++;
-//                    return true;
-                }
                 return true;
             }
             // Swap back if solution is not feasible
