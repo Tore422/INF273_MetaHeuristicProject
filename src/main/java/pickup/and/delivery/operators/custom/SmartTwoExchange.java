@@ -166,7 +166,7 @@ public class SmartTwoExchange {
         boolean firstVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
                 firstIndexOfRandomCall);
         boolean secondVehicleIsOutsourced = isOutsourcedVehicle(newSolutionRepresentation, zeroIndices,
-                stopIndexOfSelectedVehicle);
+                (startIndexOfSelectedVehicle + 1));
         int[] vehicleNumbers = getVehicleNumbers(zeroIndices, firstIndexOfRandomCall, (startIndexOfSelectedVehicle + 1),
                 firstVehicleIsOutsourced, secondVehicleIsOutsourced);
         while (indicesOfProcessedCalls.size() < (2 * numberOfCallsInVehicle)) {

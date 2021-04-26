@@ -324,11 +324,20 @@ public class OperatorUtilities {
         return numberOfDifferentCallsInVehicle;
     }
 
+    /**
+     * Expects the start index of a vehicle or an index in the vehicle,
+     * and returns whether or not the index is part of an outsourced vehicle.
+     *
+     * @param solutionRepresentation
+     * @param zeroIndices
+     * @param index
+     * @return true if the start index of the vehicle is equal to the
+     * start index of the outsourced calls vehicle.
+     */
     public static boolean isOutsourcedVehicle(List<Integer> solutionRepresentation, List<Integer> zeroIndices,
                                               int index) {
         int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
-        int startIndexOfSelectedVehicle = (index != startIndexOfOutsourcedCalls) ?
-                findStartIndex(solutionRepresentation, zeroIndices, index) : startIndexOfOutsourcedCalls;
+        int startIndexOfSelectedVehicle = findStartIndex(solutionRepresentation, zeroIndices, index);
         return startIndexOfSelectedVehicle == startIndexOfOutsourcedCalls;
     }
 
