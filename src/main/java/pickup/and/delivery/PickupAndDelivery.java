@@ -10,6 +10,7 @@ import pickup.and.delivery.entities.Call;
 import pickup.and.delivery.entities.Journey;
 import pickup.and.delivery.entities.NodeTimesAndCosts;
 import pickup.and.delivery.entities.Vehicle;
+import pickup.and.delivery.operators.OperatorUtilities;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -41,7 +42,7 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";//*/
 
     public static void main(String[] args) {
-        initialize(PATH_TO_FILE_5);
+        initialize(PATH_TO_FILE_4);
        // GeneralAdaptiveMetaheuristic.main(null);
         //System.out.println(createWorstSolution());
         //KReinsert.main(null);
@@ -220,7 +221,13 @@ public class PickupAndDelivery {
         int destination = Integer.parseInt(data[2]);
         int travelTime = Integer.parseInt(data[3]);
         int travelCost = Integer.parseInt(data[4]);
-        possibleJourneys.add(new Journey(vehicleIndex, origin, destination, travelTime, travelCost));
+        generateRandomTravelCosts(vehicleIndex, origin, destination, travelTime);
+       // possibleJourneys.add(new Journey(vehicleIndex, origin, destination, travelTime, travelCost));
+    }
+
+    private static void generateRandomTravelCosts(int vehicleIndex, int origin, int destination, int travelTime) {
+        int alternateTravelCost = (origin == destination) ? 0 : OperatorUtilities.RANDOM.nextInt(200000);
+        possibleJourneys.add(new Journey(vehicleIndex, origin, destination, travelTime, alternateTravelCost));
     }
 
     private static void extractPossibleCalls(String line) {
