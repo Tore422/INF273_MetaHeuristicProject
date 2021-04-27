@@ -143,8 +143,8 @@ public class GeneralAdaptiveMetaheuristic {
                         numberOfTimesSolutionWasInfeasibleAfterEscaping++;
                     }
                     int objectiveCostOfNewCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
-                    registerOperatorUsageStatistics(objectiveCostOfCurrentSolution, objectiveCostOfNewCurrentSolution,
-                            PickupAndDelivery.feasible(currentSolution));
+                   /* registerOperatorUsageStatistics(objectiveCostOfCurrentSolution, objectiveCostOfNewCurrentSolution,
+                            PickupAndDelivery.feasible(currentSolution));//*/
                     objectiveCostOfCurrentSolution = objectiveCostOfNewCurrentSolution;
                     if (objectiveCostOfNewCurrentSolution < bestObjectiveFoundSoFar) {
                         bestSolution = currentSolution;
@@ -157,15 +157,13 @@ public class GeneralAdaptiveMetaheuristic {
                 IVectorSolutionRepresentation<Integer> newSolution = selectAndApplyOperatorOnSolution(currentSolution);
                 int objectiveCostOfNewSolution = PickupAndDelivery.calculateCost(newSolution);
                 boolean newSolutionIsFeasible = PickupAndDelivery.feasible(newSolution);
-                registerOperatorUsageStatistics(objectiveCostOfCurrentSolution,
-                        objectiveCostOfNewSolution, newSolutionIsFeasible);
+            /*    registerOperatorUsageStatistics(objectiveCostOfCurrentSolution,
+                        objectiveCostOfNewSolution, newSolutionIsFeasible);//*/
                 if (!newSolutionIsFeasible) {
                     numberOfTimesSolutionWasInfeasible++;
                 }
                 if (objectiveCostOfNewSolution < bestObjectiveFoundSoFar
                         && newSolutionIsFeasible) {
-           //         System.out.println("iteration Number = " + i);
-            //        System.out.println("Found a new best solution");
                     bestSolution = newSolution;
                     bestObjectiveFoundSoFar = objectiveCostOfNewSolution;
                     numberOfIterationsSincePreviousBestWasFound = 0;
@@ -183,24 +181,24 @@ public class GeneralAdaptiveMetaheuristic {
                 objectiveCostOfDiscoveredSolutions.add(objectiveCostOfNewSolution);
                 numberOfIterationsSincePreviousBestWasFound++;
             }
-        }//*/
-        System.out.println("temperature = " + temperature);
+        }
+    /*    System.out.println("temperature = " + temperature);
         System.out.println("initialTemperature = " + initialTemperature);
-        System.out.println("coolingFactor = " + coolingFactor);
+        System.out.println("coolingFactor = " + coolingFactor);//*/
 
         System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterEscaping = " + numberOfTimesSolutionWasInfeasibleAfterEscaping);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert);
-        System.out.println();
+/*        System.out.println();
 
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival);
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced);
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall);
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove);
         System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove);
-
+//*/
         System.out.println("operatorWeights = " + operatorWeights);
         return bestSolution;
     }
@@ -317,7 +315,7 @@ public class GeneralAdaptiveMetaheuristic {
             double normalizedNewWeight = operatorWeights.get(currentOperatorID) / sum;
             operatorWeights.put(currentOperatorID, normalizedNewWeight);
         }
-        storeACopyOfOperatorWeights();
+       // storeACopyOfOperatorWeights();
         resetScores();
         resetOperatorUsagePerSegment();
     }
