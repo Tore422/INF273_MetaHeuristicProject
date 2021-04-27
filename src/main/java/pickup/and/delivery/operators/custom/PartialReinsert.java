@@ -1,6 +1,5 @@
 package pickup.and.delivery.operators.custom;
 
-import pickup.and.delivery.PickupAndDelivery;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -37,22 +36,17 @@ public class PartialReinsert {
 
     public static IVectorSolutionRepresentation<Integer> usePartialReinsertOnSolution(
             IVectorSolutionRepresentation<Integer> solution) {
+        numberOfTimesSolutionIsInfeasibleOnArrival++;
         IVectorSolutionRepresentation<Integer> newSolution = new VectorSolutionRepresentation<>(
                 solution.getSolutionRepresentation());
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
         List<Integer> zeroIndices = getIndicesOfAllZeroes(newSolutionRepresentation);
         List<int[]> indicesOfVehiclesToProcess = findVehiclesWithMoreThanOneCall(zeroIndices);
-        if (!PickupAndDelivery.feasible(solution)) {
-            numberOfTimesSolutionIsInfeasibleOnArrival++;
-        }
         if (indicesOfVehiclesToProcess.isEmpty()) {
-            IVectorSolutionRepresentation<Integer> newSol = randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
-            if (!feasible(newSol)) {
-                numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced++;
-            }
-            return newSol;
+            numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall++;
+            return randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
         }
-        List<Integer> vehiclesProcessedSoFar = new ArrayList<>(indicesOfVehiclesToProcess.size());
+        List<Integer> vehiclesProcessedSoFar = new ArrayList<>();
         while (vehiclesProcessedSoFar.size() < indicesOfVehiclesToProcess.size()) {
             int indexOfRandomVehicleToProcess = findRandomIndexWithinExclusiveBounds(
                     MINUS_ONE, indicesOfVehiclesToProcess.size(), vehiclesProcessedSoFar);
@@ -63,38 +57,26 @@ public class PartialReinsert {
                     startAndStopIndexOfVehicle[0], startAndStopIndexOfVehicle[1],
                     vehicleNumber, newSolutionRepresentation);
             boolean foundImprovement = processVehicleLookingForImprovement(
-                    newSolution, startAndStopIndexOfVehicle, vehicleNumber, costOfInitialSolution);
+                    newSolution, startAndStopIndexOfVehicle, vehicleNumber,
+                    costOfInitialSolution);
             if (foundImprovement) {
-                if (!feasible(newSolution)) {
-                    numberOfTimesSolutionIsInfeasibleAfterRegularMove++;
-                }
+                numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced++;
                 return newSolution;
             }
             vehiclesProcessedSoFar.add(indexOfRandomVehicleToProcess);
         }
-        int startIndexOfOutsourcedCalls = zeroIndices.get(zeroIndices.size() - 1);
-        if (findNumberOfDifferentCallsInVehicle(startIndexOfOutsourcedCalls, newSolutionRepresentation.size()) != 0) {
-            //Tried all possibilities without finding an improvement,
-            //so we select a random element from outsourced calls,
-            //and insert that element into a random position there.
-            IVectorSolutionRepresentation<Integer> newSol = randomlyReinsertPartOfAnOutsourcedCall(newSolution, zeroIndices);
-            if (!feasible(newSol)) {
-                numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall++;
-            }
-            return newSol;
+        numberOfTimesSolutionIsInfeasibleAfterRegularMove++;
+        if (lookForFirstFeasibleReinsertion(indicesOfVehiclesToProcess, newSolution, zeroIndices)) {
+            return newSolution;
         } else {
-            //No outsourced calls to move, so we select a random vehicle, and perform a random move there
-            int indexOfCallToMove = findRandomIndexWithinExclusiveBounds(
-                    MINUS_ONE, startIndexOfOutsourcedCalls, zeroIndices);
-            int[] startAndStopIndices = findStartAndStopIndexOfVehicle(
-                    zeroIndices, indexOfCallToMove, newSolutionRepresentation.size());
-            int callId = newSolutionRepresentation.remove(indexOfCallToMove);
-            int randomIndexToInsertCallInVehicle = findRandomIndexWithinExclusiveBounds(
-                    startAndStopIndices[0], startAndStopIndices[1], null);
-            newSolutionRepresentation.add(randomIndexToInsertCallInVehicle, callId);
-            if(!feasible(newSolution)) {
-                numberOfTimesSolutionIsInfeasibleAfterRandomMove++;
-            }
+            // No feasible reinserts were possible
+            int indexOfRandomVehicle = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, indicesOfVehiclesToProcess.size(), null);
+            int[] startAndStopIndexOfVehicle = indicesOfVehiclesToProcess.get(indexOfRandomVehicle);
+            int firstIndexOfCall = startAndStopIndexOfVehicle[0] + 1;
+          //  System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
+            newSolution.swapElementsAtIndices(firstIndexOfCall, (firstIndexOfCall + 1));
+           // System.out.println("newSolutionRepresentation = " + newSolutionRepresentation);
             return newSolution;
         }
 /*
@@ -128,6 +110,51 @@ public class PartialReinsert {
     generate more of the possible solutions this way]
 
 */
+    }
+
+    private static boolean lookForFirstFeasibleReinsertion(
+            List<int[]> indicesOfVehiclesToProcess, IVectorSolutionRepresentation<Integer> newSolution,
+            List<Integer> zeroIndices) {
+        List<Integer> vehiclesProcessedSoFar = new ArrayList<>();
+        while (vehiclesProcessedSoFar.size() < indicesOfVehiclesToProcess.size()) {
+            int indexOfRandomVehicleToProcess = findRandomIndexWithinExclusiveBounds(
+                    MINUS_ONE, indicesOfVehiclesToProcess.size(), vehiclesProcessedSoFar);
+            int[] startAndStopIndexOfVehicle = indicesOfVehiclesToProcess.get(indexOfRandomVehicleToProcess);
+            int vehicleNumber = findVehicleNumberForVehicleContainingIndex(
+                    startAndStopIndexOfVehicle[0], zeroIndices);
+            boolean foundFeasibleSolution = findFirstFeasibleSolution(
+                    newSolution, startAndStopIndexOfVehicle, vehicleNumber);
+            if (foundFeasibleSolution) {
+                return true;
+            }
+            vehiclesProcessedSoFar.add(indexOfRandomVehicleToProcess);
+        }
+        return false;
+    }
+
+    private static boolean findFirstFeasibleSolution(IVectorSolutionRepresentation<Integer> newSolution,
+                                                     int[] startAndStopIndexOfVehicle, int vehicleNumber) {
+        List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
+        int startIndex = startAndStopIndexOfVehicle[0];
+        int stopIndex = startAndStopIndexOfVehicle[1];
+        for (int i = startIndex + 1; i < stopIndex; i++) {
+            List<Integer> copyOfSolutionRepresentation = new ArrayList<>(newSolutionRepresentation);
+            int currentCall = copyOfSolutionRepresentation.remove(i);
+            for (int j = i + 1; j < stopIndex; j++) {
+                copyOfSolutionRepresentation.add(j, currentCall);
+                boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
+                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                boolean vehicleCapacityConstraintHolds = vehicleCapacityConstraintHoldsFor(
+                        startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
+                if (timeWindowConstraintHolds && vehicleCapacityConstraintHolds) {
+                    int partOfCallToReinsert = newSolutionRepresentation.remove(i);
+                    newSolutionRepresentation.add(j, partOfCallToReinsert);
+                    return true;
+                }
+                copyOfSolutionRepresentation.remove(j);
+            }
+        }
+        return false;
     }
 
     private static boolean processVehicleLookingForImprovement(
