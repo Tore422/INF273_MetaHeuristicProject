@@ -134,16 +134,15 @@ public class PartialReinsert {
             IVectorSolutionRepresentation<Integer> newSolution, int[] startAndStopIndexOfVehicle,
             int vehicleNumber, int costOfInitialSolution) {
         List<Integer> newSolutionRepresentation = newSolution.getSolutionRepresentation();
-        int bestCostSoFarForCurrentVehicle = costOfInitialSolution;
+        int bestCostSoFarForCurrentVehicle = Integer.MAX_VALUE;
         int indexOfCallToMove = -1;
         int indexToInsertCall = -1;
         int startIndex = startAndStopIndexOfVehicle[0];
         int stopIndex = startAndStopIndexOfVehicle[1];
         for (int i = startIndex + 1; i < stopIndex; i++) {
-            List<Integer> copyOfSolutionRepresentation = new ArrayList<>(
-                    newSolutionRepresentation.subList(0, stopIndex + 1));
+            List<Integer> copyOfSolutionRepresentation = new ArrayList<>(newSolutionRepresentation);
             int currentCall = copyOfSolutionRepresentation.remove(i);
-            for (int j = startIndex + 1; j < stopIndex; j++) {
+            for (int j = i + 1; j < stopIndex; j++) {
                 copyOfSolutionRepresentation.add(j, currentCall);
                 boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
                         startIndex, stopIndex, vehicleNumber, copyOfSolutionRepresentation);
