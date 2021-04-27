@@ -16,7 +16,6 @@ public class SmartOneReinsert {
     public static int infeasibleOutsourced = 0;
     public static int infeasibleNormal = 0;
     public static int infeasibleRandom = 0;
-    public static int infeasibleBefore = 0;
 
     private SmartOneReinsert() {
         throw new IllegalStateException("Utility class");
@@ -77,18 +76,8 @@ public class SmartOneReinsert {
         boolean solutionHasOutsourcedCalls =
                 zeroIndices.get(zeroIndices.size() - 1) != (newSolutionRepresentation.size() - 1);
       //  System.out.println("solutionHasOutsourcedCalls = " + solutionHasOutsourcedCalls);
-        if (!feasible(newSolution)) {
-            infeasibleBefore++;
-        }
-        if (solutionHasOutsourcedCalls) {
-            if(processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
-         //       System.out.println("newSolution = " + newSolution);
-                if (!feasible(newSolution)) {
-                    numberOfTimesSolutionIsFeasible++;
-                    infeasibleOutsourced++;
-                }
-                return newSolution;
-            }
+        if (solutionHasOutsourcedCalls && processOutsourcedCalls(newSolutionRepresentation, zeroIndices)) {
+            return newSolution;
         }
         int startIndexOfOutsourcedVehicles = zeroIndices.get(zeroIndices.size() - 1);
         List<Integer> ignoredIndices = new ArrayList<>(zeroIndices);
@@ -122,10 +111,10 @@ public class SmartOneReinsert {
                         callID, startIndicesOfVehiclesThatCanTakeTheCall);
                 if (foundNewPositionsForCall) {
                //     System.out.println("newSolution = " + newSolution);
-                    if (!feasible(newSolution)) {
+              /*      if (!feasible(newSolution)) {
                         numberOfTimesSolutionIsFeasible++;
                         infeasibleNormal++;
-                    }
+                    }//*/
                     return newSolution;
                 }
                 /*
@@ -166,10 +155,6 @@ public class SmartOneReinsert {
         }
         // On the off chance that no call can be moved, we simply outsource a randomly selected call
         outsourceRandomCall(newSolutionRepresentation, zeroIndices, startIndexOfOutsourcedVehicles);
-        if (!feasible(newSolution)) {
-            numberOfTimesSolutionIsFeasible++;
-            infeasibleRandom++;
-        }
         return newSolution;
     }
 
@@ -232,9 +217,8 @@ public class SmartOneReinsert {
             if (findNumberOfDifferentCallsInVehicle(startIndex, stopIndex) == 0) {
                 // Here we assume that a vehicle that can handle the call is not limited by
                 // constraints when it's not handling any other calls.
-                addCallToVehicleToEmptyVehicle(newSolutionRepresentation, firstIndexOfCall,
+                addCallToEmptyVehicle(newSolutionRepresentation, firstIndexOfCall,
                         secondIndexOfCall, callId, stopIndex);
-
                 return true;
             }
             int vehicleNumber = findVehicleNumberForVehicleContainingIndex(startIndex, zeroIndices);
@@ -272,11 +256,11 @@ public class SmartOneReinsert {
              //   System.out.println("newSolutionRepresentation before = " + newSolutionRepresentation);
                 addCallToVehicle(newSolutionRepresentation, firstIndexOfCall, secondIndexOfCall,
                         callId, lowestCostOption[0], lowestCostOption[1]);
-
+/*
                 IVectorSolutionRepresentation<Integer> sol =
                         new VectorSolutionRepresentation<>(newSolutionRepresentation);
                 if (!feasible(sol)) {
-           /*         System.out.println("callId = " + callId);
+                    System.out.println("callId = " + callId);
                     System.out.println("firstIndexOfCall = " + firstIndexOfCall);
                     System.out.println("secondIndexOfCall = " + secondIndexOfCall);
                     System.out.println("lowestCostOption1 = " + lowestCostOption[0]);
@@ -284,9 +268,9 @@ public class SmartOneReinsert {
                     System.out.println("newSolutionRepresentation after = " + newSolutionRepresentation);
                     System.out.println("timeWindowConstraintHolds = " + timeWindowConstraintHoldsFor(
                             copyOfStartIndex, copyOfStopIndex, vehicleNumber, newSolutionRepresentation));
-//*/
+
                     infeasibleCountForNotEmptyVehicles++;
-                }
+                }//*/
                 return true;
             }
             // Found no positions for which the constraints hold, so we try another vehicle
@@ -295,9 +279,8 @@ public class SmartOneReinsert {
         return false;
     }
 
-    private static void addCallToVehicleToEmptyVehicle(List<Integer> solutionRepresentation,
-                                                       int firstIndexOfCall, int secondIndexOfCall,
-                                                       int callId, int stopIndex) {
+    private static void addCallToEmptyVehicle(List<Integer> solutionRepresentation, int firstIndexOfCall,
+                                              int secondIndexOfCall, int callId, int stopIndex) {
         solutionRepresentation.remove(firstIndexOfCall);
         if (firstIndexOfCall < secondIndexOfCall) {
             secondIndexOfCall--;

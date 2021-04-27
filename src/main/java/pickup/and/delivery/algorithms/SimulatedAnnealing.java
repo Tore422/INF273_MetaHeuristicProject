@@ -52,7 +52,6 @@ public class SimulatedAnnealing {
         SmartOneReinsert.infeasibleOutsourced = 0;
         
         SmartOneReinsert.infeasibleCountForNotEmptyVehicles = 0;
-        SmartOneReinsert.infeasibleBefore = 0;
 
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
            // System.out.println("Iteration number = " + i);
