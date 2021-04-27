@@ -113,7 +113,8 @@ public class GeneralAdaptiveMetaheuristic {
         objectiveValuesAfterOperatorUse = new ArrayList<>();
         newSolutionWasFeasible = new ArrayList<>();
         operatorSelected = new ArrayList<>();
-        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 5;
+        numberOfReinsertsForEscapeAlgorithm = Math.max(1, (countNumberOfCallsInSolution(initialSolution) / 5));
+      //  System.out.println("numberOfReinsertsForEscapeAlgorithm = " + numberOfReinsertsForEscapeAlgorithm);
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
 
