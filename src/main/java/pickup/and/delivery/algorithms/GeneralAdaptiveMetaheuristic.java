@@ -69,8 +69,8 @@ public class GeneralAdaptiveMetaheuristic {
 
     private static final int NUMBER_OF_OPERATORS = Operators.values().length;
     private static final double INITIAL_OPERATOR_WEIGHTS = 1.0 / NUMBER_OF_OPERATORS;
-    private static final int NUMBER_OF_ITERATIONS = 20000;
-    private static final int NUMBER_OF_ESCAPE_ITERATIONS = 20;
+    private static final int NUMBER_OF_ITERATIONS = 40000; //20000;
+    private static final int NUMBER_OF_ESCAPE_ITERATIONS = 500;
     private static final int THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA = 500;
     private static Map<Integer, Double> operatorWeights;
     private static Map<Integer, Integer> scores;
@@ -113,7 +113,7 @@ public class GeneralAdaptiveMetaheuristic {
         objectiveValuesAfterOperatorUse = new ArrayList<>();
         newSolutionWasFeasible = new ArrayList<>();
         operatorSelected = new ArrayList<>();
-        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 2;
+        numberOfReinsertsForEscapeAlgorithm = countNumberOfCallsInSolution(initialSolution) / 5;
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
 
