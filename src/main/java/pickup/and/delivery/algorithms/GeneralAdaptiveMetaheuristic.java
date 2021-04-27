@@ -68,7 +68,7 @@ public class GeneralAdaptiveMetaheuristic {
     }
 
     private static final int NUMBER_OF_OPERATORS = Operators.values().length;
-    private static final double INITIAL_OPERATOR_WEIGHTS = 1.0 / NUMBER_OF_OPERATORS;
+    private static final double INITIAL_OPERATOR_WEIGHTS = 1.0 / NUMBER_OF_OPERATORS; // Below was 200k
     private static final int NUMBER_OF_ITERATIONS = 200000; // Should be high for more chances at finding good solutions
     private static final int NUMBER_OF_ESCAPE_ITERATIONS = 20; // Should be low to avoid going too far from good region
     private static final int THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA = 500;

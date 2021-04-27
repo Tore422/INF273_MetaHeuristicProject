@@ -221,8 +221,8 @@ public class PickupAndDelivery {
         int destination = Integer.parseInt(data[2]);
         int travelTime = Integer.parseInt(data[3]);
         int travelCost = Integer.parseInt(data[4]);
-        generateRandomTravelCosts(vehicleIndex, origin, destination, travelTime);
-       // possibleJourneys.add(new Journey(vehicleIndex, origin, destination, travelTime, travelCost));
+        // generateRandomTravelCosts(vehicleIndex, origin, destination, travelTime);
+        possibleJourneys.add(new Journey(vehicleIndex, origin, destination, travelTime, travelCost));
     }
 
     private static void generateRandomTravelCosts(int vehicleIndex, int origin, int destination, int travelTime) {
