@@ -51,9 +51,9 @@ public class PickupAndDelivery {
       //  PartialReinsert.main(null);
 
         final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS);
+      //  runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS);
        // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
-      //  runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
+        runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
@@ -63,41 +63,41 @@ public class PickupAndDelivery {
         System.out.println("Computing solution for input file 1");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_1);
-        runForNumberOfIterations(algorithm, ONE);
+        runForNumberOfIterations(algorithm, ONE, timerStart);
         System.out.println();
         System.out.println("Computing solution for input file 2");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_2);
-        runForNumberOfIterations(algorithm, ONE);
+        runForNumberOfIterations(algorithm, ONE, timerStart);
         System.out.println();
         System.out.println("Computing solution for input file 3");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_3);
-        runForNumberOfIterations(algorithm, ONE);
+        runForNumberOfIterations(algorithm, ONE, timerStart);
         System.out.println();
         System.out.println("Computing solution for input file 4");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_4);
-        runForNumberOfIterations(algorithm, ONE);
+        runForNumberOfIterations(algorithm, ONE, timerStart);
         System.out.println();
         System.out.println("Computing solution for input file 5");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_5);
-        runForNumberOfIterations(algorithm, ONE);
+        runForNumberOfIterations(algorithm, ONE, timerStart);
         long timerStop = System.currentTimeMillis();
         long result = (timerStop - timerStart);
         System.out.println();
         System.out.println("Total runtime = " + result);
     }
 
-    private static void runForNumberOfIterations(SearchAlgorithm algorithm, int numberOfIterations) {
+    private static void runForNumberOfIterations(SearchAlgorithm algorithm, int numberOfIterations, long startTime) {
         int totalCost = 0;
         long totalTime = 0L;
         IVectorSolutionRepresentation<Integer> bestSolution = null;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             long timerStart = System.currentTimeMillis();
-            calculateSolution(algorithm);
+            calculateSolution(algorithm, startTime);
             long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("Time: " + result + " Milliseconds");
@@ -308,7 +308,7 @@ public class PickupAndDelivery {
         nodeTimesAndCosts = sortedNodeTimesAndCosts;
     }
 
-    private static void calculateSolution(SearchAlgorithm algorithm) {
+    private static void calculateSolution(SearchAlgorithm algorithm, long startTime) {
         // [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7] = 3286422
         solutionRepresentation = createWorstSolution();
 
@@ -320,7 +320,7 @@ public class PickupAndDelivery {
             case SIMULATED_ANNEALING_SEARCH ->
                     useSimulatedAnnealingOnSolution();
             case ADAPTIVE_METAHEURISTIC_SEARCH ->
-                    useAdaptiveMetaheuristicOnSolution();
+                    useAdaptiveMetaheuristicOnSolution(startTime);
             default -> log.error("Did not recognize the selected algorithm");
         }
         if (algorithm != SearchAlgorithm.LOCAL_SEARCH) {
@@ -374,9 +374,9 @@ public class PickupAndDelivery {
         solutionRepresentation = SimulatedAnnealing.simulatedAnnealingSearch(solutionRepresentation);
     }
 
-    private static void useAdaptiveMetaheuristicOnSolution() {
+    private static void useAdaptiveMetaheuristicOnSolution(long startTime) {
         System.out.println("\nAdaptive Metaheuristic search");
-        solutionRepresentation = GeneralAdaptiveMetaheuristic.adaptiveMetaheuristicSearch(solutionRepresentation);
+        solutionRepresentation = GeneralAdaptiveMetaheuristic.adaptiveMetaheuristicSearch(solutionRepresentation, startTime);
     }
 
     /* Assumes that the given solution is valid */
