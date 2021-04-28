@@ -100,7 +100,7 @@ public class PickupAndDelivery {
             calculateSolution(algorithm);
             long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
-            System.out.println("Time: " + result + " micro-seconds");
+            System.out.println("Time: " + result + " Milliseconds");
             solutions.add(new VectorSolutionRepresentation<>(solutionRepresentation.getSolutionRepresentation()));
             totalCost += calculateCost(solutionRepresentation);
             totalTime += result;
