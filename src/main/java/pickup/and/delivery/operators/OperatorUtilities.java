@@ -17,6 +17,8 @@ public class OperatorUtilities {
     public static final int MINUS_ONE = -1;
     public static final Random RANDOM = new Random();
 
+    private OperatorUtilities() {}
+
     public static List<Integer> findStartIndicesOfVehiclesThatCanTakeTheCall(
             List<Integer> zeroIndices, Integer callID) {
         List<Integer> startIndicesOfVehiclesThatCanTakeTheCall = new ArrayList<>();
