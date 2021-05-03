@@ -357,6 +357,7 @@ public class OperatorUtilities {
         List<Integer> validStartPositions = new ArrayList<>();
         List<Call> unfinishedCalls = new ArrayList<>();
      //   System.out.println("givenCall origin node = " + givenCall.getOriginNode());
+     //   System.out.println("solutionRepresentation = " + solutionRepresentation);
         for (int i = startIndex + 1; i < stopIndex; i++) {
         //    System.out.println("i = " + i);
             Call currentCall = getCalls().get(solutionRepresentation.get(i) - 1);
@@ -391,6 +392,8 @@ public class OperatorUtilities {
           //  System.out.println("destinationNode = " + destinationNode);
             currentNode = destinationNode;
         }
+        checkIfPossibleToVisitGivenCallAfterVisitingAllOtherCalls(givenCall, validStartPositions, stopIndex,
+                vehicleNumber, maxCapacity, currentTime, currentLoad, currentNode);
         return findStartAndStopPositionsFulfillingConstraints(
                 vehicleNumber, callID, solutionRepresentation, startIndex, stopIndex, validStartPositions);
     }
@@ -419,6 +422,23 @@ public class OperatorUtilities {
             }
         }
         return validStartAndStopPositions;
+    }
+
+    private static void checkIfPossibleToVisitGivenCallAfterVisitingAllOtherCalls(
+            Call givenCall, List<Integer> validStartPositions, int currentIndex,
+            int vehicleNumber, int maxCapacity, int currentTime, int currentLoad, int currentNode) {
+        int sizeOfPackage = givenCall.getPackageSize();
+        int originNodeForGivenCall = givenCall.getOriginNode();
+        int givenCallLowerBoundForPickup = givenCall.getLowerBoundTimeWindowForPickup();
+        int givenCallUpperBoundForPickup = givenCall.getUpperBoundTimeWindowForPickup();
+        int travelTimeFromPreviousNodeToGivenCall = getTravelTime(
+                currentNode, originNodeForGivenCall, vehicleNumber);
+        int alternativeCurrentTime = Math
+                .max((currentTime + travelTimeFromPreviousNodeToGivenCall), givenCallLowerBoundForPickup);
+        if (alternativeCurrentTime < givenCallUpperBoundForPickup
+                && (currentLoad + sizeOfPackage) < maxCapacity) {
+            validStartPositions.add(currentIndex); // Can visit given call before the destination call
+        }
     }
 
     private static void checkIfPossibleToVisitGivenCallPickupNodeBeforeCurrentPickupNode(
@@ -508,6 +528,11 @@ public class OperatorUtilities {
         int[] bestPositions = new int[2];
         bestPositions[0] = chosenPositionForPickup;
         bestPositions[1] = chosenPositionForDelivery;
+     /*   System.out.println("chosenPositionForPickup = " + chosenPositionForPickup);
+        System.out.println("chosenPositionForDelivery = " + chosenPositionForDelivery);
+        System.out.println("cost = " + lowestCostSoFar);
+        System.out.println("startIndex = " + startIndex);
+        System.out.println("stopIndex = " + stopIndex);*/
         return bestPositions;
     }
 
