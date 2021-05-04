@@ -41,6 +41,8 @@ public class PickupAndDelivery {
     private static final String PATH_TO_FILE_4 = "src/main/resources/exam.test.data/Call_080_Vehicle_20.txt";
     private static final String PATH_TO_FILE_5 = "src/main/resources/exam.test.data/Call_130_Vehicle_40.txt";//*/
 
+    private static final boolean TIME_IS_LIMITED = true;
+
     public static void main(String[] args) {
         initialize(PATH_TO_FILE_4);
        // GeneralAdaptiveMetaheuristic.main(null);
@@ -50,10 +52,12 @@ public class PickupAndDelivery {
         //SmartTwoExchange.main(null);
       //  PartialReinsert.main(null);
 
+        long startTime = System.currentTimeMillis();
         final int NUMBER_OF_ITERATIONS = 10;
-      //  runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS);
-       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS);
-        runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
+        runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS, startTime,
+                !TIME_IS_LIMITED);
+       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS, startTime);
+      //  runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
@@ -63,41 +67,46 @@ public class PickupAndDelivery {
         System.out.println("Computing solution for input file 1");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_1);
-        runForNumberOfIterations(algorithm, ONE, timerStart);
+        runForNumberOfIterations(algorithm, ONE, timerStart, TIME_IS_LIMITED);
         System.out.println();
         System.out.println("Computing solution for input file 2");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_2);
-        runForNumberOfIterations(algorithm, ONE, timerStart);
+        runForNumberOfIterations(algorithm, ONE, timerStart, TIME_IS_LIMITED);
         System.out.println();
         System.out.println("Computing solution for input file 3");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_3);
-        runForNumberOfIterations(algorithm, ONE, timerStart);
+        runForNumberOfIterations(algorithm, ONE, timerStart, TIME_IS_LIMITED);
         System.out.println();
         System.out.println("Computing solution for input file 4");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_4);
-        runForNumberOfIterations(algorithm, ONE, timerStart);
+        runForNumberOfIterations(algorithm, ONE, timerStart, TIME_IS_LIMITED);
         System.out.println();
         System.out.println("Computing solution for input file 5");
         System.out.println(UNDERSCORE);
         initialize(PATH_TO_FILE_5);
-        runForNumberOfIterations(algorithm, ONE, timerStart);
+        runForNumberOfIterations(algorithm, ONE, timerStart, TIME_IS_LIMITED);
         long timerStop = System.currentTimeMillis();
         long result = (timerStop - timerStart);
         System.out.println();
         System.out.println("Total runtime = " + result);
     }
 
-    private static void runForNumberOfIterations(SearchAlgorithm algorithm, int numberOfIterations, long startTime) {
+    private static void runForNumberOfIterations(SearchAlgorithm algorithm, int numberOfIterations, long startTime,
+                                                 boolean useTimer) {
         int totalCost = 0;
         long totalTime = 0L;
         IVectorSolutionRepresentation<Integer> bestSolution = null;
         List<IVectorSolutionRepresentation<Integer>> solutions = new ArrayList<>();
         for (int i = 0; i < numberOfIterations; i++) {
             long timerStart = System.currentTimeMillis();
-            calculateSolution(algorithm, startTime);
+            if (useTimer) {
+                calculateSolution(algorithm, startTime);
+            } else {
+                calculateSolution(algorithm, timerStart);
+            }
             long timerStop = System.currentTimeMillis();
             long result = (timerStop - timerStart);
             System.out.println("Time: " + result + " Milliseconds");
