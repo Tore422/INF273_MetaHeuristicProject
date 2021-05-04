@@ -1,5 +1,6 @@
 package pickup.and.delivery.operators.custom;
 
+import pickup.and.delivery.operators.OperatorUtilities;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -224,16 +225,16 @@ public class SmartOneReinsert {
             int vehicleNumber = findVehicleNumberForVehicleContainingIndex(startIndex, zeroIndices);
             int copyOfStartIndex = startIndex;
             int copyOfStopIndex = stopIndex;
-            if (firstIndexOfCall < copyOfStartIndex) {
+            if (firstIndexOfCall < startIndex) {
                 copyOfStartIndex--;
             }
-            if (secondIndexOfCall < copyOfStartIndex) {
+            if (secondIndexOfCall < startIndex) {
                 copyOfStartIndex--;
             }
-            if (firstIndexOfCall < copyOfStopIndex) {
+            if (firstIndexOfCall < stopIndex) {
                 copyOfStopIndex--;
             }
-            if (secondIndexOfCall < copyOfStopIndex) {
+            if (secondIndexOfCall < stopIndex) {
                 copyOfStopIndex--;
             }
             int[] startAndStopIndicesForVehicle = new int[2]; // Needed for method call
@@ -256,7 +257,7 @@ public class SmartOneReinsert {
              //   System.out.println("newSolutionRepresentation before = " + newSolutionRepresentation);
                 addCallToVehicle(newSolutionRepresentation, firstIndexOfCall, secondIndexOfCall,
                         callId, lowestCostOption[0], lowestCostOption[1]);
-/*
+
                 IVectorSolutionRepresentation<Integer> sol =
                         new VectorSolutionRepresentation<>(newSolutionRepresentation);
                 if (!feasible(sol)) {
@@ -269,6 +270,8 @@ public class SmartOneReinsert {
                     System.out.println("timeWindowConstraintHolds = " + timeWindowConstraintHoldsFor(
                             copyOfStartIndex, copyOfStopIndex, vehicleNumber, newSolutionRepresentation));
 
+                    System.out.println("calculateCost(sol) = " + OperatorUtilities.computeCostForVehicle(
+                            1, 5, 2, newSolutionRepresentation));
                     infeasibleCountForNotEmptyVehicles++;
                 }//*/
                 return true;

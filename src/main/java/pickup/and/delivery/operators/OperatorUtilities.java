@@ -406,7 +406,7 @@ public class OperatorUtilities {
         for (int startPosition : validStartPositions) {
             List<Integer> copyOfSolutionRepresentation = new ArrayList<>(solutionRepresentation);
             copyOfSolutionRepresentation.add(startPosition, callID);
-            for (int i = startPosition + 1; i < stopIndex; i++) {
+            for (int i = startPosition + 1; i <= stopIndex; i++) {
                 copyOfSolutionRepresentation.add(i, callID);
                 boolean timeWindowConstraintHolds = timeWindowConstraintHoldsFor(
                         startIndex, (stopIndex + 1), vehicleNumber, copyOfSolutionRepresentation);
