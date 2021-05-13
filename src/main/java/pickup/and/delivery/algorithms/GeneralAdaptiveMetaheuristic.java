@@ -1,10 +1,7 @@
 package pickup.and.delivery.algorithms;
 
 import pickup.and.delivery.PickupAndDelivery;
-import pickup.and.delivery.operators.custom.KReinsert;
-import pickup.and.delivery.operators.custom.PartialReinsert;
-import pickup.and.delivery.operators.custom.SmartOneReinsert;
-import pickup.and.delivery.operators.custom.SmartTwoExchange;
+import pickup.and.delivery.operators.custom.*;
 import solution.representations.vector.IVectorSolutionRepresentation;
 import solution.representations.vector.VectorSolutionRepresentation;
 
@@ -91,60 +88,38 @@ public class GeneralAdaptiveMetaheuristic {
     private static boolean calibratedTemperature;
     private static List<Double> deltas;
 
+    private static int numberOfTimesSolutionWasInfeasible;
+    private static int numberOfTimesSolutionWasInfeasibleAfterEscaping;
     private static int numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert;
     private static int numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange;
     private static int numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert;
 
+    private static int numberOfCallsInSolution;
+
     private static final long EXAM_TIME_LIMIT = 585000L; // Ten minutes, minus some time for remaining processes
     // to finish. Used to prevent the program from accidentally exceeding the time limit during the exam.
-    
+
     private GeneralAdaptiveMetaheuristic() {}
 
     public static IVectorSolutionRepresentation<Integer> adaptiveMetaheuristicSearch(
             IVectorSolutionRepresentation<Integer> initialSolution, long startTime) {
         IVectorSolutionRepresentation<Integer> bestSolution = initialSolution;
         IVectorSolutionRepresentation<Integer> currentSolution = initialSolution;
-        operatorWeights = initializeOperatorWeights();
-        scores = initializeScores();
-        numberOfTimesEachOperatorHasBeenUsedThisSegment = initializeOperatorUsageCounter();
-
-        operatorWeightsForEachSegment = new ArrayList<>();
+        initializeStartupProcedures(initialSolution);
         List<IVectorSolutionRepresentation<Integer>> discoveredSolutions = new ArrayList<>();
         List<Integer> objectiveCostOfDiscoveredSolutions = new ArrayList<>();
-        objectiveValuesBeforeOperatorUse = new ArrayList<>();
-        objectiveValuesAfterOperatorUse = new ArrayList<>();
-        newSolutionWasFeasible = new ArrayList<>();
-        operatorSelected = new ArrayList<>();
-        numberOfReinsertsForEscapeAlgorithm = Math.max(1, (countNumberOfCallsInSolution(initialSolution) / 5));
-      //  System.out.println("numberOfReinsertsForEscapeAlgorithm = " + numberOfReinsertsForEscapeAlgorithm);
         int bestObjectiveFoundSoFar = PickupAndDelivery.calculateCost(bestSolution);
         int numberOfIterationsSincePreviousBestWasFound = 0;
-
-        calibratedTemperature = false;
-        initialTemperature = 0;
-        temperature = 0;
-        deltas = new ArrayList<>();
-        int numberOfTimesSolutionWasInfeasible = 0;
-        int numberOfTimesSolutionWasInfeasibleAfterEscaping = 0;
-        numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = 0;
-        numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = 0;
-        numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = 0;
-        PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = 0;
-        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = 0;
-        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
-        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = 0;
-        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = 0;
         int objectiveCostOfCurrentSolution = bestObjectiveFoundSoFar;
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
         //    System.out.println("i = " + i);
             foundNewBestSolutionThisIteration = false;
             if (numberOfIterationsSincePreviousBestWasFound > THRESHOLD_FOR_ESCAPING_LOCAL_OPTIMA) {
-          //      System.out.println("Escaping local optima");
                 for (int j = 0; j < NUMBER_OF_ESCAPE_ITERATIONS; j++) {
                     currentSolution = useEscapeAlgorithmOnSolution(currentSolution);
-                    if (!PickupAndDelivery.feasible(currentSolution)) {
+                /*    if (!PickupAndDelivery.feasible(currentSolution)) {
                         numberOfTimesSolutionWasInfeasibleAfterEscaping++;
-                    }
+                    }//*/
                     int objectiveCostOfNewCurrentSolution = PickupAndDelivery.calculateCost(currentSolution);
                    /* registerOperatorUsageStatistics(objectiveCostOfCurrentSolution, objectiveCostOfNewCurrentSolution,
                             PickupAndDelivery.feasible(currentSolution));//*/
@@ -194,21 +169,62 @@ public class GeneralAdaptiveMetaheuristic {
         System.out.println("initialTemperature = " + initialTemperature);
         System.out.println("coolingFactor = " + coolingFactor);//*/
 
- /*       System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
-        System.out.println("numberOfTimesSolutionWasInfeasibleAfterEscaping = " + numberOfTimesSolutionWasInfeasibleAfterEscaping);
+        System.out.println("numberOfTimesSolutionWasInfeasible = " + numberOfTimesSolutionWasInfeasible);
+ /*       System.out.println("numberOfTimesSolutionWasInfeasibleAfterEscaping = " + numberOfTimesSolutionWasInfeasibleAfterEscaping);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = " + numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange);
         System.out.println("numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = " + numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert);
-/*        System.out.println();
-
-        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival);
-        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced);
-        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall);
-        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove);
-        System.out.println("PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = " + PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove);
 //*/
         System.out.println("operatorWeights = " + operatorWeights);
         return bestSolution;
+    }
+
+    private static void initializeStartupProcedures(IVectorSolutionRepresentation<Integer> initialSolution) {
+        initializeVariablesForComputingOperatorWeightsAndScores();
+        initializeVariablesForOperatorUsageStatistics();
+        initializeNumberOfReinsertsForEscapeAlgorithm(initialSolution);
+        initializeTemperatureCalibrationVariables();
+        initializeVariablesForDebuggingOperatorFeasibility();
+    }
+
+    private static void initializeVariablesForDebuggingOperatorFeasibility() {
+        numberOfTimesSolutionWasInfeasible = 0;
+        numberOfTimesSolutionWasInfeasibleAfterEscaping = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingSmartOneReinsert = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingSmartTwoExchange = 0;
+        numberOfTimesSolutionWasInfeasibleAfterUsingPartialReinsert = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleOnArrival = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyInsertingInOutsourced = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomMove = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRandomlyMovingOutsourcedCall = 0;
+        PartialReinsert.numberOfTimesSolutionIsInfeasibleAfterRegularMove = 0;
+    }
+
+    private static void initializeVariablesForComputingOperatorWeightsAndScores() {
+        operatorWeights = initializeOperatorWeights();
+        scores = initializeScores();
+        numberOfTimesEachOperatorHasBeenUsedThisSegment = initializeOperatorUsageCounter();
+    }
+
+    private static void initializeVariablesForOperatorUsageStatistics() {
+        operatorWeightsForEachSegment = new ArrayList<>();
+        objectiveValuesBeforeOperatorUse = new ArrayList<>();
+        objectiveValuesAfterOperatorUse = new ArrayList<>();
+        newSolutionWasFeasible = new ArrayList<>();
+        operatorSelected = new ArrayList<>();
+    }
+
+    private static void initializeNumberOfReinsertsForEscapeAlgorithm(IVectorSolutionRepresentation<Integer> initialSolution) {
+        numberOfCallsInSolution = countNumberOfCallsInSolution(initialSolution);
+        numberOfReinsertsForEscapeAlgorithm = Math.max(1, (numberOfCallsInSolution / 5));
+        //  System.out.println("numberOfReinsertsForEscapeAlgorithm = " + numberOfReinsertsForEscapeAlgorithm);
+    }
+
+    private static void initializeTemperatureCalibrationVariables() {
+        calibratedTemperature = false;
+        initialTemperature = 0;
+        temperature = 0;
+        deltas = new ArrayList<>();
     }
 
     private static void registerOperatorUsageStatistics(int objectiveCostOfCurrentSolution,
