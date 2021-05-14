@@ -44,20 +44,13 @@ public class PickupAndDelivery {
     private static final boolean TIME_IS_LIMITED = true;
 
     public static void main(String[] args) {
-        initialize(PATH_TO_FILE_4);
-       // GeneralAdaptiveMetaheuristic.main(null);
-        //System.out.println(createWorstSolution());
-        //KReinsert.main(null);
-      //  SmartOneReinsert.main(null);
-        //SmartTwoExchange.main(null);
-      //  PartialReinsert.main(null);
+        initialize(PATH_TO_FILE_1);
 
         long startTime = System.currentTimeMillis();
         final int NUMBER_OF_ITERATIONS = 10;
-        runForNumberOfIterations(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS, startTime,
-                !TIME_IS_LIMITED);
-       // runForNumberOfIterations(SearchAlgorithm.SIMULATED_ANNEALING_SEARCH, NUMBER_OF_ITERATIONS, startTime);
-      //  runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
+      /*  runForNumberOfIterations(
+                SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH, NUMBER_OF_ITERATIONS, startTime, !TIME_IS_LIMITED);//*/
+        runOnceForEachInputFile(SearchAlgorithm.ADAPTIVE_METAHEURISTIC_SEARCH);
     }
 
     private static void runOnceForEachInputFile(SearchAlgorithm algorithm) {
@@ -333,8 +326,8 @@ public class PickupAndDelivery {
             default -> log.error("Did not recognize the selected algorithm");
         }
         if (algorithm != SearchAlgorithm.LOCAL_SEARCH) {
-             System.out.println("cost before = " + calculateCost(solutionRepresentation));
-             useLocalSearchOnSolution(); //TODO: uncomment before final delivery. Improves solution quite a bit.
+             System.out.println("cost before local search = " + calculateCost(solutionRepresentation));
+             useLocalSearchOnSolution();
         }//*/
         System.out.println("SolutionRepresentation = " + solutionRepresentation);
         System.out.println("Feasible = " + feasible(solutionRepresentation));
