@@ -8,9 +8,9 @@ A program using Metaheuristics to compute the Pickup and Delivery problem with t
 <h2>How to use</h2>
 
 1. Download or clone the files to an IDE.
-2. 
-
-
+2. In PickupAndDelivery, specify the file path for the input file as a parameter to the initialize() function call in main,<br>
+   and set NUMBER_OF_ITERATIONS to the desired number of attempts.
+3. Run the main function, and get the results for each attempt + a final summary when it is done.
 
 
 
