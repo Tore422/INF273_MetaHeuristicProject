@@ -17,6 +17,8 @@ A program using Metaheuristics to compute the Pickup and Delivery problem with t
 
 <h2>Input</h2>
 
+Make sure the input file is encoded using plain "UTF-8" ("UTF-8 with BOM" will not work).
+
 Input is in the form of a .txt file, containing:
 * The number of total nodes
 * The number of vehicles
